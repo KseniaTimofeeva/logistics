@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd"
+        logicalFilePath="liquibase/db-structure.xml">
+
+    <changeSet id="1" author="Ksenia">
+        <createTable tableName="cities">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="visible" type="boolean" defaultValueBoolean="true"/>
+            <column name="name" type="varchar(255)"/>
+            <column name="latitude" type="double"/>
+            <column name="longitude" type="double"/>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="2" author="Ksenia">
+        <createTable tableName="cargo">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="visible" type="boolean" defaultValueBoolean="true"/>
+            <column name="number" type="varchar(255)"/>
+            <column name="name" type="varchar(255)"/>
+            <column name="weight" type="float"/>
+            <column name="status" type="varchar(64)"/>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="3" author="Ksenia">
+        <createTable tableName="orders">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="visible" type="boolean" defaultValueBoolean="true"/>
+            <column name="number" type="varchar(255)"/>
+            <column name="finished" type="boolean" defaultValueBoolean="false"/>
+            <column name="crew_id" type="bigint">
+                <constraints foreignKeyName="order_to_crew_key" references="crews(order_id)" nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="4" author="Ksenia">
+        <createTable tableName="path_points">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="visible" type="boolean" defaultValueBoolean="true"/>
+            <column name="order_id" type="bigint">
+                <constraints foreignKeyName="path_point_to_order_key" references="orders(id)" nullable="false"/>
+            </column>
+            <column name="city_id" type="bigint">
+                <constraints foreignKeyName="path_point_to_city" references="cities(id)" nullable="false"/>
+            </column>
+            <column name="cargo_id" type="bigint">
+                <constraints foreignKeyName="path_point_to_cargo_key" references="cargo(id)" nullable="false"/>
+            </column>
+            <column name="loading" type="boolean"/>
+            <column name="done" type="boolean" defaultValueBoolean="false"/>
+        </createTable>
+    </changeSet>
+
+
+</databaseChangeLog>

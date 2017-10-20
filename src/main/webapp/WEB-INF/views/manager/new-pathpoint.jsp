@@ -1,3 +1,4 @@
+<%@ page import="com.tsystems.app.logistics.entity.enums.CargoStatus" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%--
   Created by IntelliJ IDEA.
@@ -7,6 +8,7 @@
   To change this template use File | Settings | File Templates.
 --%>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
+
 
 <ol class="breadcrumb">
     <strong>Orders</strong>
@@ -30,11 +32,7 @@
                                 </c:choose>
                             </div>
                             <div class="col-lg-6 text-right">
-                                №:&nbsp; <strong>${orderInfo.number}</strong>&nbsp;
-                                <c:choose>
-                                    <c:when test="${orderInfo.finished == true}">(finished)</c:when>
-                                    <c:otherwise>(in process)</c:otherwise>
-                                </c:choose>
+                                №:&nbsp; <strong>${orderInfo.number}</strong>&nbsp;(${orderInfo.status.viewName})
                             </div>
                         </div>
                     </div>
@@ -42,27 +40,53 @@
                     <form action="<c:url value="/manager/order/${orderInfo.id}/new-point"/>" method="post">
                         <input type="hidden" name="orderId" value="${orderInfo.id}">
                         <input type="hidden" name="id" value="${updatedPoint.id}">
-                        <input type="hidden" name="cargo.id" value="${updatedPoint.cargo.id}">
+                        <input type="hidden" name="cargo.id" value="${updatedPoint.cargo.id}" <c:if test="${updatedPoint.id==null}">disabled="disabled"</c:if>>
                         <div class="card-body">
                             <div class="form-group row">
+                                <label class="col-md-3 form-control-label">Type</label>
+                                <div class="col-md-9">
+                                    <label class="radio-inline">
+                                        <input type="radio" name="loading" value="true" id="js-radio-to-click-loading"
+                                        <c:if test="${updatedPoint.loading or updatedPoint == null}"> checked="checked"</c:if>>
+                                        Loading&nbsp;&nbsp;&nbsp;
+                                    </label>
+                                    <label class="radio-inline">
+                                        <input type="radio" name="loading" value="false" id="js-radio-to-click-unloading"
+                                               <c:if test="${!updatedPoint.loading and updatedPoint != null}">checked="checked"</c:if>>Unloading
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="form-group row js-load-cargo-div">
                                 <label class="col-md-3 form-control-label">Cargo number</label>
                                 <div class="col-md-9">
-                                    <input type="text" name="cargo.number" class="form-control" value="${updatedPoint.cargo.number}"
+                                    <input type="text" name="cargo.number" class="form-control js-load-cargo-input" value="${updatedPoint.cargo.number}"
                                            placeholder="Enter cargo number">
                                 </div>
                             </div>
-                            <div class="form-group row">
+                            <div class="form-group row js-load-cargo-div">
                                 <label class="col-md-3 form-control-label">Description</label>
                                 <div class="col-md-9">
-                                    <input type="text" name="cargo.name" class="form-control" value="${updatedPoint.cargo.name}"
+                                    <input type="text" name="cargo.name" class="form-control js-load-cargo-input" value="${updatedPoint.cargo.name}"
                                            placeholder="Cargo name">
                                 </div>
                             </div>
-                            <div class="form-group row">
+                            <div class="form-group row js-load-cargo-div">
                                 <label class="col-md-3 form-control-label">Weight (kgs)</label>
                                 <div class="col-md-9">
-                                    <input type="text" name="cargo.weight" class="form-control" value="${updatedPoint.cargo.weight}"
+                                    <input type="text" name="cargo.weight" class="form-control js-load-cargo-input" value="${updatedPoint.cargo.weight}"
                                            placeholder="1000.00">
+                                </div>
+                            </div>
+
+                            <div class="form-group row js-unload-cargo-div">
+                                <label class="col-md-3 form-control-label">Cargo info</label>
+                                <div class="col-md-9">
+                                    <select name="cargo.id" class="form-control js-unload-cargo-input">
+                                        <c:forEach items="${pointsWithCargoToUnload}" var="point">
+                                            <option value="${point.cargo.id}">
+                                                    №:&nbsp;${point.cargo.number}&nbsp;-&nbsp;${point.cargo.weight}kgs</option>
+                                        </c:forEach>
+                                    </select>
                                 </div>
                             </div>
 
@@ -77,37 +101,15 @@
                                     </select>
                                 </div>
                             </div>
-                            <div class="form-group row">
-                                <label class="col-md-3 form-control-label">Type</label>
-                                <div class="col-md-9">
-                                    <label class="radio-inline">
-                                        <input type="radio" name="loading" value="true"
-                                        <c:if test="${updatedPoint.loading == true or updatedPoint == null}"> checked="checked"</c:if>>
-                                        Loading&nbsp;&nbsp;&nbsp;
-                                    </label>
-                                    <label class="radio-inline">
-                                        <input type="radio" name="loading" value="false"
-                                               <c:if test="${updatedPoint.loading == false}">checked="checked"</c:if>>Unloading
-                                    </label>
-                                </div>
-                            </div>
-                            <div class="form-group row">
+                            <div class="form-group row js-load-cargo-div">
                                 <label class="col-md-3 form-control-label">Cargo status</label>
                                 <div class="col-md-9">
-                                    ${CargoStatus.values()}
-                                    <select name="cargo.status" class="form-control">
-                                        <option value="NEW" <c:if test="${updatedPoint.cargo.status == 'NEW'}"> selected="selected"</c:if>>
-                                            New
-                                        </option>
-                                        <option value="READY" <c:if test="${updatedPoint.cargo.status == 'READY'}"> selected="selected"</c:if>>
-                                            Ready to shippment
-                                        </option>
-                                        <option value="SHIPPING" <c:if test="${updatedPoint.cargo.status == 'SHIPPING'}"> selected="selected"</c:if>>
-                                            Shipping
-                                        </option>
-                                        <option value="DELIVERED" <c:if test="${updatedPoint.cargo.status == 'DELIVERED'}"> selected="selected"</c:if>>
-                                            Delivered
-                                        </option>
+                                    <select name="cargo.status" class="form-control js-load-cargo-input">
+                                        <c:forEach items="<%=CargoStatus.values()%>" var="status" varStatus="i">
+                                            <option value="${status}" <c:if test="${updatedPoint.cargo.status == status}"> selected="selected"</c:if>>
+                                                ${status.viewName}
+                                            </option>
+                                        </c:forEach>
                                     </select>
                                 </div>
                             </div>

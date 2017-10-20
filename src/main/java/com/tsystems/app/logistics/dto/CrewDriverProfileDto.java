@@ -3,12 +3,13 @@ package com.tsystems.app.logistics.dto;
 import java.util.List;
 
 /**
- * Created by ksenia on 14.10.2017.
+ * Created by ksenia on 19.10.2017.
  */
-public class CrewDto {
+public class CrewDriverProfileDto {
     private Long id;
     private TruckDto truck;
-    private List<DriverDto> users;
+    private List<DriverShortDto> users;
+    private OrderDto order;
 
     public Long getId() {
         return id;
@@ -26,11 +27,19 @@ public class CrewDto {
         this.truck = truck;
     }
 
-    public List<DriverDto> getUsers() {
+    public List<DriverShortDto> getUsers() {
         return users;
     }
 
-    public void setUsers(List<DriverDto> users) {
+    public void setUsers(List<DriverShortDto> users) {
         this.users = users;
+    }
+
+    public OrderDto getOrder() {
+        return order;
+    }
+
+    public void setOrder(OrderDto order) {
+        this.order = order;
     }
 }

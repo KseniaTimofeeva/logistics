@@ -31,6 +31,9 @@
                                 <th>Working shift</th>
                                 <th>Capacity</th>
                                 <th>Functioning</th>
+                                <th>Current city</th>
+                                <th>Status</th>
+                                <th></th>
                             </tr>
                             </thead>
                             <tbody>
@@ -40,12 +43,17 @@
                                     <td>${truck.numberPlate}</td>
                                     <td>${truck.workingShift}</td>
                                     <td>${truck.capacity}</td>
-                                    <c:if test="${truck.functioning == true}">
-                                        <td>yes</td>
-                                    </c:if>
-                                    <c:if test="${truck.functioning == false}">
-                                        <td>no</td>
-                                    </c:if>
+                                    <td>
+                                        <c:if test="${truck.functioning}">yes</c:if>
+                                        <c:if test="${!truck.functioning}">no</c:if>
+                                    </td>
+                                    <td>${truck.currentCity.name}</td>
+                                    <td>
+                                        <c:choose>
+                                            <c:when test="${truck.onOrder}">On order</c:when>
+                                            <c:otherwise>Vacant</c:otherwise>
+                                        </c:choose>
+                                    </td>
                                     <td>
                                         <a href="<c:url value="/manager/truck/new/${truck.id}"/>"><i class="fa fa-pencil fa-lg"></i></a>&nbsp;&nbsp;
                                         <a href="<c:url value="/manager/truck/delete/${truck.id}"/>"><i class="fa fa-trash-o fa-lg"></i></a>

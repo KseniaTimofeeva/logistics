@@ -19,5 +19,10 @@ public class OrderDao extends GenericDaoImpl<Order> {
                 .getResultList();
     }
 
+    public List<Order> getCurrentOrderByDriverLogin(String login) {
+        return em.createNamedQuery(Order.GET_CURRENT_ORDER_BY_DRIVER_LOGIN, Order.class)
+                .setParameter("login", login)
+                .getResultList();
+    }
 
 }

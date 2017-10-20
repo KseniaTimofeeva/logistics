@@ -1,17 +1,16 @@
 package com.tsystems.app.logistics.entity.enums;
 
 /**
- * Created by ksenia on 03.10.2017.
+ * Created by ksenia on 16.10.2017.
  */
-public enum CargoStatus {
+public enum OrderStatus {
     NEW("New"),
-    READY("Ready for shipment"),
-    SHIPPING("Shipping"),
-    DELIVERED("Delivered");
+    IN_PROCESS("In process"),
+    FINISHED("Finished");
 
     private final String viewName;
 
-    CargoStatus(String viewName) {
+    OrderStatus(String viewName) {
 
         this.viewName = viewName;
     }

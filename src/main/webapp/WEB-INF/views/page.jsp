@@ -1,6 +1,7 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -24,7 +25,7 @@
     <a class="navbar-brand" href="#"></a>
     <button class="navbar-toggler sidebar-toggler d-md-down-none" type="button">☰</button>
 
-    <ul class="nav navbar-nav ml-auto">
+    <ul class="nav navbar-nav ml-auto mr-lg-4">
         <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle nav-link" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">
                 <span class="d-md-down-none">
@@ -35,7 +36,9 @@
                 </span>
             </a>
             <div class="dropdown-menu dropdown-menu-right">
-                <a class="dropdown-item" href="#"><i class="fa fa-wrench"></i> Settings</a>
+                <sec:authorize access="hasRole('ROLE_DRIVER')">
+                    <a class="dropdown-item" href="<c:url value="/driver/profile"/>"><i class="fa fa-user fa-fw"></i> Profile</a>
+                </sec:authorize>
                 <div class="divider"></div>
                 <form id="logout-form" action="<c:url value="/logout"/>" method="post">
                     <input type="hidden" name="_csrf" value="${_csrf.token}"/>
@@ -44,7 +47,6 @@
             </div>
         </li>
     </ul>
-    <button class="navbar-toggler aside-menu-toggler" type="button">☰</button>
 </header>
 
 <div class="app-body">
@@ -53,30 +55,7 @@
             <sec:authorize access="hasRole('ROLE_DRIVER')">
                 <ul class="nav">
                     <li class="nav-item">
-                        <a class="nav-link" href=""><i class="fa fa-file-text-o fa-lg"></i> Current order</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href=""><i class="icon-graph icons"></i> Path points</a>
-                    </li>
-                    <li class="nav-item nav-dropdown">
-                        <a class="nav-link nav-dropdown-toggle" href="#"><i class="fa fa-flag-o fa-lg"></i> Status</a>
-                        <ul class="nav-dropdown-items">
-                            <li class="nav-item">
-                                <a class="nav-link" href=""><i class="icon-star"></i> Driving</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href=""><i class="icon-star"></i> Second driver</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href=""><i class="icon-star"></i> Load/Unload</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href=""><i class="icon-star"></i> Relax</a>
-                            </li>
-                        </ul>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href=""><i class="fa fa-play-circle-o"></i> Start/Finish</a>
+                        <a class="nav-link" href="<c:url value="/driver/order"/>"><i class="fa fa-file-text-o fa-lg"></i> Current order</a>
                     </li>
                 </ul>
             </sec:authorize>
@@ -115,6 +94,8 @@
 
 <!-- GenesisUI main scripts -->
 <script src="<c:url value="/static/js/app.js"/>"></script>
+
+<script src="<c:url value="/static/js/script.js"/>"></script>
 
 </body>
 </html>

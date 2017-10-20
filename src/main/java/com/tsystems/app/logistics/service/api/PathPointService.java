@@ -19,4 +19,10 @@ public interface PathPointService {
     void updatePathPoint(PathPoint pathPoint);
 
     void deletePathPoint(Long id);
+
+    List<PathPointDto> getPathPointsWithCargoToUnload(Long orderId);
+
+    boolean hasCargoToUnload(Long orderId);
+
+    void closePathPoint(Long pointId);
 }

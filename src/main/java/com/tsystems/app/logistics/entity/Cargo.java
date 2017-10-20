@@ -1,11 +1,14 @@
 package com.tsystems.app.logistics.entity;
 
 import com.tsystems.app.logistics.entity.enums.CargoStatus;
+import org.hibernate.annotations.Where;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.NamedQueries;
+import javax.persistence.NamedQuery;
 import javax.persistence.Table;
 
 /**
@@ -13,7 +16,10 @@ import javax.persistence.Table;
  */
 @Entity
 @Table(name = "cargo")
+@Where(clause = "visible=true")
 public class Cargo extends BaseEntity {
+
+    public static final String GET_CARGO_TO_UNLOAD = "Cargo.getCargoToUnload";
 
     @Column(unique = true)
     private String number;
@@ -27,6 +33,7 @@ public class Cargo extends BaseEntity {
     @Column
     @Enumerated(EnumType.STRING)
     private CargoStatus status;
+
 
     public String getNumber() {
         return number;

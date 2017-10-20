@@ -1,12 +1,14 @@
 package com.tsystems.app.logistics.dto;
 
+import com.tsystems.app.logistics.entity.enums.OrderStatus;
+
 /**
  * Created by ksenia on 13.10.2017.
  */
 public class OrderDto {
     private Long id;
     private String number;
-    private Boolean finished = false;
+    private OrderStatus status;
 
     public Long getId() {
         return id;
@@ -24,11 +26,11 @@ public class OrderDto {
         this.number = number;
     }
 
-    public Boolean getFinished() {
-        return finished;
+    public OrderStatus getStatus() {
+        return status;
     }
 
-    public void setFinished(Boolean finished) {
-        this.finished = finished;
+    public void setStatus(OrderStatus status) {
+        this.status = status;
     }
 }

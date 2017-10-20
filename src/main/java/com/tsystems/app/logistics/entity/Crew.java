@@ -1,10 +1,14 @@
 package com.tsystems.app.logistics.entity;
 
+import org.hibernate.annotations.Where;
+
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
+import javax.persistence.NamedQueries;
+import javax.persistence.NamedQuery;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import java.util.List;
@@ -14,7 +18,9 @@ import java.util.List;
  */
 @Entity
 @Table(name = "crews")
+@Where(clause = "visible=true")
 public class Crew extends BaseEntity {
+
     @OneToOne
     private Order order;
     @ManyToOne
@@ -25,6 +31,7 @@ public class Crew extends BaseEntity {
             joinColumns = @JoinColumn(name = "crew_id"),
             inverseJoinColumns = @JoinColumn(name = "user_id"))
     private List<User> users;
+
 
     public Order getOrder() {
         return order;

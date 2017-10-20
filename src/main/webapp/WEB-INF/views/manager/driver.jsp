@@ -28,23 +28,32 @@
                             <thead>
                             <tr>
                                 <th>№</th>
+                                <th>Personal number</th>
                                 <th>First name</th>
                                 <th>Last name</th>
-                                <th>Personal number</th>
+                                <th>Current city</th>
+                                <th>Status</th>
+                                <th></th>
                             </tr>
                             </thead>
                             <tbody>
                             <c:forEach items="${allDrivers}" var="driver" varStatus="i">
                                 <tr>
                                     <td>${i.count}</td>
+                                    <td>${driver.personalNumber}</td>
                                     <td>${driver.firstName}</td>
                                     <td>${driver.lastName}</td>
-                                    <td>${driver.personalNumber}</td>
+                                    <td>${driver.currentCity.name}</td>
+                                    <td>
+                                        <c:choose>
+                                            <c:when test="${driver.onOrder == true}">On order</c:when>
+                                            <c:otherwise>Vacant</c:otherwise>
+                                        </c:choose>
+                                    </td>
                                     <td>
                                         <a href="<c:url value="/manager/driver/new/${driver.id}"/>"><i class="fa fa-pencil fa-lg"></i></a>&nbsp;&nbsp;
                                         <a href="<c:url value="/manager/driver/delete/${driver.id}"/>"><i class="fa fa-trash-o fa-lg"></i></a>
                                     </td>
-
                                 </tr>
                             </c:forEach>
                             </tbody>

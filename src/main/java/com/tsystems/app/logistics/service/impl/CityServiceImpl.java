@@ -7,6 +7,7 @@ import com.tsystems.app.logistics.entity.City;
 import com.tsystems.app.logistics.service.api.CityService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -14,6 +15,7 @@ import java.util.List;
  * Created by ksenia on 14.10.2017.
  */
 @Service
+@Transactional
 public class CityServiceImpl implements CityService {
 
     private CityDao cityDao;

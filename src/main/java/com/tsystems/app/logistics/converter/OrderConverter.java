@@ -25,7 +25,7 @@ public class OrderConverter {
         OrderDto orderDto = new OrderDto();
         orderDto.setId(order.getId());
         orderDto.setNumber(order.getNumber());
-        orderDto.setFinished(order.getFinished());
+        orderDto.setStatus(order.getStatus());
         return orderDto;
     }
 
@@ -33,7 +33,7 @@ public class OrderConverter {
         OrderInfoDto orderInfoDto = new OrderInfoDto();
         orderInfoDto.setId(order.getId());
         orderInfoDto.setNumber(order.getNumber());
-        orderInfoDto.setFinished(order.getFinished());
+        orderInfoDto.setStatus(order.getStatus());
         if (order.getPathPoints() != null) {
             orderInfoDto.setPathPoints(pointConverter.toPathPointDtoList(order.getPathPoints()));
         }

@@ -1,5 +1,7 @@
 package com.tsystems.app.logistics.dto;
 
+import com.tsystems.app.logistics.entity.City;
+
 import javax.validation.constraints.NotNull;
 
 /**
@@ -16,6 +18,8 @@ public class DriverDto {
     @NotNull
     private String login;
     private String password;
+    private Boolean onOrder;
+    private CityDto currentCity;
 
     public Long getId() {
         return id;
@@ -63,5 +67,21 @@ public class DriverDto {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public Boolean getOnOrder() {
+        return onOrder;
+    }
+
+    public void setOnOrder(Boolean onOrder) {
+        this.onOrder = onOrder;
+    }
+
+    public CityDto getCurrentCity() {
+        return currentCity;
+    }
+
+    public void setCurrentCity(CityDto currentCity) {
+        this.currentCity = currentCity;
     }
 }

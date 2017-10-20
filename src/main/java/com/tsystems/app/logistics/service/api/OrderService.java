@@ -17,4 +17,12 @@ public interface OrderService {
     OrderInfoDto getOrderInfoById(Long id);
 
     OrderDto getOrderById(Long id);
+
+    void setTruckForOrder(Long orderId, Long truckId);
+
+    void setDriverForOrder(Long orderId, Long driverId);
+
+    void detachDriver(Long orderId, Long driverId);
+
+    OrderInfoDto getCurrentOrderByDriverLogin(String login);
 }

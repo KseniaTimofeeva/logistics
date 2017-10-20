@@ -19,4 +19,10 @@ public class TruckDao extends GenericDaoImpl<Truck> {
                 .getResultList();
     }
 
+    public List<Truck> getSuitableTrucks(Float maxTotalWeight) {
+        return em.createNamedQuery(Truck.GET_SUITABLE_TRUCKS, Truck.class)
+                .setParameter("maxTotalWeight", maxTotalWeight)
+                .getResultList();
+    }
+
 }

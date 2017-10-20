@@ -1,10 +1,17 @@
 package com.tsystems.app.logistics.converter;
 
+import com.tsystems.app.logistics.dto.CrewDriverProfileDto;
 import com.tsystems.app.logistics.dto.DriverDto;
+import com.tsystems.app.logistics.dto.DriverProfileDto;
+import com.tsystems.app.logistics.dto.DriverShortDto;
+import com.tsystems.app.logistics.entity.Crew;
 import com.tsystems.app.logistics.entity.User;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -12,6 +19,11 @@ import java.util.stream.Collectors;
  */
 @Component
 public class DriverConverter {
+
+    @Autowired
+    private CityConverter cityConverter;
+    @Autowired
+    private CrewConverter crewConverter;
 
     public DriverDto toDriverDto(User user) {
         DriverDto driverDto = new DriverDto();
@@ -21,6 +33,10 @@ public class DriverConverter {
         driverDto.setPersonalNumber(user.getPersonalNumber());
         driverDto.setLogin(user.getLogin());
         driverDto.setPassword(user.getPassword());
+        driverDto.setOnOrder(user.getOnOrder());
+        if (user.getCurrentCity() != null) {
+            driverDto.setCurrentCity(cityConverter.toCityDto(user.getCurrentCity()));
+        }
         return driverDto;
     }
 
@@ -30,5 +46,54 @@ public class DriverConverter {
                 .map(user ->
                         toDriverDto(user))
                 .collect(Collectors.toList());
+    }
+
+    public DriverShortDto toDriverShortDto(User user) {
+        DriverShortDto driverShortDto = new DriverShortDto();
+        driverShortDto.setId(user.getId());
+        driverShortDto.setFirstName(user.getFirstName());
+        driverShortDto.setLastName(user.getLastName());
+        driverShortDto.setPersonalNumber(user.getPersonalNumber());
+        return driverShortDto;
+    }
+
+    public List<DriverShortDto> toDriverShortDtoList(List<User> userList) {
+        return userList
+                .stream()
+                .map(user ->
+                        toDriverShortDto(user))
+                .collect(Collectors.toList());
+    }
+
+    public DriverProfileDto toDriverProfileDto(User driver) {
+        DriverProfileDto driverProfileDto = new DriverProfileDto();
+        driverProfileDto.setId(driver.getId());
+        driverProfileDto.setFirstName(driver.getFirstName());
+        driverProfileDto.setLastName(driver.getLastName());
+        driverProfileDto.setPersonalNumber(driver.getPersonalNumber());
+
+        List<Crew> crews = driver.getCrews();
+        if (crews != null && !crews.isEmpty()) {
+            int i = 0;
+            if (crews.size() > 1) {
+                for (Crew crew : crews) {
+                    if (crew.getOrder().getStatus().name().equals("IN_PROCESS")) {
+                        break;
+                    }
+                    i++;
+                }
+            }
+            Crew currentCrew = crews.get(i);
+            List<DriverShortDto> coDrivers = new ArrayList<>();
+            for (User coDriver : currentCrew.getUsers()) {
+                if (!(coDriver.getId()).equals(driver.getId())) {
+                    coDrivers.add(toDriverShortDto(coDriver));
+                }
+            }
+            CrewDriverProfileDto crewDriverProfileDto = crewConverter.toCrewDriverProfileDto(currentCrew);
+            crewDriverProfileDto.setUsers(coDrivers);
+            driverProfileDto.setCrew(crewDriverProfileDto);
+        }
+        return driverProfileDto;
     }
 }

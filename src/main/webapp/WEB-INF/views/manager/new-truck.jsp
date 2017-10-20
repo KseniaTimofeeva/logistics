@@ -28,6 +28,11 @@
                     </div>
                     <form action="<c:url value="/manager/truck/new"/>" method="post">
                         <input type="hidden" id="id" name="id" value="${updatedTruck.id}">
+                        <input type="hidden" name="onOrder"
+                        <c:choose>
+                               <c:when test="${updatedTruck == null}">value="false"</c:when>
+                               <c:otherwise>value="${updatedTruck.onOrder}"</c:otherwise>
+                        </c:choose>>
                         <div class="card-body">
                             <div class="form-group row">
                                 <label class="col-md-3 form-control-label" for="number-plate">Number plate</label>
@@ -47,6 +52,17 @@
                                 <div class="col-md-3">
                                     <input type="text" id="capacity" name="capacity" class="form-control" value="${updatedTruck.capacity}"
                                            placeholder="3.0">
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-md-3 form-control-label">Current city</label>
+                                <div class="col-md-9">
+                                    <select name="currentCity.id" class="form-control">
+                                        <c:forEach items="${cities}" var="city">
+                                            <option value="${city.id}" <c:if test="${updatedTruck.currentCity.id == city.id}"> selected="selected"</c:if>>
+                                                    ${city.name}</option>
+                                        </c:forEach>
+                                    </select>
                                 </div>
                             </div>
                             <div class="form-group row">

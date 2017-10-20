@@ -1,6 +1,7 @@
 package com.tsystems.app.logistics.controller.manager;
 
 import com.tsystems.app.logistics.dto.DriverDto;
+import com.tsystems.app.logistics.service.api.CityService;
 import com.tsystems.app.logistics.service.api.DriverService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -22,6 +23,8 @@ public class ManagerDriverController {
 
     @Autowired
     private DriverService driverService;
+    @Autowired
+    private CityService cityService;
 
     @RequestMapping
     public String getManagerDriver(Model model) {
@@ -36,6 +39,7 @@ public class ManagerDriverController {
         if (driverId != null) {
             model.addAttribute("updatedDriver", driverService.getDriverById(driverId));
         }
+        model.addAttribute("cities", cityService.getAllCities());
         return "page";
     }
 

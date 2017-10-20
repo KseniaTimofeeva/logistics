@@ -1,16 +1,23 @@
 package com.tsystems.app.logistics.controller.manager;
 
 import com.tsystems.app.logistics.dto.OrderDto;
+import com.tsystems.app.logistics.dto.OrderInfoDto;
 import com.tsystems.app.logistics.dto.PathPointDto;
+import com.tsystems.app.logistics.dto.SuitableTruckDto;
 import com.tsystems.app.logistics.service.api.CityService;
+import com.tsystems.app.logistics.service.api.DriverService;
 import com.tsystems.app.logistics.service.api.OrderService;
 import com.tsystems.app.logistics.service.api.PathPointService;
+import com.tsystems.app.logistics.service.api.TruckService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import javax.validation.Valid;
 
@@ -29,6 +36,10 @@ public class ManagerOrderController {
     private PathPointService pathPointService;
     @Autowired
     private CityService cityService;
+    @Autowired
+    private TruckService truckService;
+    @Autowired
+    private DriverService driverService;
 
     @RequestMapping
     public String getManagerOrder(Model model) {
@@ -40,7 +51,13 @@ public class ManagerOrderController {
     @RequestMapping(value = "/{orderId}")
     public String getManagerSelectedOrder(@PathVariable(value = "orderId") Long orderId, Model model) {
         model.addAttribute(typeOfCenterAttribute, "manager/selected-order.jsp");
-        model.addAttribute("orderInfo", orderService.getOrderInfoById(orderId));
+
+        OrderInfoDto orderInfo = orderService.getOrderInfoById(orderId);
+        SuitableTruckDto suitableTrucks = truckService.getSuitableTruckByOrderId(orderId);
+        model.addAttribute("hasCargoToUnload", pathPointService.hasCargoToUnload(orderId));
+        model.addAttribute("orderInfo", orderInfo);
+        model.addAttribute("suitableTrucks", suitableTrucks);
+        model.addAttribute("suitableDrivers", driverService.getSuitableDriversForOrder(orderId));
         return "page";
     }
 
@@ -49,6 +66,7 @@ public class ManagerOrderController {
                                           @PathVariable(value = "pathPointId", required = false) Long pathPointId, Model model) {
         model.addAttribute(typeOfCenterAttribute, "manager/new-pathpoint.jsp");
         model.addAttribute("cities", cityService.getAllCities());
+        model.addAttribute("pointsWithCargoToUnload", pathPointService.getPathPointsWithCargoToUnload(orderId));
         model.addAttribute("orderInfo", orderService.getOrderById(orderId));
         if (pathPointId != null) {
             model.addAttribute("updatedPoint", pathPointService.getPathPointById(pathPointId));
@@ -82,9 +100,24 @@ public class ManagerOrderController {
         return "redirect:/manager/order/" + orderId;
     }
 
-    @RequestMapping(value = "/{orderId}/choose-truck", method = RequestMethod.GET)
-    public String chooseTruck(@PathVariable(value = "orderId") Long orderId, Model model) {
+    @RequestMapping(value = "/{orderId}/choose-truck", method = RequestMethod.POST)
+    public String chooseTruck(@RequestParam Long truckId,
+                              @PathVariable(value = "orderId") Long orderId) {
+        orderService.setTruckForOrder(orderId, truckId);
+        return "redirect:/manager/order/" + orderId;
+    }
 
-        return "page";
+    @RequestMapping(value = "/{orderId}/choose-driver", method = RequestMethod.POST)
+    public String chooseDriver(@RequestParam Long driverId,
+                              @PathVariable(value = "orderId") Long orderId) {
+        orderService.setDriverForOrder(orderId, driverId);
+        return "redirect:/manager/order/" + orderId;
+    }
+
+    @RequestMapping(value = "/{orderId}/detach-driver/{driverId}", method = RequestMethod.GET)
+    public String detachDriver(@PathVariable(value = "orderId") Long orderId,
+                               @PathVariable(value = "driverId") Long driverId, Model model) {
+        orderService.detachDriver(orderId, driverId);
+        return "redirect:/manager/order/" + orderId;
     }
 }

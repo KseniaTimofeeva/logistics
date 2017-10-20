@@ -17,4 +17,10 @@ public class PathPointDao extends GenericDaoImpl<PathPoint> {
                 .getResultList();
     }
 
+    public List<PathPoint> getPathPointsWithCargoToUnload(Long orderId) {
+        return em.createNamedQuery(PathPoint.GET_POINTS_WITH_CARGO_TO_UNLOAD, PathPoint.class)
+                .setParameter("orderId", orderId)
+                .getResultList();
+    }
+
 }

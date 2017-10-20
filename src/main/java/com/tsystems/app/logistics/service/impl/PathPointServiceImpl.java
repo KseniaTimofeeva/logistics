@@ -5,15 +5,21 @@ import com.tsystems.app.logistics.dao.impl.CargoDao;
 import com.tsystems.app.logistics.dao.impl.CityDao;
 import com.tsystems.app.logistics.dao.impl.OrderDao;
 import com.tsystems.app.logistics.dao.impl.PathPointDao;
+import com.tsystems.app.logistics.dao.impl.UserDao;
 import com.tsystems.app.logistics.dto.PathPointDto;
 import com.tsystems.app.logistics.entity.Cargo;
 import com.tsystems.app.logistics.entity.City;
+import com.tsystems.app.logistics.entity.Crew;
 import com.tsystems.app.logistics.entity.Order;
 import com.tsystems.app.logistics.entity.PathPoint;
+import com.tsystems.app.logistics.entity.User;
+import com.tsystems.app.logistics.entity.enums.OrderStatus;
 import com.tsystems.app.logistics.service.api.PathPointService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 /**
  * Created by ksenia on 14.10.2017.
@@ -54,6 +60,7 @@ public class PathPointServiceImpl implements PathPointService {
         orderDao.setEntityClass(Order.class);
     }
 
+
     @Override
     public PathPointDto getPathPointById(Long id) {
         PathPoint point = pathPointDao.findOneById(id);
@@ -63,21 +70,38 @@ public class PathPointServiceImpl implements PathPointService {
     @Override
     public void processPathPoint(PathPointDto pointDto) {
         PathPoint point = new PathPoint();
-        Cargo cargo = new Cargo();
 
-        if (pointDto.getId() != null) {
-            point.setId(pointDto.getId());
-            cargo = cargoDao.findOneById(pointDto.getCargo().getId());
+        boolean isNewPoint = false;
+        boolean isNewCargo = false;
+        if (pointDto.getId() == null) {
+            isNewPoint = true;
+        }
+        if (pointDto.getCargo().getId() == null) {
+            isNewCargo = true;
         }
 
-        cargo.setName(pointDto.getCargo().getName());
-        cargo.setNumber(pointDto.getCargo().getNumber());
-        cargo.setWeight(pointDto.getCargo().getWeight());
-        cargo.setStatus(pointDto.getCargo().getStatus());
+        Cargo cargo;
 
-        if (pointDto.getId() != null) {
-            cargo = cargoDao.update(cargo);
+        if (isNewCargo) {
+            cargo = new Cargo();
         } else {
+            cargo = cargoDao.findOneById(pointDto.getCargo().getId());
+
+            if (pointDto.getId() != null) {
+                point.setId(pointDto.getId());
+            }
+        }
+
+        if (isNewCargo || !isNewPoint) {
+            cargo.setName(pointDto.getCargo().getName());
+            cargo.setNumber(pointDto.getCargo().getNumber());
+            cargo.setWeight(pointDto.getCargo().getWeight());
+            cargo.setStatus(pointDto.getCargo().getStatus());
+        }
+
+        if (!isNewPoint) {
+            cargo = cargoDao.update(cargo);
+        } else if (isNewCargo) {
             cargo = cargoDao.create(cargo);
         }
 
@@ -112,5 +136,36 @@ public class PathPointServiceImpl implements PathPointService {
     @Override
     public void addNewPoint(PathPoint pathPoint) {
         pathPointDao.create(pathPoint);
+    }
+
+    @Override
+    public List<PathPointDto> getPathPointsWithCargoToUnload(Long orderId) {
+        List<PathPoint> points = pathPointDao.getPathPointsWithCargoToUnload(orderId);
+        return pointConverter.toPathPointDtoList(points);
+    }
+
+    @Override
+    public boolean hasCargoToUnload(Long orderId) {
+        List<PathPointDto> points = getPathPointsWithCargoToUnload(orderId);
+        return !points.isEmpty();
+    }
+
+    @Override
+    public void closePathPoint(Long pointId) {
+        PathPoint closedPoint = pathPointDao.findOneById(pointId);
+        closedPoint.setDone(true);
+        pathPointDao.update(closedPoint);
+        Order order = orderDao.findOneById(closedPoint.getOrder().getId());
+        boolean finishedOrder = true;
+        for (PathPoint point : order.getPathPoints()) {
+            if (!point.getDone()) {
+                finishedOrder = false;
+                break;
+            }
+        }
+        if (finishedOrder) {
+            order.setStatus(OrderStatus.FINISHED);
+        }
+        orderDao.update(order);
     }
 }

@@ -1,5 +1,7 @@
 package com.tsystems.app.logistics.entity;
 
+import org.hibernate.annotations.Where;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.NamedQueries;
@@ -17,6 +19,7 @@ import java.util.List;
         @NamedQuery(name = City.GET_ALL_CITIES,
                 query = "select c from City c where c.visible = true ORDER BY c.name")
 })
+@Where(clause = "visible=true")
 public class City extends BaseEntity {
 
     public static final String GET_ALL_CITIES = "City.getAllCities";

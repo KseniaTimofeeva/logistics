@@ -1,6 +1,7 @@
 package com.tsystems.app.logistics.entity;
 
 import com.tsystems.app.logistics.entity.enums.DriverAction;
+import org.hibernate.annotations.Where;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -15,6 +16,7 @@ import java.sql.Timestamp;
  */
 @Entity
 @Table(name = "time_tracks")
+@Where(clause = "visible=true")
 public class TimeTrack extends BaseEntity {
 
     @ManyToOne

@@ -1,5 +1,6 @@
 package com.tsystems.app.logistics.service.api;
 
+import com.tsystems.app.logistics.dto.SuitableTruckDto;
 import com.tsystems.app.logistics.dto.TruckDto;
 
 import java.util.List;
@@ -20,4 +21,6 @@ public interface TruckService {
     void processTruck(TruckDto truckDto);
 
     void updateTruck(TruckDto truckDto);
+
+    SuitableTruckDto getSuitableTruckByOrderId(Long id);
 }

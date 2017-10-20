@@ -1,3 +1,4 @@
+<%@ page import="com.tsystems.app.logistics.entity.enums.OrderStatus" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%--
   Created by IntelliJ IDEA.
@@ -27,11 +28,12 @@
                             <thead>
                             <tr>
                                 <th>№</th>
-                                <th>Number</th>
-                                <th>Path points qty</th>
+                                <th>Order number</th>
+                                <th>Waypoints quantity</th>
                                 <th>Truck number plate</th>
                                 <th>Drivers</th>
-                                <th>Finished</th>
+                                <th>Status</th>
+                                <th></th>
                             </tr>
                             </thead>
                             <tbody>
@@ -43,13 +45,10 @@
                                     <td>${order.crew.truck.numberPlate}</td>
                                     <td>
                                         <c:forEach items="${order.crew.users}" var="user" varStatus="i">
-                                            ${user.firstName}&nbsp;${user.lastName}&nbsp;${user.personalNumber}
+                                            ${user.personalNumber}: ${user.firstName} ${user.lastName}<br>
                                         </c:forEach>
                                     </td>
-                                    <td>
-                                        <c:if test="${order.finished == true}">yes</c:if>
-                                        <c:if test="${order.finished == false}">no</c:if>
-                                    </td>
+                                    <td>${order.status.viewName}</td>
                                     <td>
                                         <a href="<c:url value="/manager/order/${order.id}"/>"><i class="fa fa-info-circle fa-lg"></i></a>
                                     </td>

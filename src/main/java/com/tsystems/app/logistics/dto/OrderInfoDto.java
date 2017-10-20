@@ -2,6 +2,7 @@ package com.tsystems.app.logistics.dto;
 
 import com.tsystems.app.logistics.entity.Crew;
 import com.tsystems.app.logistics.entity.PathPoint;
+import com.tsystems.app.logistics.entity.enums.OrderStatus;
 
 import java.util.List;
 
@@ -12,7 +13,7 @@ public class OrderInfoDto {
 
     private Long id;
     private String number;
-    private Boolean finished = false;
+    private OrderStatus status;
     private List<PathPointDto> pathPoints;
     private CrewDto crew;
 
@@ -32,12 +33,12 @@ public class OrderInfoDto {
         this.number = number;
     }
 
-    public Boolean getFinished() {
-        return finished;
+    public OrderStatus getStatus() {
+        return status;
     }
 
-    public void setFinished(Boolean finished) {
-        this.finished = finished;
+    public void setStatus(OrderStatus status) {
+        this.status = status;
     }
 
     public List<PathPointDto> getPathPoints() {

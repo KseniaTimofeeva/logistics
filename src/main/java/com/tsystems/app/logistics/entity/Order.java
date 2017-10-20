@@ -1,15 +1,19 @@
 package com.tsystems.app.logistics.entity;
 
+import com.tsystems.app.logistics.entity.enums.OrderStatus;
 import org.hibernate.annotations.Where;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
+import javax.persistence.OrderBy;
 import javax.persistence.Table;
 import java.util.List;
 
@@ -20,22 +24,30 @@ import java.util.List;
 @Table(name = "orders")
 @NamedQueries({
         @NamedQuery(name = Order.GET_ALL_ORDERS,
-                query = "select o from Order o where o.visible = true")
+                query = "select o from Order o where o.visible = true"),
+        @NamedQuery(name = Order.GET_CURRENT_ORDER_BY_DRIVER_LOGIN,
+                query = "select distinct o from Order o join o.crew.users u where " +
+                        "u.login = :login and (o.status = 'NEW' or o.status = 'IN_PROCESS')")
 })
+@Where(clause = "visible=true")
 public class Order extends BaseEntity {
 
     public static final String GET_ALL_ORDERS = "Order.getAllOrders";
+    public static final String GET_CURRENT_ORDER_BY_DRIVER_LOGIN = "Order.getCurrentOrderByDriverLogin";
 
     @Column(unique = true)
     private String number;
     @Column
-    private Boolean finished = false;
+    @Enumerated(EnumType.STRING)
+    private OrderStatus status;
 
     @OneToMany(mappedBy = "order")
+    @OrderBy("id")
     private List<PathPoint> pathPoints;
 
     @OneToOne
     private Crew crew;
+
 
     public String getNumber() {
         return number;
@@ -45,12 +57,12 @@ public class Order extends BaseEntity {
         this.number = number;
     }
 
-    public Boolean getFinished() {
-        return finished;
+    public OrderStatus getStatus() {
+        return status;
     }
 
-    public void setFinished(Boolean finished) {
-        this.finished = finished;
+    public void setStatus(OrderStatus status) {
+        this.status = status;
     }
 
     public List<PathPoint> getPathPoints() {

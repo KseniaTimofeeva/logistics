@@ -25,4 +25,15 @@ public class UserDao extends GenericDaoImpl<User> {
                 .getResultList();
     }
 
+    public List<User> getSuitableDrivers(Long orderId) {
+        return em.createNamedQuery(User.GET_SUITABLE_DRIVERS, User.class)
+                .setParameter("orderId", orderId)
+                .getResultList();
+    }
+
+    public List<User> getProfile(String login) {
+        return em.createNamedQuery(User.GET_PROFILE, User.class)
+                .setParameter("login", login)
+                .getResultList();
+    }
 }

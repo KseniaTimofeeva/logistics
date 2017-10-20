@@ -1,5 +1,7 @@
 package com.tsystems.app.logistics.dto;
 
+import com.tsystems.app.logistics.entity.City;
+
 import javax.validation.constraints.NotNull;
 
 /**
@@ -15,6 +17,9 @@ public class TruckDto {
     private Float capacity;
     @NotNull
     private Boolean functioning;
+    private Boolean onOrder;
+    private CityDto currentCity;
+
 
     public Long getId() {
         return id;
@@ -54,5 +59,21 @@ public class TruckDto {
 
     public void setFunctioning(Boolean functioning) {
         this.functioning = functioning;
+    }
+
+    public Boolean getOnOrder() {
+        return onOrder;
+    }
+
+    public void setOnOrder(Boolean onOrder) {
+        this.onOrder = onOrder;
+    }
+
+    public CityDto getCurrentCity() {
+        return currentCity;
+    }
+
+    public void setCurrentCity(CityDto currentCity) {
+        this.currentCity = currentCity;
     }
 }

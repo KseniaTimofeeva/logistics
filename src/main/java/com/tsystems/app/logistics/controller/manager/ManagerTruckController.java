@@ -1,6 +1,7 @@
 package com.tsystems.app.logistics.controller.manager;
 
 import com.tsystems.app.logistics.dto.TruckDto;
+import com.tsystems.app.logistics.service.api.CityService;
 import com.tsystems.app.logistics.service.api.TruckService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -22,6 +23,8 @@ public class ManagerTruckController {
 
     @Autowired
     private TruckService truckService;
+    @Autowired
+    private CityService cityService;
 
     @RequestMapping
     public String getManagerTruck(Model model) {
@@ -36,6 +39,7 @@ public class ManagerTruckController {
         if (truckId != null) {
             model.addAttribute("updatedTruck", truckService.getTruckById(truckId));
         }
+        model.addAttribute("cities", cityService.getAllCities());
         return "page";
     }
 

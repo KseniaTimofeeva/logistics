@@ -1,6 +1,9 @@
 package com.tsystems.app.logistics.service.api;
 
+import com.tsystems.app.logistics.dto.DriverProfileDto;
+import com.tsystems.app.logistics.dto.SuitableDriverDto;
 import com.tsystems.app.logistics.dto.DriverDto;
+import com.tsystems.app.logistics.entity.User;
 
 import java.util.List;
 
@@ -21,4 +24,8 @@ public interface DriverService {
     void processDriver(DriverDto driverDto);
 
     void updateDriver(DriverDto driverDto);
+
+    SuitableDriverDto getSuitableDriversForOrder(Long orderId);
+
+    DriverProfileDto getDriverProfileByLogin(String login);
 }

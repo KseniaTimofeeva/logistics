@@ -1,0 +1,4 @@
+.cs-a-disabled{
+    color: gray;
+    pointer-events: none;
+}

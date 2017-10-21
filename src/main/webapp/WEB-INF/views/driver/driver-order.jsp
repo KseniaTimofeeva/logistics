@@ -22,25 +22,33 @@
                     <div class="card-header">
                         <div class="form-group row">
                             <div class="col-sm-4 col-md-4">
-                                <a href="<c:url value="/driver/order/shift-start"/>" class="btn btn-success m-2">
-                                    <i class="fa fa-play-circle-o fa-lg"></i>&nbsp; <strong>Start working shift</strong>
-                                </a>
+                                <form action="<c:url value="/driver/order/add-action"/>" method="post">
+                                    <input type="hidden" name="_csrf" value="${_csrf.token}"/>
+                                    <input type="hidden" name="driverAction" value="START_WORKING_SHIFT"/>
+                                    <button type="submit" class="btn btn-success m-2">
+                                        <i class="fa fa-play-circle-o fa-lg"></i>&nbsp; <strong>Start working shift</strong>
+                                    </button>
+                                </form>
                             </div>
                             <!--/.col-->
                             <div class="col-sm-8 col-md-8">
-                                <a href="<c:url value="/driver/order/shift-stop"/>" class="btn btn-danger m-2">
-                                    <i class="fa fa-stop-circle-o fa-lg"></i>&nbsp; <strong>Finish working shift</strong>
-                                </a>
+                                <form action="<c:url value="/driver/order/add-action"/>" method="post">
+                                    <input type="hidden" name="_csrf" value="${_csrf.token}"/>
+                                    <input type="hidden" name="driverAction" value="END_WORKING_SHIFT"/>
+                                    <button type="submit" class="btn btn-danger m-2">
+                                        <i class="fa fa-stop-circle-o fa-lg"></i>&nbsp; <strong>Finish working shift</strong>
+                                    </button>
+                                </form>
                             </div>
                             <!--/.col-->
                         </div>
-                        <form action="">
+                        <form action="<c:url value="/driver/order/add-action"/>" method="post">
                             <div class="form-group row">
                                 <input type="hidden" name="_csrf" value="${_csrf.token}"/>
                                 <label class="col-md-3 form-control-label">Change status</label>
                                 <div class="col-md-9">
                                     <div class="input-group">
-                                        <select name="" class="form-control form-control-sm">
+                                        <select name="driverAction" class="form-control form-control-sm">
                                             <c:forEach items="<%=DriverAction.values()%>" var="action">
                                                 <c:if test="${action.showActionToDriver}">
                                                     <option value="${action}" <c:if test=""> selected="selected"</c:if>>
@@ -84,6 +92,7 @@
                             </tr>
                             </thead>
                             <tbody>
+                            <c:set var="firstDisabledPoint" value="-1"/>
                             <c:forEach items="${currentOrder.pathPoints}" var="pathPoint" varStatus="i">
                                 <tr>
                                     <td>${i.count}</td>
@@ -105,8 +114,11 @@
                                         </c:choose>
                                     </td>
                                     <td>
-                                        <c:if test="${!pathPoint.done and pathPoint != null}">
-                                            <a href="<c:url value="/driver/order/close-point/${pathPoint.id}"/>"><i class="fa fa-check-circle-o fa-lg"></i></a>
+                                        <c:if test="${pathPoint != null and !pathPoint.done}">
+                                            <a href="<c:url value="/driver/order/close-point/${pathPoint.id}"/>" <c:if
+                                                    test="${firstDisabledPoint == i.count}"> class="cs-a-disabled" onclick="return false;" </c:if>><i
+                                                    class="fa fa-check-circle-o fa-lg"></i></a>
+                                            <c:set var="firstDisabledPoint" value="${i.count+1}"/>
                                         </c:if>
                                     </td>
                                 </tr>

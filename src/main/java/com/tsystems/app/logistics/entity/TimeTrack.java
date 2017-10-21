@@ -8,6 +8,8 @@ import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.ManyToOne;
+import javax.persistence.NamedQueries;
+import javax.persistence.NamedQuery;
 import javax.persistence.Table;
 import java.sql.Timestamp;
 
@@ -17,8 +19,13 @@ import java.sql.Timestamp;
 @Entity
 @Table(name = "time_tracks")
 @Where(clause = "visible=true")
+@NamedQueries({
+        @NamedQuery(name = TimeTrack.GET_CURRENT_ACTION_BY_DRIVER_LOGIN,
+                query = "select tt from TimeTrack tt where tt.user.login = :login order by tt.id desc")
+})
 public class TimeTrack extends BaseEntity {
 
+    public static final String GET_CURRENT_ACTION_BY_DRIVER_LOGIN = "TimeTrack.getCurrentActionByDriverLogin";
     @ManyToOne
     private User user;
 

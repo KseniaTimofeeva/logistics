@@ -1,8 +1,10 @@
 package com.tsystems.app.logistics.controller.driver;
 
 import com.tsystems.app.logistics.dto.OrderInfoDto;
+import com.tsystems.app.logistics.dto.TimeTrackDto;
 import com.tsystems.app.logistics.service.api.OrderService;
 import com.tsystems.app.logistics.service.api.PathPointService;
+import com.tsystems.app.logistics.service.api.TimeTrackService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.User;
@@ -10,6 +12,9 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+
+import javax.validation.Valid;
 
 /**
  * Created by ksenia on 18.10.2017.
@@ -24,6 +29,8 @@ public class DriverOrderController {
     private OrderService orderService;
     @Autowired
     private PathPointService pointService;
+    @Autowired
+    private TimeTrackService trackService;
 
     @RequestMapping
     public String getDriverOrder(@AuthenticationPrincipal User user, Model model) {
@@ -37,21 +44,16 @@ public class DriverOrderController {
         return "page";
     }
 
-    @RequestMapping("/close-point/{pathPointId}")
+    @RequestMapping(value = "/close-point/{pathPointId}", method = RequestMethod.GET)
     public String closePathPoint(@PathVariable(value = "pathPointId") Long pathPointId, Model model) {
         pointService.closePathPoint(pathPointId);
         return "redirect:/driver/order";
     }
 
-    @RequestMapping("/shift-start")
-    public String startDriverWorkingShift(@AuthenticationPrincipal User user, Model model) {
-
-        return "redirect:/driver/order";
-    }
-
-    @RequestMapping("/shift-stop")
-    public String stopDriverWorkingShift(@AuthenticationPrincipal User user, Model model) {
-
+    @RequestMapping(value = "/add-action", method = RequestMethod.POST)
+    public String addDriverAction(@AuthenticationPrincipal User user, @Valid TimeTrackDto trackDto, Model model) {
+        TimeTrackDto currentAction = trackService.getCurrentAction(user.getUsername());
+        trackService.addNewTimeTrack(user.getUsername(), trackDto, currentAction);
         return "redirect:/driver/order";
     }
 }

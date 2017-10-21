@@ -17,6 +17,7 @@
 
     <!-- Main styles for this application -->
     <link href="<c:url value="/static/css/style.css"/>" rel="stylesheet">
+    <link href="<c:url value="/static/css/custom-style.css"/>" rel="stylesheet">
 </head>
 
 <body class="app header-fixed sidebar-fixed aside-menu-fixed aside-menu-hidden">

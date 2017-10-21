@@ -32,4 +32,11 @@ public enum DriverAction {
     public String getViewName() {
         return viewName;
     }
+
+    public boolean isEnd() {
+        if (this.equals(END_DRIVING) || this.equals(END_LOAD_UNLOAD)) {
+            return true;
+        }
+        return false;
+    }
 }

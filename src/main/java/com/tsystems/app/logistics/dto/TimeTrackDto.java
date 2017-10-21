@@ -13,7 +13,7 @@ public class TimeTrackDto {
     private DriverShortDto driver;
     private Timestamp date;
     private DriverAction driverAction;
-    private DriverAction currentAction;
+    private OrderDto order;
 
     public DriverShortDto getDriver() {
         return driver;
@@ -39,11 +39,11 @@ public class TimeTrackDto {
         this.driverAction = driverAction;
     }
 
-    public DriverAction getCurrentAction() {
-        return currentAction;
+    public OrderDto getOrder() {
+        return order;
     }
 
-    public void setCurrentAction(DriverAction currentAction) {
-        this.currentAction = currentAction;
+    public void setOrder(OrderDto order) {
+        this.order = order;
     }
 }

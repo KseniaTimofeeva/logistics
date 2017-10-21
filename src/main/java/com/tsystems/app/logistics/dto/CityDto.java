@@ -5,7 +5,6 @@ package com.tsystems.app.logistics.dto;
  */
 public class CityDto {
     private Long id;
-
     private String name;
 
     public String getName() {

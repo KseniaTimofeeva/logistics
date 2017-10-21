@@ -3,11 +3,20 @@ package com.tsystems.app.logistics.service.impl;
 import com.google.maps.model.LatLng;
 import com.tsystems.app.logistics.converter.DriverConverter;
 import com.tsystems.app.logistics.dao.impl.CityDao;
+import com.tsystems.app.logistics.dao.impl.OrderDao;
+import com.tsystems.app.logistics.dao.impl.PathPointDao;
+import com.tsystems.app.logistics.dao.impl.TimeTrackDao;
 import com.tsystems.app.logistics.dao.impl.UserDao;
 import com.tsystems.app.logistics.dto.DriverDto;
 import com.tsystems.app.logistics.dto.DriverProfileDto;
+import com.tsystems.app.logistics.dto.PathPointDto;
 import com.tsystems.app.logistics.dto.SuitableDriverDto;
 import com.tsystems.app.logistics.entity.City;
+import com.tsystems.app.logistics.entity.Crew;
+import com.tsystems.app.logistics.entity.Order;
+import com.tsystems.app.logistics.entity.PathPoint;
+import com.tsystems.app.logistics.entity.TimeTrack;
+import com.tsystems.app.logistics.entity.Truck;
 import com.tsystems.app.logistics.entity.User;
 import com.tsystems.app.logistics.entity.enums.SecurityRole;
 import com.tsystems.app.logistics.service.api.DriverService;
@@ -18,8 +27,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.sql.Timestamp;
+import java.time.LocalDate;
+import java.time.Month;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Created by ksenia on 08.10.2017.
@@ -31,6 +44,9 @@ public class DriverServiceImpl implements DriverService {
 
     private UserDao userDao;
     private CityDao cityDao;
+    private PathPointDao pointDao;
+    private OrderDao orderDao;
+    private TimeTrackDao trackDao;
 
     @Autowired
     private GeoUtils geoUtils;
@@ -49,6 +65,23 @@ public class DriverServiceImpl implements DriverService {
         cityDao.setEntityClass(City.class);
     }
 
+    @Autowired
+    public void setTrackDao(TimeTrackDao trackDao) {
+        this.trackDao = trackDao;
+        trackDao.setEntityClass(TimeTrack.class);
+    }
+
+    @Autowired
+    public void setPointDao(PathPointDao pointDao) {
+        this.pointDao = pointDao;
+        pointDao.setEntityClass(PathPoint.class);
+    }
+
+    @Autowired
+    public void setOrderDao(OrderDao orderDao) {
+        this.orderDao = orderDao;
+        orderDao.setEntityClass(Order.class);
+    }
 
     @Override
     public void processDriver(DriverDto driverDto) {
@@ -71,16 +104,79 @@ public class DriverServiceImpl implements DriverService {
 
     @Override
     public SuitableDriverDto getSuitableDriversForOrder(Long orderId) {
+        Order order = orderDao.findOneById(orderId);
+        Long dis = getDistanceForOrder(order.getPathPoints());
 
-        Long d = geoUtils.getDistanceBetweenWithGoogleApi(new LatLng(59.95, 30.31667), new LatLng(55.75583, 37.61778));
+        LOG.debug("Distance through all waypoints: {} mts", dis);
 
-        LOG.debug("*************************************************** {}", d);
 
-        List<User> drivers = userDao.getSuitableDrivers(orderId);
+        Truck truck = order.getCrew().getTruck();
+        List<User> drivers = order.getCrew().getUsers();
+
+        //average speed 80km/h
+        double totalWorkingHoursForOneDriver = dis / 1000.0 / 80.0 / drivers.size();
+        double totalDaysForOneDriver = totalWorkingHoursForOneDriver / truck.getWorkingShift();
+
+        Timestamp firstDayOfMonth = Timestamp.valueOf(LocalDate.now().withDayOfMonth(1).atStartOfDay());
+
+        for (User driver : drivers) {
+            List<TimeTrack> timeTracks = trackDao.getTracksInCurrentMonth(driver.getId(), firstDayOfMonth);
+
+            int size = timeTracks.size();
+            double alreadyWorkedHrs = 0;
+            for (int i = 0; i < size -1; i++) {
+                if (timeTracks.get(0).getDriverAction().isEnd()) {
+
+                }
+            }
+//            boolean isSuitable = checkDriverTimeLimitPerMonth(totalDaysForOneDriver, , truck.getWorkingShift());
+        }
+
+
+        List<User> suitableDrivers = userDao.getSuitableDrivers(orderId);
         SuitableDriverDto suitableDriverDto = new SuitableDriverDto();
-        suitableDriverDto.setDrivers(driverConverter.toDriverDtoList(drivers));
+        suitableDriverDto.setDrivers(driverConverter.toDriverDtoList(suitableDrivers));
+
         suitableDriverDto.setNotSuitableDrivers(new ArrayList<>());
         return suitableDriverDto;
+    }
+
+
+    private boolean checkDriverTimeLimitPerMonth(double totalDays, double alreadyWorkedHrs, double workingShift) {
+        int leftDaysInMonth = LocalDate.now().lengthOfMonth() - LocalDate.now().getDayOfMonth();
+        if (leftDaysInMonth >= totalDays) {
+            return (totalDays * workingShift + alreadyWorkedHrs) <= 176;
+        } else {
+            if ((leftDaysInMonth * workingShift + alreadyWorkedHrs) > 176) {
+                return false;
+            }
+            double totalLeftDays = totalDays - leftDaysInMonth;
+            int i = 0;
+            while (totalLeftDays > LocalDate.now().plusMonths(i + 1).lengthOfMonth()) {
+                if (LocalDate.now().plusMonths(i).lengthOfMonth() * workingShift > 176) {
+                    return false;
+                }
+                totalLeftDays -= LocalDate.now().plusMonths(i + 1).lengthOfMonth();
+                i++;
+            }
+            return totalLeftDays * workingShift <= 176;
+        }
+    }
+
+    private Long getDistanceForOrder(List<PathPoint> points) {
+
+//        Long dis = geoUtils.getDistanceBetweenWithGoogleApi(new LatLng(59.95, 30.31667), new LatLng(55.75583, 37.61778));
+
+        LatLng[] pointsLatLng = points.stream()
+                .skip(1)
+                .limit(points.size() - 2)
+                .map(p -> new LatLng(p.getCity().getLatitude(), p.getCity().getLongitude()))
+                .toArray(LatLng[]::new);
+
+        LatLng start = new LatLng(points.get(0).getCity().getLatitude(), points.get(0).getCity().getLongitude());
+        LatLng finish = new LatLng(points.get(points.size() - 1).getCity().getLatitude(), points.get(points.size() - 1).getCity().getLongitude());
+
+        return geoUtils.getDistanceBetweenWithGoogleApi(start, finish, pointsLatLng);
     }
 
     private User fromDtoToUser(DriverDto driverDto) {

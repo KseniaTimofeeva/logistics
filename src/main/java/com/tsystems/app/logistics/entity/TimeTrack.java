@@ -20,12 +20,20 @@ import java.sql.Timestamp;
 @Table(name = "time_tracks")
 @Where(clause = "visible=true")
 @NamedQueries({
-        @NamedQuery(name = TimeTrack.GET_CURRENT_ACTION_BY_DRIVER_LOGIN,
-                query = "select tt from TimeTrack tt where tt.user.login = :login order by tt.id desc")
+        @NamedQuery(name = TimeTrack.GET_LAST_ACTION_BY_DRIVER_LOGIN,
+                query = "select tt from TimeTrack tt where tt.user.login = :login and tt.order.id = :orderId order by tt.id desc"),
+        @NamedQuery(name = TimeTrack.GET_TRACKS_FOR_ORDER,
+                query = "select tt from TimeTrack tt where tt.order.id = :orderId"),
+        @NamedQuery(name = TimeTrack.GET_TRACKS_IN_CURRENT_MONTH,
+                query = "select tt from TimeTrack tt where tt.user.id = :driverId and tt.date >= :fisrtDayOfMonth and " +
+                        "(tt.driverAction = 'START_DRIVING' or tt.driverAction = 'END_DRIVING' or " +
+                        "tt.driverAction = 'START_LOAD_UNLOAD' or tt.driverAction = 'END_LOAD_UNLOAD') order by tt.date")
 })
 public class TimeTrack extends BaseEntity {
 
-    public static final String GET_CURRENT_ACTION_BY_DRIVER_LOGIN = "TimeTrack.getCurrentActionByDriverLogin";
+    public static final String GET_LAST_ACTION_BY_DRIVER_LOGIN = "TimeTrack.getLastActionByDriverLogin";
+    public static final String GET_TRACKS_FOR_ORDER = "TimeTrack.getTracksForOrder";
+    public static final String GET_TRACKS_IN_CURRENT_MONTH = "TimeTrack.getTracksInCurrentMonth";
     @ManyToOne
     private User user;
 
@@ -34,6 +42,9 @@ public class TimeTrack extends BaseEntity {
 
     @Enumerated(EnumType.STRING)
     private DriverAction driverAction;
+    @ManyToOne
+    private Order order;
+
 
     public User getUser() {
         return user;
@@ -57,5 +68,13 @@ public class TimeTrack extends BaseEntity {
 
     public void setDriverAction(DriverAction driverAction) {
         this.driverAction = driverAction;
+    }
+
+    public Order getOrder() {
+        return order;
+    }
+
+    public void setOrder(Order order) {
+        this.order = order;
     }
 }

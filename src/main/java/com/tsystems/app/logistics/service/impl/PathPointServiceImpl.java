@@ -5,11 +5,13 @@ import com.tsystems.app.logistics.dao.impl.CargoDao;
 import com.tsystems.app.logistics.dao.impl.CityDao;
 import com.tsystems.app.logistics.dao.impl.OrderDao;
 import com.tsystems.app.logistics.dao.impl.PathPointDao;
+import com.tsystems.app.logistics.dao.impl.UserDao;
 import com.tsystems.app.logistics.dto.PathPointDto;
 import com.tsystems.app.logistics.entity.Cargo;
 import com.tsystems.app.logistics.entity.City;
 import com.tsystems.app.logistics.entity.Order;
 import com.tsystems.app.logistics.entity.PathPoint;
+import com.tsystems.app.logistics.entity.User;
 import com.tsystems.app.logistics.entity.enums.OrderStatus;
 import com.tsystems.app.logistics.service.api.PathPointService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +31,7 @@ public class PathPointServiceImpl implements PathPointService {
     private CityDao cityDao;
     private CargoDao cargoDao;
     private OrderDao orderDao;
+    private UserDao userDao;
 
     @Autowired
     private PathPointConverter pointConverter;
@@ -55,6 +58,12 @@ public class PathPointServiceImpl implements PathPointService {
     public void setOrderDao(OrderDao orderDao) {
         this.orderDao = orderDao;
         orderDao.setEntityClass(Order.class);
+    }
+
+    @Autowired
+    public void setUserDao(UserDao userDao) {
+        this.userDao = userDao;
+        userDao.setEntityClass(User.class);
     }
 
 
@@ -153,16 +162,19 @@ public class PathPointServiceImpl implements PathPointService {
         closedPoint.setDone(true);
         pathPointDao.update(closedPoint);
         Order order = orderDao.findOneById(closedPoint.getOrder().getId());
-        boolean finishedOrder = true;
+        boolean isFinishedOrder = true;
         for (PathPoint point : order.getPathPoints()) {
             if (!point.getDone()) {
-                finishedOrder = false;
+                isFinishedOrder = false;
                 break;
             }
         }
-        if (finishedOrder) {
-            order.setStatus(OrderStatus.FINISHED);
+        if (isFinishedOrder) {
+            for (User driver : order.getCrew().getUsers()) {
+                driver.setOnOrder(false);
+                userDao.update(driver);
+            }
         }
-        orderDao.update(order);
     }
+
 }

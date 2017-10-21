@@ -2,6 +2,7 @@ package com.tsystems.app.logistics.controller.driver;
 
 import com.tsystems.app.logistics.dto.OrderInfoDto;
 import com.tsystems.app.logistics.dto.TimeTrackDto;
+import com.tsystems.app.logistics.entity.enums.DriverAction;
 import com.tsystems.app.logistics.service.api.OrderService;
 import com.tsystems.app.logistics.service.api.PathPointService;
 import com.tsystems.app.logistics.service.api.TimeTrackService;
@@ -13,6 +14,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import javax.validation.Valid;
 
@@ -38,7 +40,7 @@ public class DriverOrderController {
         OrderInfoDto currentOrder = orderService.getCurrentOrderByDriverLogin(user.getUsername());
         if (currentOrder != null) {
             model.addAttribute("currentOrder", currentOrder);
-//            model.addAttribute("lastAction", )
+            model.addAttribute("lastAction", trackService.getLastActionForOrder(user.getUsername(), currentOrder.getId()));
         }
 
         return "page";
@@ -51,9 +53,8 @@ public class DriverOrderController {
     }
 
     @RequestMapping(value = "/add-action", method = RequestMethod.POST)
-    public String addDriverAction(@AuthenticationPrincipal User user, @Valid TimeTrackDto trackDto, Model model) {
-        TimeTrackDto currentAction = trackService.getCurrentAction(user.getUsername());
-        trackService.addNewTimeTrack(user.getUsername(), trackDto, currentAction);
+    public String addDriverAction(@AuthenticationPrincipal User user, @Valid TimeTrackDto trackDto, @RequestParam DriverAction lastAction, Model model) {
+        trackService.addNewTimeTrack(user.getUsername(), trackDto, lastAction);
         return "redirect:/driver/order";
     }
 }

@@ -25,4 +25,5 @@ public interface PathPointService {
     boolean hasCargoToUnload(Long orderId);
 
     void closePathPoint(Long pointId);
+
 }

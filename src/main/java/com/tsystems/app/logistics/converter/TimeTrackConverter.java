@@ -13,12 +13,15 @@ public class TimeTrackConverter {
 
     @Autowired
     private DriverConverter driverConverter;
+    @Autowired
+    private OrderConverter orderConverter;
 
-    public TimeTrackDto toCurrentTimeTrackDto(TimeTrack timeTrack) {
+    public TimeTrackDto toTimeTrackDto(TimeTrack timeTrack) {
         TimeTrackDto trackDto = new TimeTrackDto();
         trackDto.setDriver(driverConverter.toDriverShortDto(timeTrack.getUser()));
-        trackDto.setCurrentAction(timeTrack.getDriverAction());
         trackDto.setDate(timeTrack.getDate());
+        trackDto.setDriverAction(timeTrack.getDriverAction());
+        trackDto.setOrder(orderConverter.toOrderDto(timeTrack.getOrder()));
         return trackDto;
     }
 }

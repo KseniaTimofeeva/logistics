@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import javax.validation.Valid;
+import java.util.List;
 
 /**
  * Created by ksenia on 08.10.2017.
@@ -46,6 +47,7 @@ public class ManagerOrderController {
 
     @RequestMapping
     public String getManagerOrder(Model model) {
+        LOG.trace("GET /manager/order/");
         model.addAttribute(typeOfCenterAttribute, "manager/order.jsp");
         model.addAttribute("allOrders", orderService.getAllOrders());
         return "page";
@@ -53,11 +55,14 @@ public class ManagerOrderController {
 
     @RequestMapping(value = "/{orderId}")
     public String getManagerSelectedOrder(@PathVariable(value = "orderId") Long orderId, Model model) {
+        LOG.trace("GET /manager/order/{}", orderId);
 
         model.addAttribute(typeOfCenterAttribute, "manager/selected-order.jsp");
 
         OrderInfoDto orderInfo = orderService.getOrderInfoById(orderId);
         SuitableTruckDto suitableTrucks = truckService.getSuitableTruckByOrderId(orderId);
+        LOG.debug("Number of suitable trucks for order fulfilling {}", suitableTrucks.getTrucks().size());
+
         model.addAttribute("hasCargoToUnload", pathPointService.hasCargoToUnload(orderId));
         model.addAttribute("orderInfo", orderInfo);
         model.addAttribute("suitableTrucks", suitableTrucks);
@@ -69,10 +74,15 @@ public class ManagerOrderController {
     @RequestMapping(value = {"/{orderId}/new-point", "/{orderId}/new-point/{pathPointId}"}, method = RequestMethod.GET)
     public String getManagerOrderNewPoint(@PathVariable(value = "orderId") Long orderId,
                                           @PathVariable(value = "pathPointId", required = false) Long pathPointId, Model model) {
+        LOG.trace("GET /manager/order/{}/new-point", orderId);
         model.addAttribute(typeOfCenterAttribute, "manager/new-pathpoint.jsp");
         model.addAttribute("cities", cityService.getAllCities());
-        model.addAttribute("pointsWithCargoToUnload", pathPointService.getPathPointsWithCargoToUnload(orderId));
-        model.addAttribute("orderInfo", orderService.getOrderById(orderId));
+        List<PathPointDto> pathPointsWithCargoToUnload = pathPointService.getPathPointsWithCargoToUnload(orderId);
+        model.addAttribute("pointsWithCargoToUnload", pathPointsWithCargoToUnload);
+        OrderDto orderById = orderService.getOrderById(orderId);
+        model.addAttribute("orderInfo", orderById);
+
+        LOG.debug("Order № {}: Number of points with cargo to unload {}", orderById.getNumber(), pathPointsWithCargoToUnload.size());
         if (pathPointId != null) {
             model.addAttribute("updatedPoint", pathPointService.getPathPointById(pathPointId));
         }
@@ -82,12 +92,14 @@ public class ManagerOrderController {
     @RequestMapping(value = "/{orderId}/delete/{pathPointId}", method = RequestMethod.GET)
     public String deleteDriver(@PathVariable(value = "orderId") Long orderId,
                                @PathVariable(value = "pathPointId") Long pathPointId, Model model) {
+        LOG.trace("GET /manager/order/{}/delete/{}", orderId, pathPointId);
         pathPointService.deletePathPoint(pathPointId);
         return "redirect:/manager/order/" + orderId;
     }
 
     @RequestMapping(value = "/{orderId}/new-point", method = RequestMethod.POST)
     public String addNewPoint(@Valid PathPointDto pointDto) {
+        LOG.trace("POST /manager/order/{}/new-point", pointDto.getOrderId());
         pathPointService.processPathPoint(pointDto);
         return "redirect:/manager/order/" + pointDto.getOrderId();
     }
@@ -95,12 +107,14 @@ public class ManagerOrderController {
 
     @RequestMapping(value = {"/new"}, method = RequestMethod.GET)
     public String getNewOrderForm(Model model) {
+        LOG.trace("GET /manager/order/new");
         model.addAttribute(typeOfCenterAttribute, "manager/new-order.jsp");
         return "page";
     }
 
     @RequestMapping(value = "/new", method = RequestMethod.POST)
     public String addNewOrder(@Valid OrderDto orderDto) {
+        LOG.trace("POST /manager/order/new");
         Long orderId = orderService.addNewOrder(orderDto);
         return "redirect:/manager/order/" + orderId;
     }
@@ -108,6 +122,7 @@ public class ManagerOrderController {
     @RequestMapping(value = "/{orderId}/choose-truck", method = RequestMethod.POST)
     public String chooseTruck(@RequestParam Long truckId,
                               @PathVariable(value = "orderId") Long orderId) {
+        LOG.trace("POST /manager/order/{}/choose-truck", orderId);
         orderService.setTruckForOrder(orderId, truckId);
         return "redirect:/manager/order/" + orderId;
     }
@@ -115,6 +130,7 @@ public class ManagerOrderController {
     @RequestMapping(value = "/{orderId}/choose-driver", method = RequestMethod.POST)
     public String chooseDriver(@RequestParam Long driverId,
                               @PathVariable(value = "orderId") Long orderId) {
+        LOG.trace("POST /manager/order/{}/choose-driver", orderId);
         orderService.setDriverForOrder(orderId, driverId);
         return "redirect:/manager/order/" + orderId;
     }
@@ -122,6 +138,7 @@ public class ManagerOrderController {
     @RequestMapping(value = "/{orderId}/detach-driver/{driverId}", method = RequestMethod.GET)
     public String detachDriver(@PathVariable(value = "orderId") Long orderId,
                                @PathVariable(value = "driverId") Long driverId, Model model) {
+        LOG.trace("GET /manager/order/{}/detach-driver/{}", orderId, driverId);
         orderService.detachDriver(orderId, driverId);
         return "redirect:/manager/order/" + orderId;
     }

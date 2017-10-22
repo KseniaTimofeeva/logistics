@@ -3,6 +3,8 @@ package com.tsystems.app.logistics.controller.manager;
 import com.tsystems.app.logistics.dto.TruckDto;
 import com.tsystems.app.logistics.service.api.CityService;
 import com.tsystems.app.logistics.service.api.TruckService;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -18,6 +20,7 @@ import javax.validation.Valid;
 @Controller
 @RequestMapping("/manager/truck")
 public class ManagerTruckController {
+    private static final Logger LOG = LogManager.getLogger(ManagerTruckController.class);
 
     private String typeOfCenterAttribute = "typeOfCenter";
 
@@ -28,6 +31,7 @@ public class ManagerTruckController {
 
     @RequestMapping
     public String getManagerTruck(Model model) {
+        LOG.trace("GET /manager/truck");
         model.addAttribute(typeOfCenterAttribute, "manager/truck.jsp");
         model.addAttribute("allTrucks", truckService.getAllTrucks());
         return "page";
@@ -35,6 +39,7 @@ public class ManagerTruckController {
 
     @RequestMapping(value = {"/new", "/new/{truckId}"}, method = RequestMethod.GET)
     public String getNewTruckForm(@PathVariable(value = "truckId", required = false) Long truckId, Model model) {
+        LOG.trace("GET /manager/truck/new");
         model.addAttribute(typeOfCenterAttribute, "manager/new-truck.jsp");
         if (truckId != null) {
             model.addAttribute("updatedTruck", truckService.getTruckById(truckId));
@@ -45,12 +50,14 @@ public class ManagerTruckController {
 
     @RequestMapping(value = "/new", method = RequestMethod.POST)
     public String addNewTruck(@Valid TruckDto truckDto) {
+        LOG.trace("POST /manager/truck/new");
         truckService.processTruck(truckDto);
         return "redirect:/manager/truck";
     }
 
     @RequestMapping(value = "/delete/{truckId}", method = RequestMethod.GET)
     public String deleteTruck(@PathVariable(value = "truckId") Long truckId) {
+        LOG.trace("GET /manager/truck/delete/{}", truckId);
         truckService.deleteTruck(truckId);
         return "redirect:/manager/truck";
     }

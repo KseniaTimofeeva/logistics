@@ -6,6 +6,8 @@ import com.tsystems.app.logistics.entity.enums.DriverAction;
 import com.tsystems.app.logistics.service.api.OrderService;
 import com.tsystems.app.logistics.service.api.PathPointService;
 import com.tsystems.app.logistics.service.api.TimeTrackService;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.User;
@@ -24,6 +26,7 @@ import javax.validation.Valid;
 @Controller
 @RequestMapping({"/driver", "/driver/order"})
 public class DriverOrderController {
+    private static final Logger LOG = LogManager.getLogger(DriverOrderController.class);
 
     private String typeOfCenterAttribute = "typeOfCenter";
 
@@ -36,6 +39,7 @@ public class DriverOrderController {
 
     @RequestMapping
     public String getDriverOrder(@AuthenticationPrincipal User user, Model model) {
+        LOG.trace("GET /driver/order");
         model.addAttribute(typeOfCenterAttribute, "driver/driver-order.jsp");
         OrderInfoDto currentOrder = orderService.getCurrentOrderByDriverLogin(user.getUsername());
         if (currentOrder != null) {
@@ -48,12 +52,14 @@ public class DriverOrderController {
 
     @RequestMapping(value = "/close-point/{pathPointId}", method = RequestMethod.GET)
     public String closePathPoint(@PathVariable(value = "pathPointId") Long pathPointId, Model model) {
+        LOG.trace("GET /driver/close-point/{}", pathPointId);
         pointService.closePathPoint(pathPointId);
         return "redirect:/driver/order";
     }
 
     @RequestMapping(value = "/add-action", method = RequestMethod.POST)
     public String addDriverAction(@AuthenticationPrincipal User user, @Valid TimeTrackDto trackDto, Model model) {
+        LOG.trace("POST /driver/add-action {}", trackDto.getDriverAction().name());
         trackService.addNewTimeTrack(user.getUsername(), trackDto);
         return "redirect:/driver/order";
     }

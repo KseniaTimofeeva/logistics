@@ -27,7 +27,9 @@
                                         <input type="hidden" name="_csrf" value="${_csrf.token}"/>
                                         <input type="hidden" name="driverAction" value="START_WORKING_SHIFT"/>
                                         <input type="hidden" name="order.id" value="${currentOrder.id}"/>
-                                        <button type="submit" class="btn btn-success m-2">
+                                        <button type="submit" class="btn btn-success m-2"
+                                                <c:set var="endWorkingShift" value="<%=DriverAction.END_WORKING_SHIFT%>"/>
+                                                <c:if test="${lastAction.driverAction != null and lastAction.driverAction != endWorkingShift}"> disabled="disabled"</c:if>>
                                             <i class="fa fa-play-circle-o fa-lg"></i>&nbsp; <strong>Start working shift</strong>
                                         </button>
                                     </form>
@@ -39,7 +41,8 @@
                                         <input type="hidden" name="lastAction" value="${lastAction.driverAction}"/>
                                         <input type="hidden" name="driverAction" value="END_WORKING_SHIFT"/>
                                         <input type="hidden" name="order.id" value="${currentOrder.id}"/>
-                                        <button type="submit" class="btn btn-danger m-2">
+                                        <button type="submit" class="btn btn-danger m-2"
+                                                <c:if test="${lastAction.driverAction == null or lastAction.driverAction == endWorkingShift}"> disabled="disabled"</c:if>>
                                             <i class="fa fa-stop-circle-o fa-lg"></i>&nbsp; <strong>Finish working shift</strong>
                                         </button>
                                     </form>
@@ -54,7 +57,6 @@
                                     <label class="col-md-3 form-control-label">Change status</label>
                                     <div class="col-md-9">
                                         <div class="input-group">
-                                            <c:set var="endWorkingShift" value="<%=DriverAction.END_WORKING_SHIFT%>"/>
                                             <select name="driverAction" class="form-control form-control-sm"
                                                     <c:if test="${lastAction.driverAction == null or lastAction.driverAction == endWorkingShift}"> disabled="disabled"</c:if>>
                                                 <c:forEach items="<%=DriverAction.values()%>" var="action">

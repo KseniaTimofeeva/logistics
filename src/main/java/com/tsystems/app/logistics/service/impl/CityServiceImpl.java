@@ -5,6 +5,8 @@ import com.tsystems.app.logistics.dao.impl.CityDao;
 import com.tsystems.app.logistics.dto.CityDto;
 import com.tsystems.app.logistics.entity.City;
 import com.tsystems.app.logistics.service.api.CityService;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,6 +19,7 @@ import java.util.List;
 @Service
 @Transactional
 public class CityServiceImpl implements CityService {
+    private static final Logger LOG = LogManager.getLogger(CityServiceImpl.class);
 
     private CityDao cityDao;
 

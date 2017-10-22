@@ -3,6 +3,8 @@ package com.tsystems.app.logistics.controller.manager;
 import com.tsystems.app.logistics.dto.DriverDto;
 import com.tsystems.app.logistics.service.api.CityService;
 import com.tsystems.app.logistics.service.api.DriverService;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -18,6 +20,7 @@ import javax.validation.Valid;
 @Controller
 @RequestMapping("/manager/driver")
 public class ManagerDriverController {
+    private static final Logger LOG = LogManager.getLogger(ManagerDriverController.class);
 
     private String typeOfCenterAttribute = "typeOfCenter";
 
@@ -28,6 +31,7 @@ public class ManagerDriverController {
 
     @RequestMapping
     public String getManagerDriver(Model model) {
+        LOG.trace("GET /manager/driver");
         model.addAttribute(typeOfCenterAttribute, "manager/driver.jsp");
         model.addAttribute("allDrivers", driverService.getAllDrivers());
         return "page";
@@ -35,6 +39,11 @@ public class ManagerDriverController {
 
     @RequestMapping(value = {"/new", "/new/{driverId}"}, method = RequestMethod.GET)
     public String getNewDriverForm(@PathVariable(value = "driverId", required = false) Long driverId, Model model) {
+        if (driverId == null) {
+            LOG.trace("GET /manager/driver/new");
+        } else {
+            LOG.trace("GET /manager/driver/new/{}", driverId);
+        }
         model.addAttribute(typeOfCenterAttribute, "manager/new-driver.jsp");
         if (driverId != null) {
             model.addAttribute("updatedDriver", driverService.getDriverById(driverId));
@@ -45,12 +54,14 @@ public class ManagerDriverController {
 
     @RequestMapping(value = "/new", method = RequestMethod.POST)
     public String addNewDriver(@Valid DriverDto driverDto) {
+        LOG.trace("POST /manager/driver/new");
         driverService.processDriver(driverDto);
         return "redirect:/manager/driver";
     }
 
     @RequestMapping(value = "/delete/{driverId}", method = RequestMethod.GET)
     public String deleteDriver(@PathVariable(value = "driverId") Long driverId) {
+        LOG.trace("GET /manager/delete/{}", driverId);
         driverService.deleteDriver(driverId);
         return "redirect:/manager/driver";
     }

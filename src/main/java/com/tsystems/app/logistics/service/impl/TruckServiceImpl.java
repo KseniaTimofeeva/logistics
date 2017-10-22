@@ -11,6 +11,8 @@ import com.tsystems.app.logistics.entity.Order;
 import com.tsystems.app.logistics.entity.PathPoint;
 import com.tsystems.app.logistics.entity.Truck;
 import com.tsystems.app.logistics.service.api.TruckService;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,6 +25,7 @@ import java.util.List;
 @Service
 @Transactional
 public class TruckServiceImpl implements TruckService {
+    private static final Logger LOG = LogManager.getLogger(TruckServiceImpl.class);
 
     private TruckDao truckDao;
     private OrderDao orderDao;
@@ -103,6 +106,8 @@ public class TruckServiceImpl implements TruckService {
 
     @Override
     public SuitableTruckDto getSuitableTruckByOrderId(Long id) {
+        LOG.debug("Searching for suitable trucks for order {}", id);
+
         float totalWeight = 0;
         float maxTotalWeight = 0;
         boolean isCurrentTruckSuitable = false;

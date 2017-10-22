@@ -141,6 +141,12 @@ public class OrderServiceImpl implements OrderService {
         orderDao.update(order);
     }
 
+    /**
+     * Delete driver from specified order.
+     * Set driver status to 'vacant'
+     * @param orderId id of the order
+     * @param driverId driver id who would be deleted from specified otder
+     */
     @Override
     public void detachDriver(Long orderId, Long driverId) {
 
@@ -163,6 +169,8 @@ public class OrderServiceImpl implements OrderService {
         if (orders.isEmpty()) {
             return null;
         }
+        //Searching for drives's current order
+        //If size > 1 (found 'NEW' and 'IN_PROCESS'), use 'IN_PROCESS'
         int i = 0;
         if (orders.size() > 1) {
             for (Order order : orders) {

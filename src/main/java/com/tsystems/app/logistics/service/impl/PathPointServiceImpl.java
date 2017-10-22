@@ -14,6 +14,8 @@ import com.tsystems.app.logistics.entity.PathPoint;
 import com.tsystems.app.logistics.entity.User;
 import com.tsystems.app.logistics.entity.enums.OrderStatus;
 import com.tsystems.app.logistics.service.api.PathPointService;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,6 +28,7 @@ import java.util.List;
 @Service
 @Transactional
 public class PathPointServiceImpl implements PathPointService {
+    private static final Logger LOG = LogManager.getLogger(PathPointServiceImpl.class);
 
     private PathPointDao pathPointDao;
     private CityDao cityDao;
@@ -73,8 +76,15 @@ public class PathPointServiceImpl implements PathPointService {
         return pointConverter.toPathPointDto(point);
     }
 
+    /**
+     * Convert way point dto to way point entity and call method for creating or updating entity
+     *
+     * @param pointDto way point dto that contains fields should be set to point entity
+     */
     @Override
     public void processPathPoint(PathPointDto pointDto) {
+        LOG.debug("Processing path point {} of order {}", pointDto.getId(), pointDto.getOrderId());
+
         PathPoint point = new PathPoint();
 
         boolean isNewPoint = false;
@@ -92,7 +102,6 @@ public class PathPointServiceImpl implements PathPointService {
             cargo = new Cargo();
         } else {
             cargo = cargoDao.findOneById(pointDto.getCargo().getId());
-
             if (pointDto.getId() != null) {
                 point.setId(pointDto.getId());
             }
@@ -112,9 +121,7 @@ public class PathPointServiceImpl implements PathPointService {
         }
 
         City city = cityDao.findOneById(pointDto.getCity().getId());
-
         Order order = orderDao.findOneById(pointDto.getOrderId());
-
         point.setCargo(cargo);
         point.setCity(city);
         point.setLoading(pointDto.getLoading());
@@ -130,6 +137,7 @@ public class PathPointServiceImpl implements PathPointService {
 
     @Override
     public void updatePathPoint(PathPoint pathPoint) {
+        LOG.trace("Update path point {} of order {}", pathPoint.getId(), pathPoint.getOrder().getId());
         pathPointDao.update(pathPoint);
     }
 
@@ -141,9 +149,17 @@ public class PathPointServiceImpl implements PathPointService {
 
     @Override
     public void addNewPoint(PathPoint pathPoint) {
+        LOG.trace("Add new path point to order {}", pathPoint.getOrder().getId());
         pathPointDao.create(pathPoint);
     }
 
+
+    /**
+     * Searching for way points containing cargo that has been loaded but has not been unloaded yet
+     *
+     * @param orderId id of the order for which way points with unloaded cargo is searching for
+     * @return list of way points dto
+     */
     @Override
     public List<PathPointDto> getPathPointsWithCargoToUnload(Long orderId) {
         List<PathPoint> points = pathPointDao.getPathPointsWithCargoToUnload(orderId);
@@ -156,6 +172,13 @@ public class PathPointServiceImpl implements PathPointService {
         return !points.isEmpty();
     }
 
+
+    /**
+     * Set that cargo is loaded or unloaded in the destination city
+     * If this way point is the last point of the order set driver status 'vacant'
+     *
+     * @param pointId id of the way point which contains loaded/unloaded cargo
+     */
     @Override
     public void closePathPoint(Long pointId) {
         PathPoint closedPoint = pathPointDao.findOneById(pointId);
@@ -170,6 +193,8 @@ public class PathPointServiceImpl implements PathPointService {
             }
         }
         if (isFinishedOrder) {
+            LOG.debug("All way points of order {} are finished", order.getId());
+
             for (User driver : order.getCrew().getUsers()) {
                 driver.setOnOrder(false);
                 userDao.update(driver);

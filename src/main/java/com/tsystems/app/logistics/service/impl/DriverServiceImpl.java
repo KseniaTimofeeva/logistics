@@ -33,6 +33,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Month;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -46,7 +47,6 @@ public class DriverServiceImpl implements DriverService {
 
     private UserDao userDao;
     private CityDao cityDao;
-    private PathPointDao pointDao;
     private OrderDao orderDao;
     private TimeTrackDao trackDao;
 
@@ -74,12 +74,6 @@ public class DriverServiceImpl implements DriverService {
     }
 
     @Autowired
-    public void setPointDao(PathPointDao pointDao) {
-        this.pointDao = pointDao;
-        pointDao.setEntityClass(PathPoint.class);
-    }
-
-    @Autowired
     public void setOrderDao(OrderDao orderDao) {
         this.orderDao = orderDao;
         orderDao.setEntityClass(Order.class);
@@ -96,43 +90,55 @@ public class DriverServiceImpl implements DriverService {
 
     @Override
     public void addNewDriver(DriverDto driverDto) {
+        LOG.trace("Add new driver", driverDto.getLogin());
         userDao.create(fromDtoToUser(driverDto));
     }
 
     @Override
     public void updateDriver(DriverDto driverDto) {
+        LOG.trace("Update driver {}", driverDto.getId());
         userDao.update(fromDtoToUser(driverDto));
     }
 
+
+    /**
+     * Search drivers who is suitable to fulfill the order
+     * based on working time limit, employment on order and city where the truck is now.
+     * Checking if current crew of the order is suitable.
+     * @param orderId id of the order for which suitable drivers is searching for
+     * @return List of drivers who are suitable for order fulfilling and
+     * list of drivers from current crew who are not suitable
+     */
     @Override
     public SuitableDriverDto getSuitableDriversForOrder(Long orderId) {
         LOG.debug("Start find suitable drivers for order №: {}", orderId);
 
         Order order = orderDao.findOneById(orderId);
         List<User> drivers = userDao.getSuitableDrivers(orderId);
-        LOG.debug("Number of suitable drivers before time limit checking: {} pcs", drivers.size());
+        LOG.trace("Number of suitable drivers before time limit checking: {} pcs", drivers.size());
 
         List<User> suitableDrivers = drivers;
         List<User> notSuitableDriversFromCurrentCrew = new ArrayList<>();
 
         if (order.getPathPoints() != null && order.getPathPoints().size() >= 2) {
             Long dis = getDistanceForOrder(order.getPathPoints());
-            LOG.debug("Distance through all way points: {} mts", dis);
+            LOG.debug("Distance through all way points: {} meters", dis);
 
             Truck truck = order.getCrew().getTruck();
             int crewSize = order.getCrew().getUsers().size();
 
 
-            //check which of the left drivers is suitable
+            //check which of the vacant drivers is suitable
             LOG.trace("Check which of the left drivers is suitable");
             suitableDrivers = checkDrivers(dis, truck, crewSize + 1, drivers, false);
-            LOG.debug("Number of suitable drivers after time limit checking: {} pcs", suitableDrivers.size());
+            LOG.trace("Number of suitable drivers after time limit checking: {} pcs", suitableDrivers.size());
 
             //check which of the drivers from current crew isn't suitable
             LOG.trace("Check which of the drivers from current crew isn't suitable");
             notSuitableDriversFromCurrentCrew = checkDrivers(dis, truck, crewSize, order.getCrew().getUsers(), true);
-            LOG.debug("Number of notSuitable drivers from current crew: {} pcs", notSuitableDriversFromCurrentCrew.size());
-
+            LOG.trace("Number of notSuitable drivers from current crew: {} pcs", notSuitableDriversFromCurrentCrew.size());
+        } else {
+            LOG.debug("Order {} contains less than two way points", order.getId());
         }
 
         SuitableDriverDto suitableDriverDto = new SuitableDriverDto();
@@ -141,6 +147,7 @@ public class DriverServiceImpl implements DriverService {
 
         return suitableDriverDto;
     }
+
 
     private List<User> checkDrivers(Long distance, Truck truck, int crewSize, List<User> drivers, boolean checkCurrentCrew) {
 
@@ -156,6 +163,8 @@ public class DriverServiceImpl implements DriverService {
             List<TimeTrack> timeTracks = trackDao.getTracksInCurrentMonth(driver.getId(), firstDayOfMonth);
             LOG.trace("Quantity of time tracks in current month: {}", timeTracks.size());
 
+            //If time track isn't closed till now,
+            //based on the end is now
             double alreadyWorkedTimeInMillis = 0;
             for (TimeTrack timeTrack : timeTracks) {
                 if (timeTrack.getDuration() == null) {
@@ -172,15 +181,18 @@ public class DriverServiceImpl implements DriverService {
             boolean isSuitable = checkDriverTimeLimitPerMonth(totalDaysForOneDriver, alreadyWorkedHrs, truck.getWorkingShift());
             LOG.trace("Is suitable {}", isSuitable);
 
+            //add to array for suitable drivers
             if (!checkCurrentCrew && isSuitable) {
                 resultDriverList.add(driver);
             }
+            //add to array for not suitable drivers from current crew
             if (checkCurrentCrew && !isSuitable) {
                 resultDriverList.add(driver);
             }
         }
         return resultDriverList;
     }
+
 
     private boolean checkDriverTimeLimitPerMonth(double totalDays, double alreadyWorkedHrs, double workingShift) {
         int leftDaysInMonth = LocalDate.now().lengthOfMonth() - LocalDate.now().getDayOfMonth();
@@ -189,10 +201,11 @@ public class DriverServiceImpl implements DriverService {
             return (totalDays * workingShift + alreadyWorkedHrs) <= 176;
         } else {
             LOG.trace("Left days in month is less than total days per order");
-
+            //check current month time limit
             if ((leftDaysInMonth * workingShift + alreadyWorkedHrs) > 176) {
                 return false;
             }
+            //check next months time limit
             double totalLeftDays = totalDays - leftDaysInMonth;
             int i = 0;
             while (totalLeftDays > LocalDate.now().plusMonths(i + 1).lengthOfMonth()) {
@@ -206,8 +219,15 @@ public class DriverServiceImpl implements DriverService {
         }
     }
 
+    /**
+     * Generate start, finish and intermediate way points using city coordinates
+     * and pass them to {@link GeoUtils#getDistanceBetweenWithGoogleApi(LatLng, LatLng, LatLng...)} for calculation distance
+     *
+     * @param points way points to loading and unloading cargo
+     * @return distance in meters
+     */
     private Long getDistanceForOrder(List<PathPoint> points) {
-        LOG.trace("Distance calculation");
+        LOG.debug("Distance calculation");
 
         LatLng[] pointsLatLng;
         if (points.size() > 2) {
@@ -222,11 +242,15 @@ public class DriverServiceImpl implements DriverService {
 
         LatLng start = new LatLng(points.get(0).getCity().getLatitude(), points.get(0).getCity().getLongitude());
         LatLng finish = new LatLng(points.get(points.size() - 1).getCity().getLatitude(), points.get(points.size() - 1).getCity().getLongitude());
+        LOG.debug("Way points for distance calculation: start {}, finish {}, points {}",
+                start.toString(), finish.toString(), Arrays.toString(pointsLatLng));
 
         return geoUtils.getDistanceBetweenWithGoogleApi(start, finish, pointsLatLng);
     }
 
     private User fromDtoToUser(DriverDto driverDto) {
+        LOG.debug("Converting DriverDto to User");
+
         User user = new User();
         if (driverDto.getId() != null) {
             user.setId(driverDto.getId());

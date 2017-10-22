@@ -79,7 +79,7 @@ public class TimeTrackServiceImpl implements TimeTrackService {
             TimeTrack lastDriverTrack = trackList.get(0);
             long duration = (Duration.between(lastDriverTrack.getDate().toLocalDateTime(), LocalDateTime.now())).toMillis();
             lastDriverTrack.setDuration(duration);
-            LOG.debug("Set duration for last time track for driver {}", driver.getId());
+            LOG.debug("Set duration for last time track for driver {}", driver.getPersonalNumber());
             trackDao.update(lastDriverTrack);
         }
 

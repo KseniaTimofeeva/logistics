@@ -13,6 +13,8 @@ import com.tsystems.app.logistics.entity.Truck;
 import com.tsystems.app.logistics.entity.User;
 import com.tsystems.app.logistics.entity.enums.OrderStatus;
 import com.tsystems.app.logistics.service.api.OrderService;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,6 +28,7 @@ import java.util.List;
 @Service
 @Transactional
 public class OrderServiceImpl implements OrderService {
+    private static final Logger LOG = LogManager.getLogger(OrderServiceImpl.class);
 
     private OrderDao orderDao;
     private TruckDao truckDao;
@@ -58,6 +61,7 @@ public class OrderServiceImpl implements OrderService {
         this.userDao = userDao;
         userDao.setEntityClass(User.class);
     }
+
 
     @Override
     public List<OrderInfoDto> getAllOrders() {
@@ -149,7 +153,6 @@ public class OrderServiceImpl implements OrderService {
      */
     @Override
     public void detachDriver(Long orderId, Long driverId) {
-
         User driver = userDao.findOneById(driverId);
         driver.setOnOrder(false);
         driver = userDao.update(driver);
@@ -167,6 +170,7 @@ public class OrderServiceImpl implements OrderService {
     public OrderInfoDto getCurrentOrderByDriverLogin(String login) {
         List<Order> orders = orderDao.getCurrentOrderByDriverLogin(login);
         if (orders.isEmpty()) {
+            LOG.debug("Driver with login {} has not open orders", login);
             return null;
         }
         //Searching for drives's current order

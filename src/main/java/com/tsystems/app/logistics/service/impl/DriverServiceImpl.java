@@ -60,24 +60,22 @@ public class DriverServiceImpl implements DriverService {
         this.userDao = userDao;
         userDao.setEntityClass(User.class);
     }
-
     @Autowired
     public void setCityDao(CityDao cityDao) {
         this.cityDao = cityDao;
         cityDao.setEntityClass(City.class);
     }
-
     @Autowired
     public void setTrackDao(TimeTrackDao trackDao) {
         this.trackDao = trackDao;
         trackDao.setEntityClass(TimeTrack.class);
     }
-
     @Autowired
     public void setOrderDao(OrderDao orderDao) {
         this.orderDao = orderDao;
         orderDao.setEntityClass(Order.class);
     }
+
 
     @Override
     public void processDriver(DriverDto driverDto) {
@@ -90,13 +88,13 @@ public class DriverServiceImpl implements DriverService {
 
     @Override
     public void addNewDriver(DriverDto driverDto) {
-        LOG.trace("Add new driver", driverDto.getLogin());
+        LOG.trace("Add new driver", driverDto.getPersonalNumber());
         userDao.create(fromDtoToUser(driverDto));
     }
 
     @Override
     public void updateDriver(DriverDto driverDto) {
-        LOG.trace("Update driver {}", driverDto.getId());
+        LOG.trace("Update driver {}", driverDto.getPersonalNumber());
         userDao.update(fromDtoToUser(driverDto));
     }
 
@@ -122,7 +120,7 @@ public class DriverServiceImpl implements DriverService {
 
         if (order.getPathPoints() != null && order.getPathPoints().size() >= 2) {
             Long dis = getDistanceForOrder(order.getPathPoints());
-            LOG.debug("Distance through all way points: {} meters", dis);
+            LOG.debug("Distance through all way points for order {}: {} meters", order.getNumber(), dis);
 
             Truck truck = order.getCrew().getTruck();
             int crewSize = order.getCrew().getUsers().size();
@@ -138,7 +136,7 @@ public class DriverServiceImpl implements DriverService {
             notSuitableDriversFromCurrentCrew = checkDrivers(dis, truck, crewSize, order.getCrew().getUsers(), true);
             LOG.trace("Number of notSuitable drivers from current crew: {} pcs", notSuitableDriversFromCurrentCrew.size());
         } else {
-            LOG.debug("Order {} contains less than two way points", order.getId());
+            LOG.debug("Order {} contains less than two way points", order.getNumber());
         }
 
         SuitableDriverDto suitableDriverDto = new SuitableDriverDto();
@@ -158,10 +156,10 @@ public class DriverServiceImpl implements DriverService {
         List<User> resultDriverList = new ArrayList<>();
         Timestamp firstDayOfMonth = Timestamp.valueOf(LocalDate.now().withDayOfMonth(1).atStartOfDay());
         for (User driver : drivers) {
-            LOG.trace("Driver id: {}", driver.getId());
+            LOG.trace("Driver personal number: {}", driver.getPersonalNumber());
 
             List<TimeTrack> timeTracks = trackDao.getTracksInCurrentMonth(driver.getId(), firstDayOfMonth);
-            LOG.trace("Quantity of time tracks in current month: {}", timeTracks.size());
+            LOG.trace("Driver {}: quantity of time tracks in current month: {}", driver.getPersonalNumber(), timeTracks.size());
 
             //If time track isn't closed till now,
             //based on the end is now
@@ -173,13 +171,13 @@ public class DriverServiceImpl implements DriverService {
                     alreadyWorkedTimeInMillis += timeTrack.getDuration();
                 }
             }
-            LOG.trace("Already worked time in current month in millis {}", alreadyWorkedTimeInMillis);
+            LOG.trace("Driver {}: already worked time in current month in millis {}", driver.getPersonalNumber(), alreadyWorkedTimeInMillis);
 
             double alreadyWorkedHrs = alreadyWorkedTimeInMillis / 1000.0 / 3600.0;
-            LOG.trace("Already worked hours in current month {} hrs", alreadyWorkedHrs);
+            LOG.trace("Driver {}: already worked hours in current month {} hrs", driver.getPersonalNumber(), alreadyWorkedHrs);
 
             boolean isSuitable = checkDriverTimeLimitPerMonth(totalDaysForOneDriver, alreadyWorkedHrs, truck.getWorkingShift());
-            LOG.trace("Is suitable {}", isSuitable);
+            LOG.trace("Driver {} is suitable {}", driver.getPersonalNumber(), isSuitable);
 
             //add to array for suitable drivers
             if (!checkCurrentCrew && isSuitable) {
@@ -249,7 +247,7 @@ public class DriverServiceImpl implements DriverService {
     }
 
     private User fromDtoToUser(DriverDto driverDto) {
-        LOG.debug("Converting DriverDto to User");
+        LOG.trace("Converting DriverDto to User");
 
         User user = new User();
         if (driverDto.getId() != null) {

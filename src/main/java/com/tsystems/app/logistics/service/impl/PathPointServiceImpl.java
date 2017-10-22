@@ -83,7 +83,7 @@ public class PathPointServiceImpl implements PathPointService {
      */
     @Override
     public void processPathPoint(PathPointDto pointDto) {
-        LOG.debug("Processing path point {} of order {}", pointDto.getId(), pointDto.getOrderId());
+        LOG.debug("Processing path point {} (cargo {}) of order {}", pointDto.getId(), pointDto.getCargo().getNumber(), pointDto.getOrderId());
 
         PathPoint point = new PathPoint();
 
@@ -137,7 +137,7 @@ public class PathPointServiceImpl implements PathPointService {
 
     @Override
     public void updatePathPoint(PathPoint pathPoint) {
-        LOG.trace("Update path point {} of order {}", pathPoint.getId(), pathPoint.getOrder().getId());
+        LOG.trace("Update path point {} (cargo {}) of order {}", pathPoint.getId(), pathPoint.getCargo().getNumber(), pathPoint.getOrder().getNumber());
         pathPointDao.update(pathPoint);
     }
 
@@ -149,7 +149,7 @@ public class PathPointServiceImpl implements PathPointService {
 
     @Override
     public void addNewPoint(PathPoint pathPoint) {
-        LOG.trace("Add new path point to order {}", pathPoint.getOrder().getId());
+        LOG.trace("Add new path point to order {}", pathPoint.getOrder().getNumber());
         pathPointDao.create(pathPoint);
     }
 
@@ -193,7 +193,7 @@ public class PathPointServiceImpl implements PathPointService {
             }
         }
         if (isFinishedOrder) {
-            LOG.debug("All way points of order {} are finished", order.getId());
+            LOG.debug("All way points of order {} are finished", order.getNumber());
 
             for (User driver : order.getCrew().getUsers()) {
                 driver.setOnOrder(false);

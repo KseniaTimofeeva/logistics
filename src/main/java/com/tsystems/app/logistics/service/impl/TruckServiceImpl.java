@@ -106,13 +106,13 @@ public class TruckServiceImpl implements TruckService {
 
     @Override
     public SuitableTruckDto getSuitableTruckByOrderId(Long id) {
-        LOG.debug("Searching for suitable trucks for order {}", id);
 
         float totalWeight = 0;
         float maxTotalWeight = 0;
         boolean isCurrentTruckSuitable = false;
 
         Order order = orderDao.findOneById(id);
+        LOG.debug("Searching for suitable trucks for order {}", order.getNumber());
         for (PathPoint pp : order.getPathPoints()) {
             if (!pp.getVisible()) {
                 continue;

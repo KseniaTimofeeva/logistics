@@ -20,13 +20,16 @@ import java.util.List;
         @NamedQuery(name = Truck.GET_ALL_TRUCKS,
                 query = "select t from Truck t where t.visible = true"),
         @NamedQuery(name = Truck.GET_SUITABLE_TRUCKS,
-                query = "select t from Truck t where t.visible = true and t.functioning = true and t.onOrder = false and t.capacity >= :maxTotalWeight")
+                query = "select t from Truck t where t.visible = true and t.functioning = true and t.onOrder = false and t.capacity >= :maxTotalWeight"),
+        @NamedQuery(name = Truck.NEW_TRUCK_VALIDATE,
+                query = "select t from Truck t where t.numberPlate = :numberPlate")
 })
 @Where(clause = "visible=true")
 public class Truck extends BaseEntity {
 
     public static final String GET_ALL_TRUCKS = "Truck.getAllTrucks";
     public static final String GET_SUITABLE_TRUCKS = "Truck.getSuitableTrucks";
+    public static final String NEW_TRUCK_VALIDATE = "Truck.newTruckValidate";
 
     @Column(name = "number_plate", unique = true)
     private String numberPlate;

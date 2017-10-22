@@ -9,13 +9,9 @@ import javax.validation.constraints.NotNull;
  */
 public class TruckDto {
     private Long id;
-    @NotNull
     private String numberPlate;
-    @NotNull
     private Float workingShift;
-    @NotNull
     private Float capacity;
-    @NotNull
     private Boolean functioning;
     private Boolean onOrder;
     private CityDto currentCity;

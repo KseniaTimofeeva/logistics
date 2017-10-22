@@ -115,7 +115,13 @@ public class ManagerOrderController {
     @RequestMapping(value = "/new", method = RequestMethod.POST)
     public String addNewOrder(@Valid OrderDto orderDto) {
         LOG.trace("POST /manager/order/new");
-        Long orderId = orderService.addNewOrder(orderDto);
+        Long orderId;
+        try {
+             orderId = orderService.addNewOrder(orderDto);
+        } catch (Exception e) {
+            LOG.trace("New order form exception. {}", e.getMessage());
+            return "redirect:/manager/order/new?error";
+        }
         return "redirect:/manager/order/" + orderId;
     }
 

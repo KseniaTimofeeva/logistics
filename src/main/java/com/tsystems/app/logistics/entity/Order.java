@@ -27,13 +27,16 @@ import java.util.List;
                 query = "select o from Order o where o.visible = true"),
         @NamedQuery(name = Order.GET_CURRENT_ORDER_BY_DRIVER_LOGIN,
                 query = "select distinct o from Order o join o.crew.users u where " +
-                        "u.login = :login and (o.status = 'NEW' or o.status = 'IN_PROCESS')")
+                        "u.login = :login and (o.status = 'NEW' or o.status = 'IN_PROCESS')"),
+        @NamedQuery(name = Order.VALIDATE_NEW_ORDER,
+                query = "select o from Order o where o.number = :number"),
 })
 @Where(clause = "visible=true")
 public class Order extends BaseEntity {
 
     public static final String GET_ALL_ORDERS = "Order.getAllOrders";
     public static final String GET_CURRENT_ORDER_BY_DRIVER_LOGIN = "Order.getCurrentOrderByDriverLogin";
+    public static final String VALIDATE_NEW_ORDER = "Order.validateNewOrder";
 
     @Column(unique = true)
     private String number;

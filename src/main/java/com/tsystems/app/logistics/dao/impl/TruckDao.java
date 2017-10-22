@@ -25,4 +25,9 @@ public class TruckDao extends GenericDaoImpl<Truck> {
                 .getResultList();
     }
 
+    public List<Truck> newTruckValidate(String numberPlate) {
+        return em.createNamedQuery(Truck.NEW_TRUCK_VALIDATE, Truck.class)
+                .setParameter("numberPlate", numberPlate)
+                .getResultList();
+    }
 }

@@ -54,8 +54,27 @@ public class TruckServiceImpl implements TruckService {
 
     @Override
     public void addNewTruck(TruckDto truckDto) {
+        validateNewTruckForm(truckDto);
         truckDto.setOnOrder(false);
         truckDao.create(fromDtoToTruck(truckDto));
+    }
+
+    /**
+     * Validate new truck form
+     *
+     * @param truckDto dto with new truck information
+     * @return true if login and personal number are unique,
+     * else throw exception
+     */
+    private boolean validateNewTruckForm(TruckDto truckDto) {
+        if (truckDto.getNumberPlate() == null || truckDto.getNumberPlate().equals("")) {
+            throw new RuntimeException("Value for filed 'Number plate' is required");
+        }
+        List<Truck> trucks = truckDao.newTruckValidate(truckDto.getNumberPlate());
+        if (!trucks.isEmpty()) {
+            throw new RuntimeException("Truck with specified number plate is already registered");
+        }
+        return true;
     }
 
     @Override
@@ -126,7 +145,7 @@ public class TruckServiceImpl implements TruckService {
                 maxTotalWeight = totalWeight;
             }
         }
-        List<Truck> suitableTrucks = truckDao.getSuitableTrucks(maxTotalWeight/1000.0f);
+        List<Truck> suitableTrucks = truckDao.getSuitableTrucks(maxTotalWeight / 1000.0f);
         if (order.getCrew() != null) {
             if (order.getCrew().getTruck() != null) {
                 Float currentTruckCapacity = order.getCrew().getTruck().getCapacity();

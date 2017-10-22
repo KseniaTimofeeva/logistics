@@ -35,6 +35,7 @@ import java.time.Month;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -89,7 +90,32 @@ public class DriverServiceImpl implements DriverService {
     @Override
     public void addNewDriver(DriverDto driverDto) {
         LOG.trace("Add new driver", driverDto.getPersonalNumber());
+        validateNewUserForm(driverDto);
         userDao.create(fromDtoToUser(driverDto));
+    }
+
+    /**
+     * Validate new user form
+     *
+     * @param driverDto dto with new driver information
+     * @return true if login and personal number are unique,
+     * else throw exception
+     */
+    private boolean validateNewUserForm(DriverDto driverDto) {
+        if (driverDto.getPersonalNumber() == null || Objects.equals(driverDto.getPersonalNumber(), "")) {
+            throw new RuntimeException("Value for filed 'Personal number' is required");
+        }
+        if (driverDto.getLogin() == null || driverDto.getLogin().equals("")) {
+            throw new RuntimeException("Value for filed 'Login' is required");
+        }
+        if (driverDto.getPassword() == null || driverDto.getPassword().equals("")) {
+            throw new RuntimeException("Value for filed 'Password' is required");
+        }
+        List<User> userList = userDao.newUserValidate(driverDto.getLogin(), driverDto.getPersonalNumber());
+        if (!userList.isEmpty()) {
+            throw new RuntimeException("User with specified login or personal number is already registered");
+        }
+        return true;
     }
 
     @Override

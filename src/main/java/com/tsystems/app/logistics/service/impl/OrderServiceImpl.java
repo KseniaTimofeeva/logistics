@@ -71,11 +71,23 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public Long addNewOrder(OrderDto orderDto) {
+        validateNewOrderForm(orderDto);
         Order order = new Order();
         order.setNumber(orderDto.getNumber());
         order.setStatus(OrderStatus.NEW);
         order = orderDao.create(order);
         return order.getId();
+    }
+
+    private boolean validateNewOrderForm(OrderDto orderDto) {
+        if (orderDto.getNumber() == null || orderDto.getNumber().equals("")) {
+            throw new RuntimeException("Value for filed 'Order number' is required");
+        }
+        List<Order> orders = orderDao.newOrderValidate(orderDto.getNumber());
+        if (!orders.isEmpty()) {
+            throw new RuntimeException("Order with specified number plate is already registered");
+        }
+        return true;
     }
 
     @Override

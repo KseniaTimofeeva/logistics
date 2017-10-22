@@ -55,7 +55,12 @@ public class ManagerDriverController {
     @RequestMapping(value = "/new", method = RequestMethod.POST)
     public String addNewDriver(@Valid DriverDto driverDto) {
         LOG.trace("POST /manager/driver/new");
-        driverService.processDriver(driverDto);
+        try {
+            driverService.processDriver(driverDto);
+        } catch (Exception e) {
+            LOG.trace("New driver form exception. {}", e.getMessage());
+            return "redirect:/manager/driver/new?error";
+        }
         return "redirect:/manager/driver";
     }
 

@@ -25,4 +25,10 @@ public class OrderDao extends GenericDaoImpl<Order> {
                 .getResultList();
     }
 
+    public List<Order> newOrderValidate(String number) {
+        return em.createNamedQuery(Order.VALIDATE_NEW_ORDER, Order.class)
+                .setParameter("number", number)
+                .getResultList();
+    }
+
 }

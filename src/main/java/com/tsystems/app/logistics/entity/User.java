@@ -32,7 +32,9 @@ import java.util.List;
                         "u.role = 'ROLE_DRIVER' and u.onOrder = false and c.order.id = :orderId"),
         @NamedQuery(name = User.GET_PROFILE,
                 query = "select distinct u from User u join u.crews crs join crs.order o where " +
-                        "u.login = :login and u.role = 'ROLE_DRIVER' and (o.status = 'NEW' or o.status = 'IN_PROCESS')")
+                        "u.login = :login and u.role = 'ROLE_DRIVER' and (o.status = 'NEW' or o.status = 'IN_PROCESS')"),
+        @NamedQuery(name = User.NEW_USER_VALIDATE,
+                query = "select u from User u where u.login = :login or u.personalNumber = :personalNumber")
 })
 @Where(clause = "visible=true")
 public class User extends BaseEntity {
@@ -41,6 +43,7 @@ public class User extends BaseEntity {
     public static final String GET_ALL_DRIVERS = "User.getAllDrivers";
     public static final String GET_SUITABLE_DRIVERS = "User.getSuitableDrivers";
     public static final String GET_PROFILE = "User.getProfile";
+    public static final String NEW_USER_VALIDATE = "User.validate";
 
     @Column(name = "first_name")
     private String firstName;

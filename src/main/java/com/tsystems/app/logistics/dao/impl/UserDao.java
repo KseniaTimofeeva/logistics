@@ -36,4 +36,11 @@ public class UserDao extends GenericDaoImpl<User> {
                 .setParameter("login", login)
                 .getResultList();
     }
+
+    public List<User> newUserValidate(String login, String personalNumber) {
+        return em.createNamedQuery(User.NEW_USER_VALIDATE, User.class)
+                .setParameter("login", login)
+                .setParameter("personalNumber", personalNumber)
+                .getResultList();
+    }
 }

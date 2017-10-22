@@ -51,7 +51,12 @@ public class ManagerTruckController {
     @RequestMapping(value = "/new", method = RequestMethod.POST)
     public String addNewTruck(@Valid TruckDto truckDto) {
         LOG.trace("POST /manager/truck/new");
-        truckService.processTruck(truckDto);
+        try {
+            truckService.processTruck(truckDto);
+        } catch (Exception e) {
+            LOG.trace("New truck form exception. {}", e.getMessage());
+            return "redirect:/manager/truck/new?error";
+        }
         return "redirect:/manager/truck";
     }
 

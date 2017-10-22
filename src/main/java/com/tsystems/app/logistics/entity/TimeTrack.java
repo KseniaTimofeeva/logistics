@@ -25,15 +25,17 @@ import java.sql.Timestamp;
         @NamedQuery(name = TimeTrack.GET_TRACKS_FOR_ORDER,
                 query = "select tt from TimeTrack tt where tt.order.id = :orderId"),
         @NamedQuery(name = TimeTrack.GET_TRACKS_IN_CURRENT_MONTH,
-                query = "select tt from TimeTrack tt where tt.user.id = :driverId and tt.date >= :fisrtDayOfMonth and " +
-                        "(tt.driverAction = 'START_DRIVING' or tt.driverAction = 'END_DRIVING' or " +
-                        "tt.driverAction = 'START_LOAD_UNLOAD' or tt.driverAction = 'END_LOAD_UNLOAD') order by tt.date")
+                query = "select tt from TimeTrack tt where tt.user.id = :driverId and tt.date >= :firstDayOfMonth and " +
+                        "(tt.driverAction = 'START_DRIVING' or tt.driverAction = 'START_LOAD_UNLOAD') order by tt.date"),
+        @NamedQuery(name = TimeTrack.GET_LAST_DRIVER_TRACK,
+                query = "select tt from TimeTrack tt where tt.user.id = :driverId order by tt.date desc")
 })
 public class TimeTrack extends BaseEntity {
 
     public static final String GET_LAST_ACTION_BY_DRIVER_LOGIN = "TimeTrack.getLastActionByDriverLogin";
     public static final String GET_TRACKS_FOR_ORDER = "TimeTrack.getTracksForOrder";
     public static final String GET_TRACKS_IN_CURRENT_MONTH = "TimeTrack.getTracksInCurrentMonth";
+    public static final String GET_LAST_DRIVER_TRACK = "TimeTrack.getLastDriverTrack";
     @ManyToOne
     private User user;
 
@@ -44,6 +46,8 @@ public class TimeTrack extends BaseEntity {
     private DriverAction driverAction;
     @ManyToOne
     private Order order;
+    @Column
+    private Long duration;
 
 
     public User getUser() {
@@ -76,5 +80,13 @@ public class TimeTrack extends BaseEntity {
 
     public void setOrder(Order order) {
         this.order = order;
+    }
+
+    public Long getDuration() {
+        return duration;
+    }
+
+    public void setDuration(Long duration) {
+        this.duration = duration;
     }
 }

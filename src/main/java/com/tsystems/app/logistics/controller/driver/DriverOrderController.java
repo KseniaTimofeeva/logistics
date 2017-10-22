@@ -53,8 +53,8 @@ public class DriverOrderController {
     }
 
     @RequestMapping(value = "/add-action", method = RequestMethod.POST)
-    public String addDriverAction(@AuthenticationPrincipal User user, @Valid TimeTrackDto trackDto, @RequestParam DriverAction lastAction, Model model) {
-        trackService.addNewTimeTrack(user.getUsername(), trackDto, lastAction);
+    public String addDriverAction(@AuthenticationPrincipal User user, @Valid TimeTrackDto trackDto, Model model) {
+        trackService.addNewTimeTrack(user.getUsername(), trackDto);
         return "redirect:/driver/order";
     }
 }

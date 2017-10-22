@@ -32,4 +32,11 @@ public class TimeTrackDao extends GenericDaoImpl<TimeTrack> {
                 .setParameter("firstDayOfMonth", firstDayOfMonth)
                 .getResultList();
     }
+
+    public List<TimeTrack> getLastDriverTrack(Long driverId) {
+        return em.createNamedQuery(TimeTrack.GET_LAST_DRIVER_TRACK, TimeTrack.class)
+                .setParameter("driverId", driverId)
+                .setMaxResults(1)
+                .getResultList();
+    }
 }

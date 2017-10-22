@@ -9,6 +9,8 @@ import com.tsystems.app.logistics.service.api.DriverService;
 import com.tsystems.app.logistics.service.api.OrderService;
 import com.tsystems.app.logistics.service.api.PathPointService;
 import com.tsystems.app.logistics.service.api.TruckService;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
@@ -27,6 +29,7 @@ import javax.validation.Valid;
 @Controller
 @RequestMapping({"/manager", "/manager/order"})
 public class ManagerOrderController {
+    private static final Logger LOG = LogManager.getLogger(ManagerOrderController.class);
 
     private String typeOfCenterAttribute = "typeOfCenter";
 
@@ -50,6 +53,7 @@ public class ManagerOrderController {
 
     @RequestMapping(value = "/{orderId}")
     public String getManagerSelectedOrder(@PathVariable(value = "orderId") Long orderId, Model model) {
+
         model.addAttribute(typeOfCenterAttribute, "manager/selected-order.jsp");
 
         OrderInfoDto orderInfo = orderService.getOrderInfoById(orderId);
@@ -58,6 +62,7 @@ public class ManagerOrderController {
         model.addAttribute("orderInfo", orderInfo);
         model.addAttribute("suitableTrucks", suitableTrucks);
         model.addAttribute("suitableDrivers", driverService.getSuitableDriversForOrder(orderId));
+
         return "page";
     }
 

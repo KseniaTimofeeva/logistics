@@ -9,8 +9,21 @@
         </File>
     </Appenders>
     <Loggers>
-        <Logger name="org.hibernate" level="WARN"/>
-        <Logger name="org.springframework" level="WARN"/>
-        <Logger name="com.tsystems.app.logistics" level="TRACE"/>
+        <Logger name="org.hibernate" level="WARN">
+            <AppenderRef ref="Console"/>
+            <AppenderRef ref="File"/>
+        </Logger>
+        <Logger name="org.springframework" level="WARN">
+            <AppenderRef ref="Console"/>
+            <AppenderRef ref="File"/>
+        </Logger>
+        <Logger name="com.tsystems.app.logistics" level="TRACE">
+            <AppenderRef ref="Console"/>
+            <AppenderRef ref="File"/>
+        </Logger>
+        <Root level="DEBUG">
+            <AppenderRef ref="Console"/>
+            <AppenderRef ref="File"/>
+        </Root>
     </Loggers>
 </Configuration>

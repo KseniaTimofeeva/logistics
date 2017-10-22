@@ -8,7 +8,7 @@ import com.tsystems.app.logistics.entity.enums.DriverAction;
  */
 public interface TimeTrackService {
 
-    void addNewTimeTrack(String login, TimeTrackDto trackDto, DriverAction lastAction);
+    void addNewTimeTrack(String login, TimeTrackDto trackDto);
 
     TimeTrackDto getLastActionForOrder(String login, Long orderId);
 }

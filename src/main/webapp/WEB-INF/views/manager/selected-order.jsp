@@ -73,8 +73,13 @@
                                     <table>
                                         <tbody>
                                         <c:forEach items="${orderInfo.crew.users}" var="driver">
+                                            <c:forEach items="${suitableDrivers.notSuitableDrivers}" var="nsDriver">
+                                                <c:if test="${driver.id == nsDriver.id}">
+                                                    <c:set var="marked" value="true"/>
+                                                </c:if>
+                                            </c:forEach>
                                             <tr>
-                                                <td>${driver.personalNumber}:&nbsp;</td>
+                                                <td><span <c:if test="${marked}">style="color: red"</c:if>>${driver.personalNumber}:&nbsp;</span></td>
                                                 <td>${driver.firstName} ${driver.lastName}&nbsp;</td>
                                                 <td><a href="<c:url value="/manager/order/${orderInfo.id}/detach-driver/${driver.id}"/>">
                                                     <i class="fa fa-times"></i></a></td>

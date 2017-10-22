@@ -17,6 +17,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Timestamp;
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.List;
 
 /**
@@ -53,7 +55,7 @@ public class TimeTrackServiceImpl implements TimeTrackService {
 
 
     @Override
-    public void addNewTimeTrack(String login, TimeTrackDto trackDto, DriverAction lastAction) {
+    public void addNewTimeTrack(String login, TimeTrackDto trackDto) {
 
         User driver = userDao.getUserByLogin(login).get(0);
         Order order = orderDao.findOneById(trackDto.getOrder().getId());
@@ -68,33 +70,19 @@ public class TimeTrackServiceImpl implements TimeTrackService {
             }
         }
 
-        TimeTrack endTimeTrack = new TimeTrack();
-        endTimeTrack.setUser(driver);
-        endTimeTrack.setDate(new Timestamp(System.currentTimeMillis()));
-        endTimeTrack.setOrder(order);
 
-        switch (lastAction) {
-            case START_DRIVING:
-                endTimeTrack.setDriverAction(DriverAction.END_DRIVING);
-                break;
-            case START_SECOND:
-                endTimeTrack.setDriverAction(DriverAction.END_SECOND);
-                break;
-            case START_LOAD_UNLOAD:
-                endTimeTrack.setDriverAction(DriverAction.END_LOAD_UNLOAD);
-                break;
-            case START_RELAX:
-                endTimeTrack.setDriverAction(DriverAction.END_RELAX);
-                break;
+        List<TimeTrack> trackList = trackDao.getLastDriverTrack(driver.getId());
+        if (!trackList.isEmpty()) {
+            TimeTrack lastDriverTrack = trackList.get(0);
+            lastDriverTrack.setDuration((Duration.between(lastDriverTrack.getDate().toLocalDateTime(), LocalDateTime.now())).toMillis());
+            trackDao.update(lastDriverTrack);
         }
-        trackDao.create(endTimeTrack);
 
         TimeTrack timeTrack = new TimeTrack();
         timeTrack.setUser(driver);
         timeTrack.setDriverAction(trackDto.getDriverAction());
         timeTrack.setDate(new Timestamp(System.currentTimeMillis()));
         timeTrack.setOrder(order);
-
         trackDao.create(timeTrack);
 
 

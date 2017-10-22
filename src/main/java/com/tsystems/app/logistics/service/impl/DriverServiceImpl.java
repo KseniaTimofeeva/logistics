@@ -28,7 +28,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Timestamp;
+import java.time.Duration;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.Month;
 import java.util.ArrayList;
 import java.util.List;
@@ -104,49 +106,90 @@ public class DriverServiceImpl implements DriverService {
 
     @Override
     public SuitableDriverDto getSuitableDriversForOrder(Long orderId) {
+        LOG.debug("Start find suitable drivers for order №: {}", orderId);
+
         Order order = orderDao.findOneById(orderId);
-        Long dis = getDistanceForOrder(order.getPathPoints());
+        List<User> drivers = userDao.getSuitableDrivers(orderId);
+        LOG.debug("Number of suitable drivers before time limit checking: {} pcs", drivers.size());
 
-        LOG.debug("Distance through all waypoints: {} mts", dis);
+        List<User> suitableDrivers = drivers;
+        List<User> notSuitableDriversFromCurrentCrew = new ArrayList<>();
+
+        if (order.getPathPoints() != null && order.getPathPoints().size() >= 2) {
+            Long dis = getDistanceForOrder(order.getPathPoints());
+            LOG.debug("Distance through all way points: {} mts", dis);
+
+            Truck truck = order.getCrew().getTruck();
+            int crewSize = order.getCrew().getUsers().size();
 
 
-        Truck truck = order.getCrew().getTruck();
-        List<User> drivers = order.getCrew().getUsers();
+            //check which of the left drivers is suitable
+            LOG.trace("Check which of the left drivers is suitable");
+            suitableDrivers = checkDrivers(dis, truck, crewSize + 1, drivers, false);
+            LOG.debug("Number of suitable drivers after time limit checking: {} pcs", suitableDrivers.size());
 
-        //average speed 80km/h
-        double totalWorkingHoursForOneDriver = dis / 1000.0 / 80.0 / drivers.size();
-        double totalDaysForOneDriver = totalWorkingHoursForOneDriver / truck.getWorkingShift();
+            //check which of the drivers from current crew isn't suitable
+            LOG.trace("Check which of the drivers from current crew isn't suitable");
+            notSuitableDriversFromCurrentCrew = checkDrivers(dis, truck, crewSize, order.getCrew().getUsers(), true);
+            LOG.debug("Number of notSuitable drivers from current crew: {} pcs", notSuitableDriversFromCurrentCrew.size());
 
-        Timestamp firstDayOfMonth = Timestamp.valueOf(LocalDate.now().withDayOfMonth(1).atStartOfDay());
-
-        for (User driver : drivers) {
-            List<TimeTrack> timeTracks = trackDao.getTracksInCurrentMonth(driver.getId(), firstDayOfMonth);
-
-            int size = timeTracks.size();
-            double alreadyWorkedHrs = 0;
-            for (int i = 0; i < size -1; i++) {
-                if (timeTracks.get(0).getDriverAction().isEnd()) {
-
-                }
-            }
-//            boolean isSuitable = checkDriverTimeLimitPerMonth(totalDaysForOneDriver, , truck.getWorkingShift());
         }
 
-
-        List<User> suitableDrivers = userDao.getSuitableDrivers(orderId);
         SuitableDriverDto suitableDriverDto = new SuitableDriverDto();
         suitableDriverDto.setDrivers(driverConverter.toDriverDtoList(suitableDrivers));
+        suitableDriverDto.setNotSuitableDrivers(driverConverter.toDriverDtoList(notSuitableDriversFromCurrentCrew));
 
-        suitableDriverDto.setNotSuitableDrivers(new ArrayList<>());
         return suitableDriverDto;
     }
 
+    private List<User> checkDrivers(Long distance, Truck truck, int crewSize, List<User> drivers, boolean checkCurrentCrew) {
+
+        //average speed 80km/h
+        double totalWorkingHoursForOneDriver = distance / 1000.0 / 80.0 / crewSize;
+        double totalDaysForOneDriver = totalWorkingHoursForOneDriver / truck.getWorkingShift();
+
+        List<User> resultDriverList = new ArrayList<>();
+        Timestamp firstDayOfMonth = Timestamp.valueOf(LocalDate.now().withDayOfMonth(1).atStartOfDay());
+        for (User driver : drivers) {
+            LOG.trace("Driver id: {}", driver.getId());
+
+            List<TimeTrack> timeTracks = trackDao.getTracksInCurrentMonth(driver.getId(), firstDayOfMonth);
+            LOG.trace("Quantity of time tracks in current month: {}", timeTracks.size());
+
+            double alreadyWorkedTimeInMillis = 0;
+            for (TimeTrack timeTrack : timeTracks) {
+                if (timeTrack.getDuration() == null) {
+                    alreadyWorkedTimeInMillis += (Duration.between(timeTrack.getDate().toLocalDateTime(), LocalDateTime.now())).toMillis();
+                } else {
+                    alreadyWorkedTimeInMillis += timeTrack.getDuration();
+                }
+            }
+            LOG.trace("Already worked time in current month in millis {}", alreadyWorkedTimeInMillis);
+
+            double alreadyWorkedHrs = alreadyWorkedTimeInMillis / 1000.0 / 3600.0;
+            LOG.trace("Already worked hours in current month {} hrs", alreadyWorkedHrs);
+
+            boolean isSuitable = checkDriverTimeLimitPerMonth(totalDaysForOneDriver, alreadyWorkedHrs, truck.getWorkingShift());
+            LOG.trace("Is suitable {}", isSuitable);
+
+            if (!checkCurrentCrew && isSuitable) {
+                resultDriverList.add(driver);
+            }
+            if (checkCurrentCrew && !isSuitable) {
+                resultDriverList.add(driver);
+            }
+        }
+        return resultDriverList;
+    }
 
     private boolean checkDriverTimeLimitPerMonth(double totalDays, double alreadyWorkedHrs, double workingShift) {
         int leftDaysInMonth = LocalDate.now().lengthOfMonth() - LocalDate.now().getDayOfMonth();
         if (leftDaysInMonth >= totalDays) {
+            LOG.trace("Left days in month more than total days per order");
             return (totalDays * workingShift + alreadyWorkedHrs) <= 176;
         } else {
+            LOG.trace("Left days in month is less than total days per order");
+
             if ((leftDaysInMonth * workingShift + alreadyWorkedHrs) > 176) {
                 return false;
             }
@@ -164,14 +207,18 @@ public class DriverServiceImpl implements DriverService {
     }
 
     private Long getDistanceForOrder(List<PathPoint> points) {
+        LOG.trace("Distance calculation");
 
-//        Long dis = geoUtils.getDistanceBetweenWithGoogleApi(new LatLng(59.95, 30.31667), new LatLng(55.75583, 37.61778));
-
-        LatLng[] pointsLatLng = points.stream()
-                .skip(1)
-                .limit(points.size() - 2)
-                .map(p -> new LatLng(p.getCity().getLatitude(), p.getCity().getLongitude()))
-                .toArray(LatLng[]::new);
+        LatLng[] pointsLatLng;
+        if (points.size() > 2) {
+            pointsLatLng = points.stream()
+                    .skip(1)
+                    .limit(points.size() - 2)
+                    .map(p -> new LatLng(p.getCity().getLatitude(), p.getCity().getLongitude()))
+                    .toArray(LatLng[]::new);
+        } else {
+            pointsLatLng = new LatLng[0];
+        }
 
         LatLng start = new LatLng(points.get(0).getCity().getLatitude(), points.get(0).getCity().getLongitude());
         LatLng finish = new LatLng(points.get(points.size() - 1).getCity().getLatitude(), points.get(points.size() - 1).getCity().getLongitude());

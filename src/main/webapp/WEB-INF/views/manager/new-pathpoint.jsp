@@ -18,6 +18,11 @@
     <div class="animated fadeIn">
         <div class="row">
             <div class="col-sm-7">
+                <c:if test='<%= request.getParameter("error") != null%>'>
+                    <div class="alert alert-danger">
+                        <span style="color: red">Form error</span>
+                    </div>
+                </c:if>
                 <div class="card">
                     <div class="card-header">
                         <div class="row">

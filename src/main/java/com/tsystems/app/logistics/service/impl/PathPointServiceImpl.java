@@ -6,6 +6,7 @@ import com.tsystems.app.logistics.dao.impl.CityDao;
 import com.tsystems.app.logistics.dao.impl.OrderDao;
 import com.tsystems.app.logistics.dao.impl.PathPointDao;
 import com.tsystems.app.logistics.dao.impl.UserDao;
+import com.tsystems.app.logistics.dto.CargoDto;
 import com.tsystems.app.logistics.dto.PathPointDto;
 import com.tsystems.app.logistics.entity.Cargo;
 import com.tsystems.app.logistics.entity.City;
@@ -76,6 +77,7 @@ public class PathPointServiceImpl implements PathPointService {
         return pointConverter.toPathPointDto(point);
     }
 
+
     /**
      * Convert way point dto to way point entity and call method for creating or updating entity
      *
@@ -117,6 +119,8 @@ public class PathPointServiceImpl implements PathPointService {
         if (!isNewPoint) {
             cargo = cargoDao.update(cargo);
         } else if (isNewCargo) {
+            LOG.trace("Add new cargo {}", pointDto.getCargo().getNumber());
+            validateNewCargo(pointDto.getCargo());
             cargo = cargoDao.create(cargo);
         }
 
@@ -133,6 +137,24 @@ public class PathPointServiceImpl implements PathPointService {
         } else {
             addNewPoint(point);
         }
+    }
+
+    /**
+     * Validate new cargo form
+     *
+     * @param cargoDto dto with new cargo information
+     * @return true if number is unique,
+     * else throw exception
+     */
+    private boolean validateNewCargo(CargoDto cargoDto) {
+        if (cargoDto.getNumber() == null || cargoDto.getNumber().equals("")) {
+            throw new RuntimeException("Value for filed 'Number' is required");
+        }
+        List<Cargo> cargoList = cargoDao.newCargoValidate(cargoDto.getNumber());
+        if (!cargoList.isEmpty()) {
+            throw new RuntimeException("Cargo with specified number is already registered");
+        }
+        return true;
     }
 
     @Override
@@ -152,7 +174,6 @@ public class PathPointServiceImpl implements PathPointService {
         LOG.trace("Add new path point to order {}", pathPoint.getOrder().getNumber());
         pathPointDao.create(pathPoint);
     }
-
 
     /**
      * Searching for way points containing cargo that has been loaded but has not been unloaded yet

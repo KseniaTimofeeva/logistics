@@ -11,4 +11,9 @@ import java.util.List;
 @Repository
 public class CargoDao extends GenericDaoImpl<Cargo> {
 
+    public List<Cargo> newCargoValidate(String number) {
+        return em.createNamedQuery(Cargo.NEW_CARGO_VALIDATE, Cargo.class)
+                .setParameter("number", number)
+                .getResultList();
+    }
 }

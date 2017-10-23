@@ -89,7 +89,7 @@ public class DriverServiceImpl implements DriverService {
 
     @Override
     public void addNewDriver(DriverDto driverDto) {
-        LOG.trace("Add new driver", driverDto.getPersonalNumber());
+        LOG.trace("Add new driver {}", driverDto.getPersonalNumber());
         validateNewUserForm(driverDto);
         userDao.create(fromDtoToUser(driverDto));
     }

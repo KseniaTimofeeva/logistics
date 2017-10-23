@@ -22,5 +22,4 @@ public class PathPointDao extends GenericDaoImpl<PathPoint> {
                 .setParameter("orderId", orderId)
                 .getResultList();
     }
-
 }

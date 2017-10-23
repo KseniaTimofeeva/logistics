@@ -79,6 +79,13 @@ public class OrderServiceImpl implements OrderService {
         return order.getId();
     }
 
+    /**
+     * Validate new order form
+     *
+     * @param orderDto dto with new order information
+     * @return true if number is unique,
+     * else throw exception
+     */
     private boolean validateNewOrderForm(OrderDto orderDto) {
         if (orderDto.getNumber() == null || orderDto.getNumber().equals("")) {
             throw new RuntimeException("Value for filed 'Order number' is required");

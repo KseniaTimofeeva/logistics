@@ -17,9 +17,14 @@ import javax.persistence.Table;
 @Entity
 @Table(name = "cargo")
 @Where(clause = "visible=true")
+@NamedQueries({
+        @NamedQuery(name = Cargo.NEW_CARGO_VALIDATE,
+                query = "select c from Cargo c where c.number = :number")
+})
 public class Cargo extends BaseEntity {
 
     public static final String GET_CARGO_TO_UNLOAD = "Cargo.getCargoToUnload";
+    public static final String NEW_CARGO_VALIDATE = "Cargo.newCargoValidate";
 
     @Column(unique = true)
     private String number;

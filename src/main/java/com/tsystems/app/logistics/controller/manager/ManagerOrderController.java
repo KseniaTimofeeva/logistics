@@ -98,9 +98,15 @@ public class ManagerOrderController {
     }
 
     @RequestMapping(value = "/{orderId}/new-point", method = RequestMethod.POST)
-    public String addNewPoint(@Valid PathPointDto pointDto) {
+    public String addNewPoint(@PathVariable(value = "orderId") Long orderId,
+                              @Valid PathPointDto pointDto) {
         LOG.trace("POST /manager/order/{}/new-point", pointDto.getOrderId());
-        pathPointService.processPathPoint(pointDto);
+        try {
+            pathPointService.processPathPoint(pointDto);
+        } catch (Exception e) {
+            LOG.trace("New cargo exception. {}", e.getMessage());
+            return "redirect:/manager/order/" + orderId + "/new-point?error";
+        }
         return "redirect:/manager/order/" + pointDto.getOrderId();
     }
 

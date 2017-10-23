@@ -63,7 +63,7 @@ public class TruckServiceImpl implements TruckService {
      * Validate new truck form
      *
      * @param truckDto dto with new truck information
-     * @return true if login and personal number are unique,
+     * @return true if number plate is unique,
      * else throw exception
      */
     private boolean validateNewTruckForm(TruckDto truckDto) {

@@ -2,6 +2,7 @@ package com.tsystems.app.logistics.dto;
 
 import com.tsystems.app.logistics.entity.User;
 import com.tsystems.app.logistics.entity.enums.DriverAction;
+import com.tsystems.app.logisticscommon.DriverShortDto;
 
 import java.sql.Timestamp;
 

@@ -22,7 +22,16 @@ import java.util.List;
         @NamedQuery(name = Truck.GET_SUITABLE_TRUCKS,
                 query = "select t from Truck t where t.visible = true and t.functioning = true and t.onOrder = false and t.capacity >= :maxTotalWeight"),
         @NamedQuery(name = Truck.NEW_TRUCK_VALIDATE,
-                query = "select t from Truck t where t.numberPlate = :numberPlate")
+                query = "select t from Truck t where t.numberPlate = :numberPlate"),
+        @NamedQuery(name = Truck.GET_TRUCK_QTY,
+                query = "select count(t) from Truck t"),
+        @NamedQuery(name = Truck.GET_VACANT_TRUCK_QTY,
+                query = "select count(t) from Truck t where t.onOrder = false and t.functioning = true"),
+        @NamedQuery(name = Truck.GET_ON_ORDER_TRUCK_QTY,
+                query = "select count(t) from Truck t where t.onOrder = true"),
+        @NamedQuery(name = Truck.GET_NOT_WORKING_TRUCK_QTY,
+                query = "select count(t) from Truck t where t.functioning = false"),
+
 })
 @Where(clause = "visible=true")
 public class Truck extends BaseEntity {
@@ -30,6 +39,10 @@ public class Truck extends BaseEntity {
     public static final String GET_ALL_TRUCKS = "Truck.getAllTrucks";
     public static final String GET_SUITABLE_TRUCKS = "Truck.getSuitableTrucks";
     public static final String NEW_TRUCK_VALIDATE = "Truck.newTruckValidate";
+    public static final String GET_TRUCK_QTY = "Truck.getTruckQty";
+    public static final String GET_VACANT_TRUCK_QTY = "Truck.getVacantTruckQty";
+    public static final String GET_ON_ORDER_TRUCK_QTY = "Truck.getOnOrderTruckQty";
+    public static final String GET_NOT_WORKING_TRUCK_QTY = "Truck.getNotWorkingTruckQty";
 
     @Column(name = "number_plate", unique = true)
     private String numberPlate;

@@ -1,11 +1,9 @@
 package com.tsystems.app.logistics.converter;
 
-import com.tsystems.app.logistics.dto.DriverShortDto;
 import com.tsystems.app.logistics.entity.User;
+import com.tsystems.app.logisticscommon.DriverShortDto;
 import org.junit.Assert;
 import org.junit.Test;
-
-import static org.junit.Assert.*;
 
 /**
  * Created by ksenia on 22.10.2017.

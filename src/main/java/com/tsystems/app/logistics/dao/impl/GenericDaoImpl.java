@@ -35,15 +35,15 @@ public class GenericDaoImpl<T extends BaseEntity> implements GenericDao<T> {
     }
 
     @Override
-    public void delete(T t) {
+    public T delete(T t) {
         t.setVisible(false);
-        em.merge(t);
+        return em.merge(t);
     }
 
     @Override
-    public void deleteById(Long id) {
+    public T deleteById(Long id) {
         T entity = findOneById(id);
-        delete(entity);
+        return delete(entity);
     }
 
     @Override

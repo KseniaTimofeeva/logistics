@@ -3,6 +3,7 @@ package com.tsystems.app.logistics.converter;
 import com.tsystems.app.logistics.dto.CrewDriverProfileDto;
 import com.tsystems.app.logistics.dto.CrewDto;
 import com.tsystems.app.logistics.entity.Crew;
+import com.tsystems.app.logisticscommon.CrewDriverInfoDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -41,5 +42,18 @@ public class CrewConverter {
         crewDriverProfileDto.setTruck(truckConverter.toTruckDto(crew.getTruck()));
         crewDriverProfileDto.setUsers(driverConverter.toDriverShortDtoList(crew.getUsers()));
         return crewDriverProfileDto;
+    }
+
+    public CrewDriverInfoDto toCrewDriverInfoDto(Crew crew) {
+        if (crew == null) {
+            return null;
+        }
+        if (crew.getUsers() == null || crew.getUsers().isEmpty()) {
+            return null;
+        }
+        CrewDriverInfoDto crewDriverInfoDto = new CrewDriverInfoDto();
+        crewDriverInfoDto.setId(crew.getId());
+        crewDriverInfoDto.setUsers(driverConverter.toDriverShortDtoList(crew.getUsers()));
+        return crewDriverInfoDto;
     }
 }

@@ -20,7 +20,7 @@ public class UserDao extends GenericDaoImpl<User> {
                 .getResultList();
     }
 
-    public List<User> getAllUsers() {
+    public List<User> getAllDrivers() {
         return em.createNamedQuery(User.GET_ALL_DRIVERS, User.class)
                 .getResultList();
     }
@@ -42,5 +42,20 @@ public class UserDao extends GenericDaoImpl<User> {
                 .setParameter("login", login)
                 .setParameter("personalNumber", personalNumber)
                 .getResultList();
+    }
+
+    public Long getDriverQty() {
+        return em.createNamedQuery(User.GET_DRIVER_QTY, Long.class)
+                .getSingleResult();
+    }
+
+    public Long getVacantDriverQty() {
+        return em.createNamedQuery(User.GET_VACANT_DRIVER_QTY, Long.class)
+                .getSingleResult();
+    }
+
+    public Long getNotAvailableDriverQty() {
+        return em.createNamedQuery(User.GET_NOT_AVAILABLE_DRIVER_QTY, Long.class)
+                .getSingleResult();
     }
 }

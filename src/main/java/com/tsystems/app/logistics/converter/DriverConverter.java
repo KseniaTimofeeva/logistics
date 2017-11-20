@@ -3,15 +3,15 @@ package com.tsystems.app.logistics.converter;
 import com.tsystems.app.logistics.dto.CrewDriverProfileDto;
 import com.tsystems.app.logistics.dto.DriverDto;
 import com.tsystems.app.logistics.dto.DriverProfileDto;
-import com.tsystems.app.logistics.dto.DriverShortDto;
 import com.tsystems.app.logistics.entity.Crew;
 import com.tsystems.app.logistics.entity.User;
+import com.tsystems.app.logisticscommon.DriverInfoBoardDto;
+import com.tsystems.app.logisticscommon.DriverShortDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -95,5 +95,24 @@ public class DriverConverter {
             driverProfileDto.setCrew(crewDriverProfileDto);
         }
         return driverProfileDto;
+    }
+
+    public DriverInfoBoardDto toDriverInfoBoardDto(User driver) {
+        DriverInfoBoardDto dto = new DriverInfoBoardDto();
+        dto.setId(driver.getId());
+        dto.setFirstName(driver.getFirstName());
+        dto.setLastName(driver.getLastName());
+        dto.setPersonalNumber(driver.getPersonalNumber());
+        dto.setOnOrder(driver.getOnOrder());
+        dto.setCurrentCity(cityConverter.toCityDto(driver.getCurrentCity()));
+        return dto;
+    }
+
+    public List<DriverInfoBoardDto> toDriverInfoBoardDtoList(List<User> drivers) {
+        return drivers
+                .stream()
+                .map(driver ->
+                        toDriverInfoBoardDto(driver))
+                .collect(Collectors.toList());
     }
 }

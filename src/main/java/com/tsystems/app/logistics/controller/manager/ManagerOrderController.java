@@ -8,6 +8,7 @@ import com.tsystems.app.logistics.service.api.CityService;
 import com.tsystems.app.logistics.service.api.DriverService;
 import com.tsystems.app.logistics.service.api.OrderService;
 import com.tsystems.app.logistics.service.api.PathPointService;
+import com.tsystems.app.logistics.service.api.SenderService;
 import com.tsystems.app.logistics.service.api.TruckService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

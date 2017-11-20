@@ -4,15 +4,12 @@ import com.google.maps.model.LatLng;
 import com.tsystems.app.logistics.converter.DriverConverter;
 import com.tsystems.app.logistics.dao.impl.CityDao;
 import com.tsystems.app.logistics.dao.impl.OrderDao;
-import com.tsystems.app.logistics.dao.impl.PathPointDao;
 import com.tsystems.app.logistics.dao.impl.TimeTrackDao;
 import com.tsystems.app.logistics.dao.impl.UserDao;
 import com.tsystems.app.logistics.dto.DriverDto;
 import com.tsystems.app.logistics.dto.DriverProfileDto;
-import com.tsystems.app.logistics.dto.PathPointDto;
 import com.tsystems.app.logistics.dto.SuitableDriverDto;
 import com.tsystems.app.logistics.entity.City;
-import com.tsystems.app.logistics.entity.Crew;
 import com.tsystems.app.logistics.entity.Order;
 import com.tsystems.app.logistics.entity.PathPoint;
 import com.tsystems.app.logistics.entity.TimeTrack;
@@ -20,7 +17,12 @@ import com.tsystems.app.logistics.entity.Truck;
 import com.tsystems.app.logistics.entity.User;
 import com.tsystems.app.logistics.entity.enums.SecurityRole;
 import com.tsystems.app.logistics.service.api.DriverService;
+import com.tsystems.app.logistics.service.api.GeneralInfoService;
+import com.tsystems.app.logistics.service.api.SenderService;
 import com.tsystems.app.logistics.utils.GeoUtils;
+import com.tsystems.app.logisticscommon.DriverInfoBoardDto;
+import com.tsystems.app.logisticscommon.GeneralInfoDto;
+import com.tsystems.app.logisticscommon.MessageType;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,12 +33,10 @@ import java.sql.Timestamp;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.Month;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 /**
  * Created by ksenia on 08.10.2017.
@@ -55,6 +55,10 @@ public class DriverServiceImpl implements DriverService {
     private GeoUtils geoUtils;
     @Autowired
     private DriverConverter driverConverter;
+    @Autowired
+    private SenderService senderService;
+    @Autowired
+    private GeneralInfoService generalInfoService;
 
     @Autowired
     public void setUserDao(UserDao userDao) {
@@ -91,7 +95,10 @@ public class DriverServiceImpl implements DriverService {
     public void addNewDriver(DriverDto driverDto) {
         LOG.trace("Add new driver {}", driverDto.getPersonalNumber());
         validateNewUserForm(driverDto);
-        userDao.create(fromDtoToUser(driverDto));
+        User driver = userDao.create(fromDtoToUser(driverDto));
+
+        updateBoardAddDriver(driver);
+        updateBoardGeneralInfoDriver();
     }
 
     /**
@@ -121,9 +128,27 @@ public class DriverServiceImpl implements DriverService {
     @Override
     public void updateDriver(DriverDto driverDto) {
         LOG.trace("Update driver {}", driverDto.getPersonalNumber());
-        userDao.update(fromDtoToUser(driverDto));
+        User driver = userDao.update(fromDtoToUser(driverDto));
+        updateBoardUpdateDriver(driver);
     }
 
+    private void updateBoardUpdateDriver(User driver) {
+        senderService.typedSend(MessageType.UPDATE_DRIVER, getOneDriverInfo(driver));
+    }
+
+    private void updateBoardAddDriver(User driver) {
+        senderService.typedSend(MessageType.ADD_DRIVER, getOneDriverInfo(driver));
+    }
+
+    private void updateBoardGeneralInfoDriver() {
+        GeneralInfoDto generalInfoDto = new GeneralInfoDto();
+        generalInfoDto = generalInfoService.setDriverInfo(generalInfoDto);
+        senderService.typedSend(MessageType.GENERAL, generalInfoDto);
+    }
+
+    private void updateBoardDeleteDriver(Long id) {
+        senderService.typedSend(MessageType.DELETE_DRIVER, id);
+    }
 
     /**
      * Search drivers who is suitable to fulfill the order
@@ -144,7 +169,7 @@ public class DriverServiceImpl implements DriverService {
         List<User> suitableDrivers = drivers;
         List<User> notSuitableDriversFromCurrentCrew = new ArrayList<>();
 
-        if (order.getPathPoints() != null && order.getPathPoints().size() >= 2) {
+        if (order.getPathPoints() != null && order.getPathPoints().size() >= 2 && order.getCrew()!=null) {
             Long dis = getDistanceForOrder(order.getPathPoints());
             LOG.debug("Distance through all way points for order {}: {} meters", order.getNumber(), dis);
 
@@ -184,22 +209,7 @@ public class DriverServiceImpl implements DriverService {
         for (User driver : drivers) {
             LOG.trace("Driver personal number: {}", driver.getPersonalNumber());
 
-            List<TimeTrack> timeTracks = trackDao.getTracksInCurrentMonth(driver.getId(), firstDayOfMonth);
-            LOG.trace("Driver {}: quantity of time tracks in current month: {}", driver.getPersonalNumber(), timeTracks.size());
-
-            //If time track isn't closed till now,
-            //based on the end is now
-            double alreadyWorkedTimeInMillis = 0;
-            for (TimeTrack timeTrack : timeTracks) {
-                if (timeTrack.getDuration() == null) {
-                    alreadyWorkedTimeInMillis += (Duration.between(timeTrack.getDate().toLocalDateTime(), LocalDateTime.now())).toMillis();
-                } else {
-                    alreadyWorkedTimeInMillis += timeTrack.getDuration();
-                }
-            }
-            LOG.trace("Driver {}: already worked time in current month in millis {}", driver.getPersonalNumber(), alreadyWorkedTimeInMillis);
-
-            double alreadyWorkedHrs = alreadyWorkedTimeInMillis / 1000.0 / 3600.0;
+            double alreadyWorkedHrs = getAlreadyWorkedHrs(driver.getId(), firstDayOfMonth);;
             LOG.trace("Driver {}: already worked hours in current month {} hrs", driver.getPersonalNumber(), alreadyWorkedHrs);
 
             boolean isSuitable = checkDriverTimeLimitPerMonth(totalDaysForOneDriver, alreadyWorkedHrs, truck.getWorkingShift());
@@ -215,6 +225,22 @@ public class DriverServiceImpl implements DriverService {
             }
         }
         return resultDriverList;
+    }
+
+    private double getAlreadyWorkedHrs(Long driverId, Timestamp firstDayOfMonth) {
+        List<TimeTrack> timeTracks = trackDao.getTracksInCurrentMonth(driverId, firstDayOfMonth);
+
+        //If time track isn't closed till now,
+        //based on the end is now
+        double alreadyWorkedTimeInMillis = 0;
+        for (TimeTrack timeTrack : timeTracks) {
+            if (timeTrack.getDuration() == null) {
+                alreadyWorkedTimeInMillis += (Duration.between(timeTrack.getDate().toLocalDateTime(), LocalDateTime.now())).toMillis();
+            } else {
+                alreadyWorkedTimeInMillis += timeTrack.getDuration();
+            }
+        }
+        return alreadyWorkedTimeInMillis / 1000.0 / 3600.0;
     }
 
 
@@ -293,13 +319,15 @@ public class DriverServiceImpl implements DriverService {
 
     @Override
     public List<DriverDto> getAllDrivers() {
-        List<User> allUsers = userDao.getAllUsers();
+        List<User> allUsers = userDao.getAllDrivers();
         return driverConverter.toDriverDtoList(allUsers);
     }
 
     @Override
     public void deleteDriver(Long id) {
         userDao.deleteById(id);
+        updateBoardDeleteDriver(id);
+        updateBoardGeneralInfoDriver();
     }
 
     @Override
@@ -315,5 +343,26 @@ public class DriverServiceImpl implements DriverService {
             drivers = userDao.getUserByLogin(login);
         }
         return driverConverter.toDriverProfileDto(drivers.get(0));
+    }
+
+    @Override
+    public List<DriverInfoBoardDto> getDriversInfo() {
+        List<User> drivers = userDao.getAllDrivers();
+        List<DriverInfoBoardDto> dtoList = driverConverter.toDriverInfoBoardDtoList(drivers);
+        Timestamp firstDayOfMonth = Timestamp.valueOf(LocalDate.now().withDayOfMonth(1).atStartOfDay());
+        for (DriverInfoBoardDto dto : dtoList) {
+            dto.setAlreadyWorkedHrs(getAlreadyWorkedHrs(dto.getId(), firstDayOfMonth));
+            dto.setRemainHrs(176 - dto.getAlreadyWorkedHrs());
+        }
+        return dtoList;
+    }
+
+    @Override
+    public DriverInfoBoardDto getOneDriverInfo(User driver) {
+        DriverInfoBoardDto dto = driverConverter.toDriverInfoBoardDto(driver);
+        Timestamp firstDayOfMonth = Timestamp.valueOf(LocalDate.now().withDayOfMonth(1).atStartOfDay());
+        dto.setAlreadyWorkedHrs(getAlreadyWorkedHrs(dto.getId(), firstDayOfMonth));
+        dto.setRemainHrs(176 - dto.getAlreadyWorkedHrs());
+        return dto;
     }
 }

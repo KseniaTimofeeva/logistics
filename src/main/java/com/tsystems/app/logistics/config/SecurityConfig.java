@@ -20,6 +20,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter{
         http.authorizeRequests()
                 .antMatchers("/driver/**").access("hasRole('ROLE_DRIVER')")
                 .antMatchers("/manager/**").access("hasRole('ROLE_MANAGER')")
+                .antMatchers("/rest/**").permitAll()
                 .anyRequest().authenticated();
 
         http.formLogin()

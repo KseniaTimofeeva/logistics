@@ -34,7 +34,13 @@ import java.util.List;
                 query = "select distinct u from User u join u.crews crs join crs.order o where " +
                         "u.login = :login and u.role = 'ROLE_DRIVER' and (o.status = 'NEW' or o.status = 'IN_PROCESS')"),
         @NamedQuery(name = User.NEW_USER_VALIDATE,
-                query = "select u from User u where u.login = :login or u.personalNumber = :personalNumber")
+                query = "select u from User u where u.login = :login or u.personalNumber = :personalNumber"),
+        @NamedQuery(name = User.GET_DRIVER_QTY,
+                query = "select count(u) from User u where u.role = 'ROLE_DRIVER'"),
+        @NamedQuery(name = User.GET_VACANT_DRIVER_QTY,
+                query = "select count(u) from User u where u.role = 'ROLE_DRIVER' and u.onOrder = false"),
+        @NamedQuery(name = User.GET_NOT_AVAILABLE_DRIVER_QTY,
+                query = "select count(u) from User u where u.role = 'ROLE_DRIVER' and u.onOrder = true")
 })
 @Where(clause = "visible=true")
 public class User extends BaseEntity {
@@ -44,6 +50,9 @@ public class User extends BaseEntity {
     public static final String GET_SUITABLE_DRIVERS = "User.getSuitableDrivers";
     public static final String GET_PROFILE = "User.getProfile";
     public static final String NEW_USER_VALIDATE = "User.validate";
+    public static final String GET_DRIVER_QTY = "User.getDriverQty";
+    public static final String GET_VACANT_DRIVER_QTY = "User.getVacantDriverQty";
+    public static final String GET_NOT_AVAILABLE_DRIVER_QTY = "User.getNotAvailableDriverQty";
 
     @Column(name = "first_name")
     private String firstName;

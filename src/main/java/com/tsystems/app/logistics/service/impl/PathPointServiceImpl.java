@@ -5,6 +5,7 @@ import com.tsystems.app.logistics.dao.impl.CargoDao;
 import com.tsystems.app.logistics.dao.impl.CityDao;
 import com.tsystems.app.logistics.dao.impl.OrderDao;
 import com.tsystems.app.logistics.dao.impl.PathPointDao;
+import com.tsystems.app.logistics.dao.impl.TruckDao;
 import com.tsystems.app.logistics.dao.impl.UserDao;
 import com.tsystems.app.logistics.dto.CargoDto;
 import com.tsystems.app.logistics.dto.PathPointDto;
@@ -12,6 +13,7 @@ import com.tsystems.app.logistics.entity.Cargo;
 import com.tsystems.app.logistics.entity.City;
 import com.tsystems.app.logistics.entity.Order;
 import com.tsystems.app.logistics.entity.PathPoint;
+import com.tsystems.app.logistics.entity.Truck;
 import com.tsystems.app.logistics.entity.User;
 import com.tsystems.app.logistics.entity.enums.OrderStatus;
 import com.tsystems.app.logistics.service.api.PathPointService;
@@ -36,6 +38,7 @@ public class PathPointServiceImpl implements PathPointService {
     private CargoDao cargoDao;
     private OrderDao orderDao;
     private UserDao userDao;
+    private TruckDao truckDao;
 
     @Autowired
     private PathPointConverter pointConverter;
@@ -68,6 +71,11 @@ public class PathPointServiceImpl implements PathPointService {
     public void setUserDao(UserDao userDao) {
         this.userDao = userDao;
         userDao.setEntityClass(User.class);
+    }
+    @Autowired
+    public void setTruckDao(TruckDao truckDao) {
+        this.truckDao = truckDao;
+        truckDao.setEntityClass(Truck.class);
     }
 
 
@@ -120,7 +128,7 @@ public class PathPointServiceImpl implements PathPointService {
             cargo = cargoDao.update(cargo);
         } else if (isNewCargo) {
             LOG.trace("Add new cargo {}", pointDto.getCargo().getNumber());
-            validateNewCargo(pointDto.getCargo());
+//            validateNewCargo(pointDto.getCargo());
             cargo = cargoDao.create(cargo);
         }
 
@@ -220,6 +228,9 @@ public class PathPointServiceImpl implements PathPointService {
                 driver.setOnOrder(false);
                 userDao.update(driver);
             }
+            Truck truck = order.getCrew().getTruck();
+            truck.setOnOrder(false);
+            truckDao.update(truck);
         }
     }
 

@@ -1,7 +1,7 @@
 package com.tsystems.app.logistics.converter;
 
-import com.tsystems.app.logistics.dto.CityDto;
 import com.tsystems.app.logistics.entity.City;
+import com.tsystems.app.logisticscommon.CityDto;
 import org.springframework.stereotype.Component;
 
 import java.util.List;

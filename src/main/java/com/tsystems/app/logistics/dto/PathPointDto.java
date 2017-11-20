@@ -2,6 +2,7 @@ package com.tsystems.app.logistics.dto;
 
 import com.tsystems.app.logistics.entity.Cargo;
 import com.tsystems.app.logistics.entity.City;
+import com.tsystems.app.logisticscommon.CityDto;
 
 /**
  * Created by ksenia on 14.10.2017.

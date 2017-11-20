@@ -3,12 +3,19 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.tsystems.app</groupId>
     <artifactId>logistics</artifactId>
+
     <packaging>war</packaging>
     <version>1.0-SNAPSHOT</version>
     <name>logistics Maven Webapp</name>
     <url>http://maven.apache.org</url>
 
     <dependencies>
+        <dependency>
+            <groupId>com.tsystems.app</groupId>
+            <artifactId>logistics-common</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+
 
         <!-- https://mvnrepository.com/artifact/junit/junit -->
         <dependency>
@@ -137,8 +144,35 @@
             <version>0.2.4</version>
         </dependency>
 
-    </dependencies>
+        <!-- https://mvnrepository.com/artifact/org.jboss.spec.javax.jms/jboss-jms-api_2.0_spec -->
+        <dependency>
+            <groupId>org.jboss.spec.javax.jms</groupId>
+            <artifactId>jboss-jms-api_2.0_spec</artifactId>
+            <version>1.0.1.Final</version>
+        </dependency>
 
+        <!-- https://mvnrepository.com/artifact/org.springframework/spring-jms -->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-jms</artifactId>
+            <version>5.0.1.RELEASE</version>
+        </dependency>
+
+        <!-- https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-databind -->
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>2.9.2</version>
+        </dependency>
+
+        <!-- https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-annotations -->
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-annotations</artifactId>
+            <version>2.9.2</version>
+        </dependency>
+
+    </dependencies>
     <build>
         <finalName>logistics</finalName>
         <plugins>

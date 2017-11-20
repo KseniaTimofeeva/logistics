@@ -1,7 +1,6 @@
 package com.tsystems.app.logistics.service.api;
 
-import com.tsystems.app.logistics.dto.CityDto;
-import com.tsystems.app.logistics.entity.City;
+import com.tsystems.app.logisticscommon.CityDto;
 
 import java.util.List;
 

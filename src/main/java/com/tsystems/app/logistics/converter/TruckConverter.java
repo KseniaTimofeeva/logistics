@@ -2,6 +2,7 @@ package com.tsystems.app.logistics.converter;
 
 import com.tsystems.app.logistics.dto.TruckDto;
 import com.tsystems.app.logistics.entity.Truck;
+import com.tsystems.app.logisticscommon.TruckFullDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -16,6 +17,8 @@ public class TruckConverter {
 
     @Autowired
     private CityConverter cityConverter;
+    @Autowired
+    private CrewConverter crewConverter;
 
     public TruckDto toTruckDto(Truck truck) {
         if (truck == null) {
@@ -39,5 +42,30 @@ public class TruckConverter {
                 .stream()
                 .map(truck -> toTruckDto(truck))
                 .collect(Collectors.toList());
+    }
+
+    public List<TruckFullDto> toTruckFullDtoList(List<Truck> trucks) {
+        return trucks
+                .stream()
+                .map(truck -> toTruckFullDto(truck))
+                .collect(Collectors.toList());
+    }
+
+    public TruckFullDto toTruckFullDto(Truck truck) {
+        TruckFullDto truckFullDto = new TruckFullDto();
+        truckFullDto.setId(truck.getId());
+        truckFullDto.setNumberPlate(truck.getNumberPlate());
+        truckFullDto.setWorkingShift(truck.getWorkingShift());
+        truckFullDto.setCapacity(truck.getCapacity());
+        truckFullDto.setFunctioning(truck.getFunctioning());
+        truckFullDto.setOnOrder(truck.getOnOrder());
+        if (truck.getCurrentCity() != null) {
+            truckFullDto.setCurrentCity(cityConverter.toCityDto(truck.getCurrentCity()));
+        }
+
+        if (truck.getCrews() != null && truck.getCrews().size() > 0) {
+            truckFullDto.setCrew(crewConverter.toCrewDriverInfoDto(truck.getCrews().get(0)));
+        }
+        return truckFullDto;
     }
 }

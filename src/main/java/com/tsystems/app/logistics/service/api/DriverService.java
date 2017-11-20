@@ -4,6 +4,7 @@ import com.tsystems.app.logistics.dto.DriverProfileDto;
 import com.tsystems.app.logistics.dto.SuitableDriverDto;
 import com.tsystems.app.logistics.dto.DriverDto;
 import com.tsystems.app.logistics.entity.User;
+import com.tsystems.app.logisticscommon.DriverInfoBoardDto;
 
 import java.util.List;
 
@@ -28,4 +29,8 @@ public interface DriverService {
     SuitableDriverDto getSuitableDriversForOrder(Long orderId);
 
     DriverProfileDto getDriverProfileByLogin(String login);
+
+    List<DriverInfoBoardDto> getDriversInfo();
+
+    DriverInfoBoardDto getOneDriverInfo(User driver);
 }

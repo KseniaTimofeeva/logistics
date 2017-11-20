@@ -1,6 +1,7 @@
 package com.tsystems.app.logistics.dto;
 
 import com.tsystems.app.logistics.entity.City;
+import com.tsystems.app.logisticscommon.CityDto;
 
 import javax.validation.constraints.NotNull;
 

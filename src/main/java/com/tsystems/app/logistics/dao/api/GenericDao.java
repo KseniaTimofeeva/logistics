@@ -10,9 +10,9 @@ public interface GenericDao<T extends BaseEntity> {
 
     T update(T t);
 
-    void delete(T t);
+    T delete(T t);
 
-    void deleteById(Long id);
+    T deleteById(Long id);
 
     T findOneById(Long id);
 }

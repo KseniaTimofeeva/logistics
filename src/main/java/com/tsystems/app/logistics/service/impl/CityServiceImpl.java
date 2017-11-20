@@ -2,9 +2,9 @@ package com.tsystems.app.logistics.service.impl;
 
 import com.tsystems.app.logistics.converter.CityConverter;
 import com.tsystems.app.logistics.dao.impl.CityDao;
-import com.tsystems.app.logistics.dto.CityDto;
 import com.tsystems.app.logistics.entity.City;
 import com.tsystems.app.logistics.service.api.CityService;
+import com.tsystems.app.logisticscommon.CityDto;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;

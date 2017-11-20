@@ -2,6 +2,7 @@ package com.tsystems.app.logistics.service.api;
 
 import com.tsystems.app.logistics.dto.OrderDto;
 import com.tsystems.app.logistics.dto.OrderInfoDto;
+import com.tsystems.app.logisticscommon.OrderInfoBoardDto;
 
 import java.util.List;
 
@@ -25,4 +26,6 @@ public interface OrderService {
     void detachDriver(Long orderId, Long driverId);
 
     OrderInfoDto getCurrentOrderByDriverLogin(String login);
+
+    List<OrderInfoBoardDto> getOrdersInfo();
 }

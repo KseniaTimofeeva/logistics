@@ -1,6 +1,5 @@
 package com.tsystems.app.logistics.service.impl;
 
-import com.tsystems.app.logistics.converter.DriverConverter;
 import com.tsystems.app.logistics.converter.TimeTrackConverter;
 import com.tsystems.app.logistics.dao.impl.OrderDao;
 import com.tsystems.app.logistics.dao.impl.TimeTrackDao;
@@ -10,8 +9,8 @@ import com.tsystems.app.logistics.entity.Order;
 import com.tsystems.app.logistics.entity.TimeTrack;
 import com.tsystems.app.logistics.entity.User;
 import com.tsystems.app.logistics.entity.enums.DriverAction;
-import com.tsystems.app.logistics.entity.enums.OrderStatus;
 import com.tsystems.app.logistics.service.api.TimeTrackService;
+import com.tsystems.app.logisticscommon.enums.OrderStatus;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;

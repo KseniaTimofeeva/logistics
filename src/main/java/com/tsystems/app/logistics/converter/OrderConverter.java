@@ -3,6 +3,7 @@ package com.tsystems.app.logistics.converter;
 import com.tsystems.app.logistics.dto.OrderDto;
 import com.tsystems.app.logistics.dto.OrderInfoDto;
 import com.tsystems.app.logistics.entity.Order;
+import com.tsystems.app.logisticscommon.OrderInfoBoardDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -48,6 +49,27 @@ public class OrderConverter {
                 .stream()
                 .map(order ->
                         toOrderInfoDto(order))
+                .collect(Collectors.toList());
+    }
+
+    public OrderInfoBoardDto toOrderInfoBoardDto(Order order) {
+        OrderInfoBoardDto dto = new OrderInfoBoardDto();
+        dto.setId(order.getId());
+        dto.setNumber(order.getNumber());
+        dto.setStart(null);
+        dto.setFinish(null);
+        dto.setStatus(order.getStatus());
+        if (order.getCrew() != null) {
+            dto.setCrew(crewConverter.toCrewShortDto(order.getCrew()));
+        }
+        return dto;
+    }
+
+    public List<OrderInfoBoardDto> toOrderInfoBoardDtoList(List<Order> orders) {
+        return orders
+                .stream()
+                .map(order ->
+                        toOrderInfoBoardDto(order))
                 .collect(Collectors.toList());
     }
 }

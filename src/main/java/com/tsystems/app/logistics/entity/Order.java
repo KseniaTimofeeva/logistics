@@ -1,14 +1,12 @@
 package com.tsystems.app.logistics.entity;
 
-import com.tsystems.app.logistics.entity.enums.OrderStatus;
+import com.tsystems.app.logisticscommon.enums.OrderStatus;
 import org.hibernate.annotations.Where;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
-import javax.persistence.FetchType;
-import javax.persistence.JoinColumn;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.OneToMany;
@@ -29,7 +27,7 @@ import java.util.List;
                 query = "select distinct o from Order o join o.crew.users u where " +
                         "u.login = :login and (o.status = 'NEW' or o.status = 'IN_PROCESS')"),
         @NamedQuery(name = Order.VALIDATE_NEW_ORDER,
-                query = "select o from Order o where o.number = :number"),
+                query = "select o from Order o where o.number = :number")
 })
 @Where(clause = "visible=true")
 public class Order extends BaseEntity {

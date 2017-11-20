@@ -15,7 +15,6 @@ import com.tsystems.app.logistics.entity.Order;
 import com.tsystems.app.logistics.entity.PathPoint;
 import com.tsystems.app.logistics.entity.Truck;
 import com.tsystems.app.logistics.entity.User;
-import com.tsystems.app.logistics.entity.enums.OrderStatus;
 import com.tsystems.app.logistics.service.api.PathPointService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

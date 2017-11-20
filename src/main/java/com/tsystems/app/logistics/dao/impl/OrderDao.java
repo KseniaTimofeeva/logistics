@@ -1,11 +1,8 @@
 package com.tsystems.app.logistics.dao.impl;
 
-import com.tsystems.app.logistics.dao.impl.GenericDaoImpl;
 import com.tsystems.app.logistics.entity.Order;
 import org.springframework.stereotype.Repository;
 
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
 import java.util.List;
 
 /**
@@ -31,4 +28,9 @@ public class OrderDao extends GenericDaoImpl<Order> {
                 .getResultList();
     }
 
+    public List<Order> getLastOrders(int maxResult) {
+        return em.createNamedQuery(Order.GET_ALL_ORDERS, Order.class)
+                .setMaxResults(maxResult)
+                .getResultList();
+    }
 }

@@ -1,6 +1,6 @@
 package com.tsystems.app.logistics.dto;
 
-import com.tsystems.app.logistics.entity.enums.OrderStatus;
+import com.tsystems.app.logisticscommon.enums.OrderStatus;
 
 /**
  * Created by ksenia on 13.10.2017.

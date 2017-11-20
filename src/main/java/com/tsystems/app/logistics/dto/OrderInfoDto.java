@@ -1,8 +1,6 @@
 package com.tsystems.app.logistics.dto;
 
-import com.tsystems.app.logistics.entity.Crew;
-import com.tsystems.app.logistics.entity.PathPoint;
-import com.tsystems.app.logistics.entity.enums.OrderStatus;
+import com.tsystems.app.logisticscommon.enums.OrderStatus;
 
 import java.util.List;
 

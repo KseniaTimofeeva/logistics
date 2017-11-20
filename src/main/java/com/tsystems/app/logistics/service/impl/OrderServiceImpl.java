@@ -11,8 +11,9 @@ import com.tsystems.app.logistics.entity.Crew;
 import com.tsystems.app.logistics.entity.Order;
 import com.tsystems.app.logistics.entity.Truck;
 import com.tsystems.app.logistics.entity.User;
-import com.tsystems.app.logistics.entity.enums.OrderStatus;
 import com.tsystems.app.logistics.service.api.OrderService;
+import com.tsystems.app.logisticscommon.OrderInfoBoardDto;
+import com.tsystems.app.logisticscommon.enums.OrderStatus;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -206,4 +207,11 @@ public class OrderServiceImpl implements OrderService {
 
         return orderConverter.toOrderInfoDto(orders.get(i));
     }
+
+    @Override
+    public List<OrderInfoBoardDto> getOrdersInfo() {
+        List<Order> orders = orderDao.getLastOrders(100);
+        return orderConverter.toOrderInfoBoardDtoList(orders);
+    }
+
 }

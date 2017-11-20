@@ -1,15 +1,10 @@
 package com.tsystems.app.logistics.dao.impl;
 
-import com.tsystems.app.logistics.dao.impl.GenericDaoImpl;
 import com.tsystems.app.logistics.entity.Crew;
 import com.tsystems.app.logistics.entity.Truck;
-import com.tsystems.app.logistics.entity.enums.OrderStatus;
+import com.tsystems.app.logisticscommon.enums.OrderStatus;
 import org.springframework.stereotype.Repository;
 
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
-import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 /**

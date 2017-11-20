@@ -1,4 +1,4 @@
-<%@ page import="com.tsystems.app.logistics.entity.enums.OrderStatus" %>
+<%@ page import="com.tsystems.app.logisticscommon.enums.OrderStatus" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%--
   Created by IntelliJ IDEA.

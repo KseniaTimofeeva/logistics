@@ -18,9 +18,10 @@ public class OrderConverter {
 
     @Autowired
     private PathPointConverter pointConverter;
-
     @Autowired
     private CrewConverter crewConverter;
+    @Autowired
+    private CityConverter cityConverter;
 
     public OrderDto toOrderDto(Order order) {
         OrderDto orderDto = new OrderDto();
@@ -40,6 +41,9 @@ public class OrderConverter {
         }
         if (order.getCrew() != null) {
             orderInfoDto.setCrew(crewConverter.toCrewDto(order.getCrew()));
+        }
+        if (order.getRoute() != null) {
+            orderInfoDto.setRoute(cityConverter.routeToCityDtoList(order.getRoute()));
         }
         return orderInfoDto;
     }

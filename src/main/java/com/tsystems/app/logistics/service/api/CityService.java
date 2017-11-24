@@ -9,4 +9,6 @@ import java.util.List;
  */
 public interface CityService {
     List<CityDto> getAllCities();
+
+//    List<CityDto> getCitiesToOrderRoute(Long orderId);
 }

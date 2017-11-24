@@ -15,4 +15,6 @@ public interface GenericDao<T extends BaseEntity> {
     T deleteById(Long id);
 
     T findOneById(Long id);
+
+    void permanentDelete(T t);
 }

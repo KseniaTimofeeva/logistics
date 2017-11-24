@@ -51,5 +51,8 @@ public class GenericDaoImpl<T extends BaseEntity> implements GenericDao<T> {
         return em.find(entityClass, id);
     }
 
-
+    @Override
+    public void permanentDelete(T t) {
+        em.remove(t);
+    }
 }

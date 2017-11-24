@@ -1,5 +1,7 @@
 package com.tsystems.app.logistics.controller.manager;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tsystems.app.logistics.dto.OrderDto;
 import com.tsystems.app.logistics.dto.OrderInfoDto;
 import com.tsystems.app.logistics.dto.PathPointDto;
@@ -8,16 +10,13 @@ import com.tsystems.app.logistics.service.api.CityService;
 import com.tsystems.app.logistics.service.api.DriverService;
 import com.tsystems.app.logistics.service.api.OrderService;
 import com.tsystems.app.logistics.service.api.PathPointService;
-import com.tsystems.app.logistics.service.api.SenderService;
 import com.tsystems.app.logistics.service.api.TruckService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -63,7 +62,15 @@ public class ManagerOrderController {
         OrderInfoDto orderInfo = orderService.getOrderInfoById(orderId);
         SuitableTruckDto suitableTrucks = truckService.getSuitableTruckByOrderId(orderId);
         LOG.debug("Number of suitable trucks for order fulfilling {}", suitableTrucks.getTrucks().size());
-
+        model.addAttribute("cities", cityService.getAllCities());
+        String json = null;
+        if (orderInfo.getRoute() != null) {
+            try {
+                json = new ObjectMapper().writeValueAsString(orderInfo.getRoute());
+            } catch (JsonProcessingException ignored) {
+            }
+        }
+        model.addAttribute("routeAsString", json);
         model.addAttribute("hasCargoToUnload", pathPointService.hasCargoToUnload(orderId));
         model.addAttribute("orderInfo", orderInfo);
         model.addAttribute("suitableTrucks", suitableTrucks);
@@ -124,7 +131,7 @@ public class ManagerOrderController {
         LOG.trace("POST /manager/order/new");
         Long orderId;
         try {
-             orderId = orderService.addNewOrder(orderDto);
+            orderId = orderService.addNewOrder(orderDto);
         } catch (Exception e) {
             LOG.trace("New order form exception. {}", e.getMessage());
             return "redirect:/manager/order/new?error";
@@ -142,7 +149,7 @@ public class ManagerOrderController {
 
     @RequestMapping(value = "/{orderId}/choose-driver", method = RequestMethod.POST)
     public String chooseDriver(@RequestParam Long driverId,
-                              @PathVariable(value = "orderId") Long orderId) {
+                               @PathVariable(value = "orderId") Long orderId) {
         LOG.trace("POST /manager/order/{}/choose-driver", orderId);
         orderService.setDriverForOrder(orderId, driverId);
         return "redirect:/manager/order/" + orderId;
@@ -155,4 +162,5 @@ public class ManagerOrderController {
         orderService.detachDriver(orderId, driverId);
         return "redirect:/manager/order/" + orderId;
     }
+
 }

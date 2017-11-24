@@ -1,6 +1,7 @@
 package com.tsystems.app.logistics.converter;
 
 import com.tsystems.app.logistics.entity.City;
+import com.tsystems.app.logistics.entity.CityOfRoute;
 import com.tsystems.app.logisticscommon.CityDto;
 import org.springframework.stereotype.Component;
 
@@ -25,6 +26,14 @@ public class CityConverter {
                 .stream()
                 .map(city ->
                         toCityDto(city))
+                .collect(Collectors.toList());
+    }
+
+    public List<CityDto> routeToCityDtoList(List<CityOfRoute> route) {
+        return route
+                .stream()
+                .map(cityOfRoute ->
+                        toCityDto(cityOfRoute.getCity()))
                 .collect(Collectors.toList());
     }
 }

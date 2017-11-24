@@ -1,5 +1,6 @@
 package com.tsystems.app.logistics.dto;
 
+import com.tsystems.app.logisticscommon.CityDto;
 import com.tsystems.app.logisticscommon.enums.OrderStatus;
 
 import java.util.List;
@@ -14,6 +15,7 @@ public class OrderInfoDto {
     private OrderStatus status;
     private List<PathPointDto> pathPoints;
     private CrewDto crew;
+    private List<CityDto> route;
 
     public Long getId() {
         return id;
@@ -53,5 +55,13 @@ public class OrderInfoDto {
 
     public void setCrew(CrewDto crew) {
         this.crew = crew;
+    }
+
+    public List<CityDto> getRoute() {
+        return route;
+    }
+
+    public void setRoute(List<CityDto> route) {
+        this.route = route;
     }
 }

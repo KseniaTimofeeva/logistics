@@ -1,3 +1,4 @@
+<%@ page import="java.util.Collections" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%--
   Created by IntelliJ IDEA.
@@ -131,6 +132,9 @@
                                 <a href="<c:url value="/manager/order/${orderInfo.id}/new-point"/>" class="btn btn-primary m-1 btn-sm">
                                     <i class="fa fa-plus fa-lg"></i>&nbsp; New Point&nbsp;&nbsp;
                                 </a>
+                                <button type="button" class="btn btn-primary m-1 btn-sm" data-toggle="modal" data-target="#order-route-modal">
+                                    <i class="icon-graph icons"></i>&nbsp; Route&nbsp;&nbsp;
+                                </button>
                             </div>
                             <div class="col-lg-6">
                                 <c:if test="${hasCargoToUnload}">
@@ -197,5 +201,63 @@
         </div>
         <!--/.row-->
     </div>
+
+    <div class="modal fade" id="order-route-modal" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-primary" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Route</h4>
+                    <button type="button" class="close city-of-route-close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div id="js-route-list" class="col-lg-12">
+                            <c:forEach var="city" items="${orderInfo.route}" varStatus="i">
+                                <c:if test="${i.count > 1}"> -> </c:if>
+                                ${city.name}<a href="#"><i data-id="${city.id}" class="fa fa-times js-remove-city"></i></a>
+                            </c:forEach>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-9">
+                            <div class="input-group">
+                                <select id="js-city-of-route" name="city" class="form-control form-control-sm">
+                                    <option id="js-default-selected-option" value="0" disabled="disabled" selected="selected">Choose city...</option>
+                                    <c:forEach items="${cities}" var="city">
+                                        <option id="js-city-option-${city.id}" value="${city.id}">${city.name}</option>
+                                    </c:forEach>
+                                </select>
+                                <span class="input-group-btn">
+                                            <button id="js-city-of-route-btn" class="btn btn-secondary btn-sm" type="button">Add</button>
+                                        </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary city-of-route-close" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+            <!-- /.modal-content -->
+        </div>
+        <!-- /.modal-dialog -->
+    </div>
+    <!-- /.modal -->
 </div>
 <!-- /.conainer-fluid -->
+
+<script>
+    $(document).ready(function () {
+        hideCitiesInRouteFromSelect('${routeAsString}');
+
+        $(document).on('click', '#js-city-of-route-btn', function () {
+            addToRouteArray(${orderInfo.id})
+        });
+        $(document).on('click', '.js-remove-city', function () {
+            var cityId = $(this).data("id");
+            removeFromRouteArray(${orderInfo.id}, cityId);
+        });
+    });
+</script>

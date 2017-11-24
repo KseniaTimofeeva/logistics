@@ -4,6 +4,7 @@ import com.tsystems.app.logistics.service.api.DriverService;
 import com.tsystems.app.logisticscommon.DriverInfoBoardDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -18,7 +19,7 @@ public class DriverRestController {
     @Autowired
     private DriverService driverService;
 
-    @RequestMapping("/drivers-info")
+    @RequestMapping(value = "/drivers-info", method = RequestMethod.GET)
     public List<DriverInfoBoardDto> getDriversInfo() {
         return driverService.getDriversInfo();
     }

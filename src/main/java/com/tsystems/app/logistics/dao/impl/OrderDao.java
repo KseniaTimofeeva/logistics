@@ -1,5 +1,6 @@
 package com.tsystems.app.logistics.dao.impl;
 
+import com.tsystems.app.logistics.entity.CityOfRoute;
 import com.tsystems.app.logistics.entity.Order;
 import org.springframework.stereotype.Repository;
 
@@ -32,5 +33,10 @@ public class OrderDao extends GenericDaoImpl<Order> {
         return em.createNamedQuery(Order.GET_ALL_ORDERS, Order.class)
                 .setMaxResults(maxResult)
                 .getResultList();
+    }
+
+    public List<CityOfRoute> getRouteByOrderId(Long orderId) {
+        Order order = findOneById(orderId);
+        return order.getRoute();
     }
 }

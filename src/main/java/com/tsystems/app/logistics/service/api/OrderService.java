@@ -2,6 +2,7 @@ package com.tsystems.app.logistics.service.api;
 
 import com.tsystems.app.logistics.dto.OrderDto;
 import com.tsystems.app.logistics.dto.OrderInfoDto;
+import com.tsystems.app.logisticscommon.CityDto;
 import com.tsystems.app.logisticscommon.OrderInfoBoardDto;
 
 import java.util.List;
@@ -28,4 +29,10 @@ public interface OrderService {
     OrderInfoDto getCurrentOrderByDriverLogin(String login);
 
     List<OrderInfoBoardDto> getOrdersInfo();
+
+    List<CityDto> getRouteByOrderId(Long orderId);
+
+    void addCityToRoute(Long orderId, List<Long> cityIdList);
+
+    void removeCityFromRoute(Long orderId, Long cityId);
 }

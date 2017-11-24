@@ -4,6 +4,7 @@ import com.tsystems.app.logistics.service.api.GeneralInfoService;
 import com.tsystems.app.logisticscommon.GeneralInfoDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -16,7 +17,7 @@ public class GeneralInfoRestController {
     @Autowired
     private GeneralInfoService generalInfoService;
 
-    @RequestMapping("/general-info")
+    @RequestMapping(value = "/general-info", method = RequestMethod.GET)
     public GeneralInfoDto generalInfo() {
         return generalInfoService.getGeneralInfo();
     }

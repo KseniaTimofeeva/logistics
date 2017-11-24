@@ -1,17 +1,23 @@
 package com.tsystems.app.logistics.service.impl;
 
+import com.tsystems.app.logistics.converter.CityConverter;
 import com.tsystems.app.logistics.converter.OrderConverter;
+import com.tsystems.app.logistics.dao.impl.CityDao;
+import com.tsystems.app.logistics.dao.impl.CityOfRouteDao;
 import com.tsystems.app.logistics.dao.impl.CrewDao;
 import com.tsystems.app.logistics.dao.impl.OrderDao;
 import com.tsystems.app.logistics.dao.impl.TruckDao;
 import com.tsystems.app.logistics.dao.impl.UserDao;
 import com.tsystems.app.logistics.dto.OrderDto;
 import com.tsystems.app.logistics.dto.OrderInfoDto;
+import com.tsystems.app.logistics.entity.City;
+import com.tsystems.app.logistics.entity.CityOfRoute;
 import com.tsystems.app.logistics.entity.Crew;
 import com.tsystems.app.logistics.entity.Order;
 import com.tsystems.app.logistics.entity.Truck;
 import com.tsystems.app.logistics.entity.User;
 import com.tsystems.app.logistics.service.api.OrderService;
+import com.tsystems.app.logisticscommon.CityDto;
 import com.tsystems.app.logisticscommon.OrderInfoBoardDto;
 import com.tsystems.app.logisticscommon.enums.OrderStatus;
 import org.apache.logging.log4j.LogManager;
@@ -22,6 +28,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.ListIterator;
 
 /**
  * Created by ksenia on 13.10.2017.
@@ -35,9 +42,13 @@ public class OrderServiceImpl implements OrderService {
     private TruckDao truckDao;
     private CrewDao crewDao;
     private UserDao userDao;
+    private CityDao cityDao;
+    private CityOfRouteDao cityOfRouteDao;
 
     @Autowired
     private OrderConverter orderConverter;
+    @Autowired
+    private CityConverter cityConverter;
 
     @Autowired
     public void setOrderDao(OrderDao orderDao) {
@@ -63,6 +74,17 @@ public class OrderServiceImpl implements OrderService {
         userDao.setEntityClass(User.class);
     }
 
+    @Autowired
+    public void setCityDao(CityDao cityDao) {
+        this.cityDao = cityDao;
+        cityDao.setEntityClass(City.class);
+    }
+
+    @Autowired
+    public void setCityOfRouteDao(CityOfRouteDao cityOfRouteDao) {
+        this.cityOfRouteDao = cityOfRouteDao;
+        cityOfRouteDao.setEntityClass(CityOfRoute.class);
+    }
 
     @Override
     public List<OrderInfoDto> getAllOrders() {
@@ -168,7 +190,8 @@ public class OrderServiceImpl implements OrderService {
     /**
      * Delete driver from specified order.
      * Set driver status to 'vacant'
-     * @param orderId id of the order
+     *
+     * @param orderId  id of the order
      * @param driverId driver id who would be deleted from specified otder
      */
     @Override
@@ -214,4 +237,42 @@ public class OrderServiceImpl implements OrderService {
         return orderConverter.toOrderInfoBoardDtoList(orders);
     }
 
+    @Override
+    public List<CityDto> getRouteByOrderId(Long orderId) {
+        List<CityOfRoute> route = orderDao.getRouteByOrderId(orderId);
+        return cityConverter.routeToCityDtoList(route);
+    }
+
+    @Override
+    public void addCityToRoute(Long orderId, List<Long> cityIdList) {
+        Order order = orderDao.findOneById(orderId);
+        List<CityOfRoute> route = order.getRoute();
+        if (route == null) {
+            route = new ArrayList<>();
+        }
+        for (Long cityId : cityIdList) {
+            City city = cityDao.findOneById(cityId);
+            CityOfRoute cityOfRoute = new CityOfRoute();
+            cityOfRoute.setCity(city);
+            cityOfRoute = cityOfRouteDao.create(cityOfRoute);
+            route.add(cityOfRoute);
+        }
+        orderDao.update(order);
+    }
+
+    @Override
+    public void removeCityFromRoute(Long orderId, Long cityId) {
+        Order order = orderDao.findOneById(orderId);
+        List<CityOfRoute> route = order.getRoute();
+        ListIterator<CityOfRoute> iter = route.listIterator();
+        while (iter.hasNext()) {
+            CityOfRoute next = iter.next();
+            if (next.getCity().getId().equals(cityId)) {
+                cityOfRouteDao.permanentDelete(next);
+                iter.remove();
+            }
+        }
+//        route.removeIf(next -> next.getCity().getId().equals(cityId));
+        orderDao.update(order);
+    }
 }

@@ -49,6 +49,16 @@ public class Order extends BaseEntity {
     @OneToOne
     private Crew crew;
 
+    /*@ManyToMany
+    @JoinTable(name = "order_city",
+            joinColumns = @JoinColumn(name = "order_id"),
+            inverseJoinColumns = @JoinColumn(name = "city_id"))
+    private List<City> route;*/
+
+    @OneToMany
+    @OrderBy("id")
+    private List<CityOfRoute> route;
+
 
     public String getNumber() {
         return number;
@@ -80,5 +90,13 @@ public class Order extends BaseEntity {
 
     public void setCrew(Crew crew) {
         this.crew = crew;
+    }
+
+    public List<CityOfRoute> getRoute() {
+        return route;
+    }
+
+    public void setRoute(List<CityOfRoute> route) {
+        this.route = route;
     }
 }

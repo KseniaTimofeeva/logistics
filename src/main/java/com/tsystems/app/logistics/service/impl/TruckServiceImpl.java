@@ -165,7 +165,6 @@ public class TruckServiceImpl implements TruckService {
 
     @Override
     public List<TruckFullDto> getTrucksFullInfo() {
-        TruckFullDto truckFullDto = new TruckFullDto();
         return truckConverter.toTruckFullDtoList(truckDao.getTrucksFullInfo());
     }
 }

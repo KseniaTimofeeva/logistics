@@ -77,6 +77,12 @@
         <button class="sidebar-minimizer brand-minimizer" type="button"></button>
     </div>
 
+    <script src="<c:url value="/static/js/jquery.min.js"/>"></script>
+    <script>
+        var basePath = '<c:url value="/"/>';
+        var csrf = '${_csrf.token}';
+    </script>
+
     <!-- Main content -->
     <main class="main">
         <jsp:include page="${typeOfCenter}"/>
@@ -89,7 +95,6 @@
 </footer>
 
 <!-- Bootstrap and necessary plugins -->
-<script src="<c:url value="/static/js/jquery.min.js"/>"></script>
 <script src="<c:url value="/static/js/popper.min.js"/>"></script>
 <script src="<c:url value="/static/js/bootstrap.min.js"/>"></script>
 

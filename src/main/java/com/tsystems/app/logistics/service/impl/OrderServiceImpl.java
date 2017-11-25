@@ -14,6 +14,7 @@ import com.tsystems.app.logistics.entity.City;
 import com.tsystems.app.logistics.entity.CityOfRoute;
 import com.tsystems.app.logistics.entity.Crew;
 import com.tsystems.app.logistics.entity.Order;
+import com.tsystems.app.logistics.entity.PathPoint;
 import com.tsystems.app.logistics.entity.Truck;
 import com.tsystems.app.logistics.entity.User;
 import com.tsystems.app.logistics.service.api.OrderService;
@@ -27,6 +28,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.ListIterator;
 
@@ -123,7 +126,38 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public OrderInfoDto getOrderInfoById(Long id) {
         Order order = orderDao.findOneById(id);
+        if (order.getRoute() != null && order.getPathPoints() != null) {
+            order = sortPathPointsByRoute(order);
+        }
         return orderConverter.toOrderInfoDto(order);
+    }
+
+    private Order sortPathPointsByRoute(Order order) {
+        if (order == null || order.getPathPoints() == null || order.getRoute() == null) {
+            return null;
+        }
+        Collections.sort(order.getPathPoints(), new Comparator<PathPoint>() {
+            @Override
+            public int compare(PathPoint o1, PathPoint o2) {
+                ListIterator<CityOfRoute> iter = order.getRoute().listIterator();
+                Long index1 = null;
+                Long index2 = null;
+                while (iter.hasNext()) {
+                    CityOfRoute next = iter.next();
+                    if (o1.getCity().getId().equals(next.getCity().getId())) {
+                        index1 = next.getId();
+                    }
+                    if (o2.getCity().getId().equals(next.getCity().getId())) {
+                        index2 = next.getId();
+                    }
+                    if (index1 != null && index2 != null) {
+                        break;
+                    }
+                }
+                return (int) (index1 - index2);
+            }
+        });
+        return order;
     }
 
     @Override
@@ -228,7 +262,11 @@ public class OrderServiceImpl implements OrderService {
             }
         }
 
-        return orderConverter.toOrderInfoDto(orders.get(i));
+        Order order = orders.get(i);
+        if (order.getPathPoints() != null && order.getRoute() != null) {
+            order = sortPathPointsByRoute(orders.get(i));
+        }
+        return orderConverter.toOrderInfoDto(order);
     }
 
     @Override

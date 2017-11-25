@@ -12,6 +12,7 @@ import javax.persistence.NamedQuery;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.OrderBy;
+import javax.persistence.OrderColumn;
 import javax.persistence.Table;
 import java.util.List;
 
@@ -48,12 +49,6 @@ public class Order extends BaseEntity {
 
     @OneToOne
     private Crew crew;
-
-    /*@ManyToMany
-    @JoinTable(name = "order_city",
-            joinColumns = @JoinColumn(name = "order_id"),
-            inverseJoinColumns = @JoinColumn(name = "city_id"))
-    private List<City> route;*/
 
     @OneToMany
     @OrderBy("id")

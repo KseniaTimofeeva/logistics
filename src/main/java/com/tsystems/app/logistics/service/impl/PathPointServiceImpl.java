@@ -172,7 +172,6 @@ public class PathPointServiceImpl implements PathPointService {
 
     @Override
     public void deletePathPoint(Long id) {
-        cargoDao.delete(pathPointDao.findOneById(id).getCargo());
         pathPointDao.deleteById(id);
     }
 

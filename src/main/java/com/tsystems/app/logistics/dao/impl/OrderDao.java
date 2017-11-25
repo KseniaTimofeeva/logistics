@@ -39,4 +39,5 @@ public class OrderDao extends GenericDaoImpl<Order> {
         Order order = findOneById(orderId);
         return order.getRoute();
     }
+
 }

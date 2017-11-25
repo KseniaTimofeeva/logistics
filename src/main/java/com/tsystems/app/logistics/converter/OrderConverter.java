@@ -2,6 +2,7 @@ package com.tsystems.app.logistics.converter;
 
 import com.tsystems.app.logistics.dto.OrderDto;
 import com.tsystems.app.logistics.dto.OrderInfoDto;
+import com.tsystems.app.logistics.entity.CityOfRoute;
 import com.tsystems.app.logistics.entity.Order;
 import com.tsystems.app.logisticscommon.OrderInfoBoardDto;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -60,8 +61,11 @@ public class OrderConverter {
         OrderInfoBoardDto dto = new OrderInfoBoardDto();
         dto.setId(order.getId());
         dto.setNumber(order.getNumber());
-        dto.setStart(null);
-        dto.setFinish(null);
+        List<CityOfRoute> route = order.getRoute();
+        if (route != null) {
+            dto.setStart(cityConverter.cityOfRouteToCityDto(route.get(0)));
+            dto.setFinish(cityConverter.cityOfRouteToCityDto(route.get(route.size()-1)));
+        }
         dto.setStatus(order.getStatus());
         if (order.getCrew() != null) {
             dto.setCrew(crewConverter.toCrewShortDto(order.getCrew()));

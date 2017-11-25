@@ -64,7 +64,7 @@
                             <div class="form-group row js-load-cargo-div">
                                 <label class="col-md-3 form-control-label">Cargo number</label>
                                 <div class="col-md-9">
-                                    <input type="text" name="cargo.number" class="form-control js-load-cargo-input" value="${updatedPoint.cargo.number}"
+                                    <input type="text" name="cargo.number" class="form-control js-load-cargo-input form-control-sm" value="${updatedPoint.cargo.number}"
                                            placeholder="Enter cargo number">
                                 </div>
                             </div>
@@ -86,10 +86,11 @@
                             <div class="form-group row js-unload-cargo-div">
                                 <label class="col-md-3 form-control-label">Cargo info</label>
                                 <div class="col-md-9">
-                                    <select name="cargo.id" class="form-control js-unload-cargo-input">
+                                    <select id="js-cargo-to-unload-select" name="cargo.id" class="form-control js-unload-cargo-input form-control-sm">
                                         <c:forEach items="${pointsWithCargoToUnload}" var="point">
-                                            <option value="${point.cargo.id}">
-                                                    №:&nbsp;${point.cargo.number}&nbsp;-&nbsp;${point.cargo.weight}kgs</option>
+                                            <option value="${point.cargo.id}" class="js-cargo-to-unload">
+                                                №:&nbsp;${point.cargo.number}&nbsp;-&nbsp;${point.cargo.weight}kgs
+                                            </option>
                                         </c:forEach>
                                     </select>
                                 </div>
@@ -98,9 +99,10 @@
                             <div class="form-group row">
                                 <label class="col-md-3 form-control-label">City</label>
                                 <div class="col-md-9">
-                                    <select name="city.id" class="form-control">
+                                    <select name="city.id" class="form-control form-control-sm" id="js-city-to-unload-select">
+                                        <option id="js-default-city-to-unload" value="0" disabled="disabled" selected="selected">Choose city...</option>
                                         <c:forEach items="${cities}" var="city">
-                                            <option value="${city.id}" <c:if test="${updatedPoint.city.id == city.id}"> selected="selected"</c:if>>
+                                            <option id="js-city-to-unload-${city.id}" value="${city.id}" <c:if test="${updatedPoint.city.id == city.id}"> selected="selected"</c:if>>
                                                     ${city.name}</option>
                                         </c:forEach>
                                     </select>
@@ -109,10 +111,10 @@
                             <div class="form-group row js-load-cargo-div">
                                 <label class="col-md-3 form-control-label">Cargo status</label>
                                 <div class="col-md-9">
-                                    <select name="cargo.status" class="form-control js-load-cargo-input">
+                                    <select name="cargo.status" class="form-control js-load-cargo-input form-control-sm">
                                         <c:forEach items="<%=CargoStatus.values()%>" var="status" varStatus="i">
                                             <option value="${status}" <c:if test="${updatedPoint.cargo.status == status}"> selected="selected"</c:if>>
-                                                ${status.viewName}
+                                                    ${status.viewName}
                                             </option>
                                         </c:forEach>
                                     </select>
@@ -166,4 +168,19 @@
     </div>
 </div>
 <!-- /.conainer-fluid -->
-</div>
+
+<script>
+    $(document).ready(function () {
+        loadingCargo('${citiesAsString}');
+        $("#js-radio-to-click-unloading").on('click', function(){
+            unLoadingCargo('${hideCityToUnloadingAsString}');
+        });
+        $("#js-radio-to-click-loading").on('click', function(){
+            loadingCargo('${citiesAsString}');
+        });
+        $('.js-cargo-to-unload').on('click', function () {
+            showCityForCargoToUnload('${citiesAsString}');
+            hideCityForCargoToUnload('${hideCityToUnloadingAsString}');
+        })
+    });
+</script>

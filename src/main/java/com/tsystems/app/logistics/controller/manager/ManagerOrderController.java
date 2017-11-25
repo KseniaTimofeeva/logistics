@@ -11,6 +11,7 @@ import com.tsystems.app.logistics.service.api.DriverService;
 import com.tsystems.app.logistics.service.api.OrderService;
 import com.tsystems.app.logistics.service.api.PathPointService;
 import com.tsystems.app.logistics.service.api.TruckService;
+import com.tsystems.app.logisticscommon.CityDto;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -84,11 +85,20 @@ public class ManagerOrderController {
                                           @PathVariable(value = "pathPointId", required = false) Long pathPointId, Model model) {
         LOG.trace("GET /manager/order/{}/new-point", orderId);
         model.addAttribute(typeOfCenterAttribute, "manager/new-pathpoint.jsp");
-        model.addAttribute("cities", cityService.getAllCities());
         List<PathPointDto> pathPointsWithCargoToUnload = pathPointService.getPathPointsWithCargoToUnload(orderId);
+        List<CityDto> cities = cityService.getRouteByOrderId(orderId);
+        model.addAttribute("cities", cities);
         model.addAttribute("pointsWithCargoToUnload", pathPointsWithCargoToUnload);
         OrderDto orderById = orderService.getOrderById(orderId);
         model.addAttribute("orderInfo", orderById);
+        String json = null;
+        String citiesAsString = null;
+        try {
+            json = new ObjectMapper().writeValueAsString(cityService.getCitiesToHideToUnloading(orderId));
+            citiesAsString = new ObjectMapper().writeValueAsString(cities);
+        } catch (JsonProcessingException ignored) {}
+        model.addAttribute("citiesAsString", citiesAsString);
+        model.addAttribute("hideCityToUnloadingAsString", json);
 
         LOG.debug("Order № {}: Number of points with cargo to unload {}", orderById.getNumber(), pathPointsWithCargoToUnload.size());
         if (pathPointId != null) {

@@ -1,27 +1,49 @@
-function loadingCargo() {
+function loadingCargo(cities) {
     $('.js-unload-cargo-div').hide();
     $('.js-unload-cargo-input').attr("disabled", "disabled");
     $('.js-load-cargo-div').show();
     $('.js-load-cargo-input').removeAttr("disabled");
+    showCityForCargoToUnload(cities);
 }
 
-function unLoadingCargo() {
+function unLoadingCargo(cities) {
     $('.js-unload-cargo-div').show();
     $('.js-unload-cargo-input').removeAttr("disabled");
     $('.js-load-cargo-div').hide();
     $('.js-load-cargo-input').attr("disabled", "disabled");
+    hideCityForCargoToUnload(cities);
+}
+
+function hideCityForCargoToUnload(cities) {
+    var cargoId = $("#js-cargo-to-unload-select").find("option:selected").val();
+    console.log("hide for cargo " + cargoId);
+    $.each($.parseJSON(cities), function (i, obj) {
+        if (cargoId === i) {
+            $.each(obj, function (j, city) {
+                console.log("hide city " + city.id + "; ");
+                $("#js-city-to-unload-" + city.id).hide();
+            })
+        }
+    });
+    $('#js-city-to-unload-select').val($('#js-default-city-to-unload').val());
+}
+
+function showCityForCargoToUnload(cities) {
+    console.log("cities to show " + cities);
+    $.each($.parseJSON(cities), function (i, obj) {
+        $("#js-city-to-unload-" + obj.id).show();
+
+    });
+
 }
 
 var addCities = [];
 
 $(document).ready(function () {
-    loadingCargo();
     driversSelectDisable();
     clearRouteArray()
 });
 
-$("#js-radio-to-click-loading").on('click', loadingCargo);
-$("#js-radio-to-click-unloading").on('click', unLoadingCargo);
 
 $(".city-of-route-close").on('click', clearRouteArray);
 $('#order-route-modal').on('hidden.bs.modal', clearRouteArray);

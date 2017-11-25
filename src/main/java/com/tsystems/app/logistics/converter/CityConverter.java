@@ -36,4 +36,11 @@ public class CityConverter {
                         toCityDto(cityOfRoute.getCity()))
                 .collect(Collectors.toList());
     }
+
+    public CityDto cityOfRouteToCityDto(CityOfRoute cityOfRoute) {
+        CityDto dto = new CityDto();
+        dto.setId(cityOfRoute.getCity().getId());
+        dto.setName(cityOfRoute.getCity().getName());
+        return dto;
+    }
 }

@@ -18,6 +18,7 @@
     <!-- Main styles for this application -->
     <link href="<c:url value="/static/css/style.css"/>" rel="stylesheet">
     <link href="<c:url value="/static/css/custom-style.css"/>" rel="stylesheet">
+    <link href="<c:url value="/static/css/bootstrap-datetimepicker.min.css"/>" rel="stylesheet">
 </head>
 
 <body class="app header-fixed sidebar-fixed aside-menu-fixed aside-menu-hidden">
@@ -27,25 +28,19 @@
     <button class="navbar-toggler sidebar-toggler d-md-down-none" type="button">☰</button>
 
     <ul class="nav navbar-nav ml-auto mr-lg-4">
-        <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle nav-link" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">
-                <span class="d-md-down-none">
-
-                    <i class="fa fa-user fa-fw"></i>
-                    <sec:authorize access="hasRole('ROLE_DRIVER')">&nbsp; Driver</sec:authorize>
-                    <sec:authorize access="hasRole('ROLE_MANAGER')">&nbsp; Manager</sec:authorize>
-                </span>
+        <li class="nav-item d-md-down-none">
+            <span class="d-md-down-none">
+                <sec:authorize access="hasRole('ROLE_DRIVER')">&nbsp; Driver</sec:authorize>
+                <sec:authorize access="hasRole('ROLE_MANAGER')">&nbsp; Manager</sec:authorize>
+            </span>
+        </li>
+        <li class="nav-item d-md-down-none">
+            <form id="logout-form" action="<c:url value="/logout"/>" method="post">
+                <input type="hidden" name="_csrf" value="${_csrf.token}"/>
+            </form>
+            <a class="nav-link" href="#" onclick="document.getElementById('logout-form').submit(); return false;">
+                <i class="fa fa-sign-out fa-lg"></i>
             </a>
-            <div class="dropdown-menu dropdown-menu-right">
-                <sec:authorize access="hasRole('ROLE_DRIVER')">
-                    <a class="dropdown-item" href="<c:url value="/driver/profile"/>"><i class="fa fa-user fa-fw"></i> Profile</a>
-                </sec:authorize>
-                <div class="divider"></div>
-                <form id="logout-form" action="<c:url value="/logout"/>" method="post">
-                    <input type="hidden" name="_csrf" value="${_csrf.token}"/>
-                </form>
-                <a class="dropdown-item" href="#" onclick="document.getElementById('logout-form').submit(); return false;"><i class="fa fa-lock"></i> Logout</a>
-            </div>
         </li>
     </ul>
 </header>
@@ -57,6 +52,12 @@
                 <ul class="nav">
                     <li class="nav-item">
                         <a class="nav-link" href="<c:url value="/driver/order"/>"><i class="fa fa-file-text-o fa-lg"></i> Current order</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="<c:url value="/driver/profile"/>"><i class="icon-user"></i> Profile</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="<c:url value="/driver/track-offline"/>"><i class="fa fa-clock-o fa-lg"></i> Time track offline</a>
                     </li>
                 </ul>
             </sec:authorize>
@@ -97,6 +98,8 @@
 <!-- Bootstrap and necessary plugins -->
 <script src="<c:url value="/static/js/popper.min.js"/>"></script>
 <script src="<c:url value="/static/js/bootstrap.min.js"/>"></script>
+<script src="<c:url value="/static/js/moment.min.js"/>"></script>
+<script src="<c:url value="/static/js/bootstrap-datetimepicker.min.js"/>"></script>
 
 <!-- GenesisUI main scripts -->
 <script src="<c:url value="/static/js/app.js"/>"></script>

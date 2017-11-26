@@ -15,6 +15,7 @@ import com.tsystems.app.logisticscommon.TruckFullDto;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,6 +35,8 @@ public class TruckServiceImpl implements TruckService {
 
     @Autowired
     private TruckConverter truckConverter;
+    @Autowired
+    private ApplicationEventPublisher applicationEventPublisher;
 
     @Autowired
     public void setTruckDao(TruckDao truckDao) {

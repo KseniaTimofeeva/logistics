@@ -43,28 +43,28 @@
                             <div class="form-group row">
                                 <label class="col-md-3 form-control-label" for="first-name">First name</label>
                                 <div class="col-md-9">
-                                    <input type="text" id="first-name" name="firstName" class="form-control" value="${updatedDriver.firstName}"
+                                    <input type="text" id="first-name" name="firstName" class="form-control form-control-sm" value="${updatedDriver.firstName}"
                                            placeholder="Enter driver first name">
                                 </div>
                             </div>
                             <div class="form-group row">
                                 <label class="col-md-3 form-control-label" for="last-name">Last name</label>
                                 <div class="col-md-9">
-                                    <input type="text" id="last-name" name="lastName" class="form-control" value="${updatedDriver.lastName}"
+                                    <input type="text" id="last-name" name="lastName" class="form-control form-control-sm" value="${updatedDriver.lastName}"
                                            placeholder="Enter driver last name">
                                 </div>
                             </div>
                             <div class="form-group row">
                                 <label class="col-md-3 form-control-label" for="personal-number">Personal number</label>
                                 <div class="col-md-9">
-                                    <input type="text" id="personal-number" name="personalNumber" class="form-control" value="${updatedDriver.personalNumber}"
+                                    <input type="text" id="personal-number" name="personalNumber" class="form-control form-control-sm" value="${updatedDriver.personalNumber}"
                                            placeholder="XXX123XXX123XX">
                                 </div>
                             </div>
                             <div class="form-group row">
                                 <label class="col-md-3 form-control-label">Current city</label>
                                 <div class="col-md-9">
-                                    <select name="currentCity.id" class="form-control">
+                                    <select name="currentCity.id" class="form-control form-control-sm">
                                         <c:forEach items="${cities}" var="city">
                                             <option value="${city.id}" <c:if test="${updatedDriver.currentCity.id == city.id}"> selected="selected"</c:if>>
                                                     ${city.name}</option>
@@ -75,7 +75,7 @@
                             <div class="form-group row">
                                 <label class="col-md-3 form-control-label" for="login">Login</label>
                                 <div class="col-md-9">
-                                    <input type="text" id="login" name="login" class="form-control" value="${updatedDriver.login}"
+                                    <input type="text" id="login" name="login" class="form-control form-control-sm" value="${updatedDriver.login}"
                                            placeholder="Enter driver login">
                                 </div>
                             </div>
@@ -84,7 +84,7 @@
                                     <div class="form-group row">
                                         <label class="col-md-3 form-control-label" for="new-password">Password</label>
                                         <div class="col-md-9">
-                                            <input type="text" id="new-password" name="password" class="form-control"
+                                            <input type="password" id="new-password" name="password" class="form-control form-control-sm"
                                                    placeholder="Enter password for the first entry">
                                         </div>
                                     </div>

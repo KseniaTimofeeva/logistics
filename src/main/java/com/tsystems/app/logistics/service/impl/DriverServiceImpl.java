@@ -6,6 +6,7 @@ import com.tsystems.app.logistics.dao.impl.CityDao;
 import com.tsystems.app.logistics.dao.impl.OrderDao;
 import com.tsystems.app.logistics.dao.impl.TimeTrackDao;
 import com.tsystems.app.logistics.dao.impl.UserDao;
+import com.tsystems.app.logistics.dto.ChangeEvent;
 import com.tsystems.app.logistics.dto.DriverDto;
 import com.tsystems.app.logistics.dto.DriverProfileDto;
 import com.tsystems.app.logistics.dto.SuitableDriverDto;
@@ -17,15 +18,13 @@ import com.tsystems.app.logistics.entity.Truck;
 import com.tsystems.app.logistics.entity.User;
 import com.tsystems.app.logistics.entity.enums.SecurityRole;
 import com.tsystems.app.logistics.service.api.DriverService;
-import com.tsystems.app.logistics.service.api.GeneralInfoService;
-import com.tsystems.app.logistics.service.api.SenderService;
 import com.tsystems.app.logistics.utils.GeoUtils;
 import com.tsystems.app.logisticscommon.DriverInfoBoardDto;
-import com.tsystems.app.logisticscommon.GeneralInfoDto;
 import com.tsystems.app.logisticscommon.MessageType;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -56,9 +55,7 @@ public class DriverServiceImpl implements DriverService {
     @Autowired
     private DriverConverter driverConverter;
     @Autowired
-    private SenderService senderService;
-    @Autowired
-    private GeneralInfoService generalInfoService;
+    private ApplicationEventPublisher applicationEventPublisher;
 
     @Autowired
     public void setUserDao(UserDao userDao) {
@@ -133,27 +130,26 @@ public class DriverServiceImpl implements DriverService {
     }
 
     private void updateBoardUpdateDriver(User driver) {
-        senderService.typedSend(MessageType.UPDATE_DRIVER, getOneDriverInfo(driver));
+        applicationEventPublisher.publishEvent(new ChangeEvent(MessageType.UPDATE_DRIVER, null, getOneDriverInfo(driver)));
     }
 
     private void updateBoardAddDriver(User driver) {
-        senderService.typedSend(MessageType.ADD_DRIVER, getOneDriverInfo(driver));
+        applicationEventPublisher.publishEvent(new ChangeEvent(MessageType.ADD_DRIVER, null,  getOneDriverInfo(driver)));
     }
 
     private void updateBoardGeneralInfoDriver() {
-        GeneralInfoDto generalInfoDto = new GeneralInfoDto();
-        generalInfoDto = generalInfoService.setDriverInfo(generalInfoDto);
-        senderService.typedSend(MessageType.GENERAL, generalInfoDto);
+        applicationEventPublisher.publishEvent(new ChangeEvent(MessageType.GENERAL, true,null));
     }
 
     private void updateBoardDeleteDriver(Long id) {
-        senderService.typedSend(MessageType.DELETE_DRIVER, id);
+        applicationEventPublisher.publishEvent(new ChangeEvent(MessageType.DELETE_DRIVER, null,  id));
     }
 
     /**
      * Search drivers who is suitable to fulfill the order
      * based on working time limit, employment on order and city where the truck is now.
      * Checking if current crew of the order is suitable.
+     *
      * @param orderId id of the order for which suitable drivers is searching for
      * @return List of drivers who are suitable for order fulfilling and
      * list of drivers from current crew who are not suitable
@@ -169,7 +165,7 @@ public class DriverServiceImpl implements DriverService {
         List<User> suitableDrivers = drivers;
         List<User> notSuitableDriversFromCurrentCrew = new ArrayList<>();
 
-        if (order.getPathPoints() != null && order.getPathPoints().size() >= 2 && order.getCrew()!=null) {
+        if (order.getPathPoints() != null && order.getPathPoints().size() >= 2 && order.getCrew() != null) {
             Long dis = getDistanceForOrder(order.getPathPoints());
             LOG.debug("Distance through all way points for order {}: {} meters", order.getNumber(), dis);
 
@@ -209,7 +205,8 @@ public class DriverServiceImpl implements DriverService {
         for (User driver : drivers) {
             LOG.trace("Driver personal number: {}", driver.getPersonalNumber());
 
-            double alreadyWorkedHrs = getAlreadyWorkedHrs(driver.getId(), firstDayOfMonth);;
+            double alreadyWorkedHrs = getAlreadyWorkedHrs(driver.getId(), firstDayOfMonth);
+            ;
             LOG.trace("Driver {}: already worked hours in current month {} hrs", driver.getPersonalNumber(), alreadyWorkedHrs);
 
             boolean isSuitable = checkDriverTimeLimitPerMonth(totalDaysForOneDriver, alreadyWorkedHrs, truck.getWorkingShift());

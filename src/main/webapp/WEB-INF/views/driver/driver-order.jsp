@@ -18,63 +18,61 @@
     <div class="animated fadeIn">
         <c:if test="${currentOrder != null}">
             <div class="row ">
-                <div class="col-lg-8">
+                <div class="col-sm-8">
                     <div class="card">
-                        <div class="card-header">
-                            <div class="form-group row">
-                                <div class="col-sm-4 col-md-4">
-                                    <form action="<c:url value="/driver/order/add-action"/>" method="post">
-                                        <input type="hidden" name="_csrf" value="${_csrf.token}"/>
-                                        <input type="hidden" name="driverAction" value="START_WORKING_SHIFT"/>
-                                        <input type="hidden" name="order.id" value="${currentOrder.id}"/>
-                                        <button type="submit" class="btn btn-success m-2"
-                                                <c:set var="endWorkingShift" value="<%=DriverAction.END_WORKING_SHIFT%>"/>
-                                                <c:if test="${lastAction.driverAction != null and lastAction.driverAction != endWorkingShift}"> disabled="disabled"</c:if>>
-                                            <i class="fa fa-play-circle-o fa-lg"></i>&nbsp; <strong>Start working shift</strong>
-                                        </button>
-                                    </form>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="form-group col-sm-3">
+                                    <div class="input-group">
+                                        <form action="<c:url value="/driver/order/add-action"/>" method="post" class="form-horizontal">
+                                            <input type="hidden" name="_csrf" value="${_csrf.token}"/>
+                                            <input type="hidden" name="driverAction" value="START_WORKING_SHIFT"/>
+                                            <input type="hidden" name="order.id" value="${currentOrder.id}"/>
+                                            <button type="submit" class="btn btn-success btn-sm"
+                                                    <c:set var="endWorkingShift" value="<%=DriverAction.END_WORKING_SHIFT%>"/>
+                                                    <c:if test="${lastAction.driverAction != null and lastAction.driverAction != endWorkingShift}"> disabled="disabled"</c:if>>
+                                                <i class="fa fa-play-circle-o fa-lg"></i>&nbsp; <strong>Start</strong>
+                                            </button>
+                                        </form>
+                                        <form action="<c:url value="/driver/order/add-action"/>" method="post" class="form-horizontal">
+                                            <input type="hidden" name="_csrf" value="${_csrf.token}"/>
+                                            <input type="hidden" name="lastAction" value="${lastAction.driverAction}"/>
+                                            <input type="hidden" name="driverAction" value="END_WORKING_SHIFT"/>
+                                            <input type="hidden" name="order.id" value="${currentOrder.id}"/>
+                                            <button type="submit" class="btn btn-danger btn-sm"
+                                                    <c:if test="${lastAction.driverAction == null or lastAction.driverAction == endWorkingShift}"> disabled="disabled"</c:if>>
+                                                <i class="fa fa-stop-circle-o fa-lg"></i>&nbsp; <strong>Finish</strong>
+                                            </button>
+                                        </form>
+                                    </div>
                                 </div>
-                                <!--/.col-->
-                                <div class="col-sm-8 col-md-8">
-                                    <form action="<c:url value="/driver/order/add-action"/>" method="post">
+                                <div class="form-group col-sm-9">
+                                    <form action="<c:url value="/driver/order/add-action"/>" method="post" class="form-horizontal">
                                         <input type="hidden" name="_csrf" value="${_csrf.token}"/>
+                                        <input type="hidden" name="order.id" value="${currentOrder.id}"/>
                                         <input type="hidden" name="lastAction" value="${lastAction.driverAction}"/>
-                                        <input type="hidden" name="driverAction" value="END_WORKING_SHIFT"/>
-                                        <input type="hidden" name="order.id" value="${currentOrder.id}"/>
-                                        <button type="submit" class="btn btn-danger m-2"
-                                                <c:if test="${lastAction.driverAction == null or lastAction.driverAction == endWorkingShift}"> disabled="disabled"</c:if>>
-                                            <i class="fa fa-stop-circle-o fa-lg"></i>&nbsp; <strong>Finish working shift</strong>
-                                        </button>
-                                    </form>
-                                </div>
-                                <!--/.col-->
-                            </div>
-                            <form action="<c:url value="/driver/order/add-action"/>" method="post">
-                                <input type="hidden" name="_csrf" value="${_csrf.token}"/>
-                                <input type="hidden" name="order.id" value="${currentOrder.id}"/>
-                                <input type="hidden" name="lastAction" value="${lastAction.driverAction}"/>
-                                <div class="form-group row">
-                                    <label class="col-md-3 form-control-label">Change status</label>
-                                    <div class="col-md-9">
                                         <div class="input-group">
                                             <select name="driverAction" class="form-control form-control-sm"
                                                     <c:if test="${lastAction.driverAction == null or lastAction.driverAction == endWorkingShift}"> disabled="disabled"</c:if>>
                                                 <c:forEach items="<%=DriverAction.values()%>" var="action">
                                                     <c:if test="${action.showActionToDriver}">
-                                                        <option value="${action}" <c:if test="${lastAction.driverAction == action}"> selected="selected"</c:if>>
+                                                        <option value="${action}" <c:if
+                                                                test="${lastAction.driverAction == action}"> selected="selected"</c:if>>
                                                                 ${action.viewName}
                                                         </option>
                                                     </c:if>
                                                 </c:forEach>
                                             </select>
                                             <span class="input-group-btn">
-                                            <button class="btn btn-secondary btn-sm" type="submit" role="button"
-                                                    <c:if test="${lastAction.driverAction == null or lastAction.driverAction == endWorkingShift}"> disabled="disabled"</c:if>>Change</button>
-                                        </span>
+                                                        <button class="btn btn-secondary btn-sm" type="submit" role="button"
+                                                                <c:if test="${lastAction.driverAction == null or lastAction.driverAction == endWorkingShift}"> disabled="disabled"
+                                                                </c:if>>Change status
+                                                        </button>
+                                                    </span>
                                         </div>
-                                    </div>
+                                    </form>
                                 </div>
-                            </form>
+                            </div>
                         </div>
                     </div>
                 </div>

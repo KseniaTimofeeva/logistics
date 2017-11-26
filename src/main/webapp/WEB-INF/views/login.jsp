@@ -35,16 +35,16 @@
                             <div class="input-group mb-3">
                                 <span class="input-group-addon"><i class="icon-user"></i>
                                 </span>
-                                <input type="text" class="form-control" placeholder="Username" name="login">
+                                <input type="text" class="form-control form-control-sm" placeholder="Username" name="login">
                             </div>
                             <div class="input-group mb-4">
                                 <span class="input-group-addon"><i class="icon-lock"></i>
                                 </span>
-                                <input type="password" class="form-control" placeholder="Password" name="password">
+                                <input type="password" class="form-control form-control-sm" placeholder="Password" name="password">
                             </div>
                             <div class="row">
                                 <div class="col-6">
-                                    <button type="submit" role="button" class="btn btn-primary px-4" >Login</button>
+                                    <button type="submit" role="button" class="btn btn-primary px-4">Login</button>
                                 </div>
                                 <div class="col-6 text-right">
                                     <%--<button type="button" class="btn btn-link px-0">Forgot password?</button>--%>

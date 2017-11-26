@@ -4,6 +4,7 @@ import com.tsystems.app.logistics.converter.TruckConverter;
 import com.tsystems.app.logistics.dao.impl.CityDao;
 import com.tsystems.app.logistics.dao.impl.OrderDao;
 import com.tsystems.app.logistics.dao.impl.TruckDao;
+import com.tsystems.app.logistics.dto.ChangeEvent;
 import com.tsystems.app.logistics.dto.SuitableTruckDto;
 import com.tsystems.app.logistics.dto.TruckDto;
 import com.tsystems.app.logistics.entity.City;
@@ -11,6 +12,7 @@ import com.tsystems.app.logistics.entity.Order;
 import com.tsystems.app.logistics.entity.PathPoint;
 import com.tsystems.app.logistics.entity.Truck;
 import com.tsystems.app.logistics.service.api.TruckService;
+import com.tsystems.app.logisticscommon.MessageType;
 import com.tsystems.app.logisticscommon.TruckFullDto;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -60,8 +62,27 @@ public class TruckServiceImpl implements TruckService {
     public void addNewTruck(TruckDto truckDto) {
         validateNewTruckForm(truckDto);
         truckDto.setOnOrder(false);
-        truckDao.create(fromDtoToTruck(truckDto));
+        Truck truck = truckDao.create(fromDtoToTruck(truckDto));
+        updateBoardAddTruck(truck);
+        updateBoardGeneralInfoTruck();
     }
+
+    private void updateBoardAddTruck(Truck truck) {
+        applicationEventPublisher.publishEvent(new ChangeEvent(MessageType.ADD_TRUCK, null,  truckConverter.toTruckFullDto(truck)));
+    }
+
+    private void updateBoardGeneralInfoTruck() {
+        applicationEventPublisher.publishEvent(new ChangeEvent(MessageType.GENERAL, false,null));
+    }
+
+    private void updateBoardDeleteTruck(Long id) {
+        applicationEventPublisher.publishEvent(new ChangeEvent(MessageType.DELETE_TRUCK, null,  id));
+    }
+
+    private void updateBoardUpdateTruck(Truck truck) {
+        applicationEventPublisher.publishEvent(new ChangeEvent(MessageType.UPDATE_TRUCK, null, truckConverter.toTruckFullDto(truck)));
+    }
+
 
     /**
      * Validate new truck form
@@ -90,6 +111,8 @@ public class TruckServiceImpl implements TruckService {
     @Override
     public void deleteTruck(Long id) {
         truckDao.deleteById(id);
+        updateBoardDeleteTruck(id);
+        updateBoardGeneralInfoTruck();
     }
 
     @Override
@@ -124,7 +147,8 @@ public class TruckServiceImpl implements TruckService {
 
     @Override
     public void updateTruck(TruckDto truckDto) {
-        truckDao.update(fromDtoToTruck(truckDto));
+        Truck truck = truckDao.update(fromDtoToTruck(truckDto));
+        updateBoardUpdateTruck(truck);
     }
 
     @Override

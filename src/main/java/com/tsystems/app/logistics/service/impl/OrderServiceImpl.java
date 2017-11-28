@@ -15,6 +15,7 @@ import com.tsystems.app.logistics.entity.City;
 import com.tsystems.app.logistics.entity.CityOfRoute;
 import com.tsystems.app.logistics.entity.Crew;
 import com.tsystems.app.logistics.entity.Order;
+import com.tsystems.app.logistics.entity.PathPoint;
 import com.tsystems.app.logistics.entity.Truck;
 import com.tsystems.app.logistics.entity.User;
 import com.tsystems.app.logistics.service.api.DriverService;
@@ -125,6 +126,29 @@ public class OrderServiceImpl implements OrderService {
         applicationEventPublisher.publishEvent(new ChangeEvent(MessageType.UPDATE_ORDER_BY_DRIVER_LOGIN, null, driverLogin));
     }
 
+    @Override
+    public void closeOrder(Long orderId) {
+        Order order = orderDao.findOneById(orderId);
+        boolean isFinishedOrder = isAllPointsDoneByOrderId(order);
+        if (!isFinishedOrder) {
+            return;
+        }
+        order.setStatus(OrderStatus.FINISHED);
+        order = orderDao.update(order);
+        updateBoardUpdateOrder(order);
+    }
+
+    @Override
+    public boolean isAllPointsDoneByOrderId(Order order) {
+        boolean isFinishedOrder = true;
+        for (PathPoint point : order.getPathPoints()) {
+            if (!point.getDone()) {
+                isFinishedOrder = false;
+                break;
+            }
+        }
+        return isFinishedOrder;
+    }
 
     /**
      * Validate new order form

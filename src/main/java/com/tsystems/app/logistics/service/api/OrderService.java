@@ -40,4 +40,8 @@ public interface OrderService {
     void updateBoardUpdateOrder(Order order);
 
     void updateBoardUpdateOrder(String driverLogin);
+
+    void closeOrder(Long orderId);
+
+    boolean isAllPointsDoneByOrderId(Order order);
 }

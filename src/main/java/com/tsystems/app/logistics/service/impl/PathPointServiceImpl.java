@@ -18,6 +18,7 @@ import com.tsystems.app.logistics.entity.User;
 import com.tsystems.app.logistics.entity.enums.CargoStatus;
 import com.tsystems.app.logistics.service.api.DriverService;
 import com.tsystems.app.logistics.service.api.GeneralInfoService;
+import com.tsystems.app.logistics.service.api.OrderService;
 import com.tsystems.app.logistics.service.api.PathPointService;
 import com.tsystems.app.logistics.service.api.TruckService;
 import org.apache.logging.log4j.LogManager;
@@ -49,6 +50,8 @@ public class PathPointServiceImpl implements PathPointService {
     private DriverService driverService;
     @Autowired
     private TruckService truckService;
+    @Autowired
+    private OrderService orderService;
     @Autowired
     private GeneralInfoService generalInfoService;
 
@@ -235,13 +238,7 @@ public class PathPointServiceImpl implements PathPointService {
         closedPoint.setDone(true);
         closedPoint = pathPointDao.update(closedPoint);
         Order order = orderDao.findOneById(closedPoint.getOrder().getId());
-        boolean isFinishedOrder = true;
-        for (PathPoint point : order.getPathPoints()) {
-            if (!point.getDone()) {
-                isFinishedOrder = false;
-                break;
-            }
-        }
+        boolean isFinishedOrder = orderService.isAllPointsDoneByOrderId(order);
 
         City city = closedPoint.getCity();
         for (User driver : order.getCrew().getUsers()) {

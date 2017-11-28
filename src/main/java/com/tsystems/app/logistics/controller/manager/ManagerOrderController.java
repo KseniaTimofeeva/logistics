@@ -115,6 +115,13 @@ public class ManagerOrderController {
         return "redirect:/manager/order/" + orderId;
     }
 
+    @RequestMapping(value = "/{orderId}/close", method = RequestMethod.GET)
+    public String deleteDriver(@PathVariable(value = "orderId") Long orderId, Model model) {
+        LOG.trace("GET /manager/order/{}/close", orderId);
+        orderService.closeOrder(orderId);
+        return "redirect:/manager/order/" + orderId;
+    }
+
     @RequestMapping(value = "/{orderId}/new-point", method = RequestMethod.POST)
     public String addNewPoint(@PathVariable(value = "orderId") Long orderId,
                               @Valid PathPointDto pointDto) {
@@ -135,6 +142,8 @@ public class ManagerOrderController {
         model.addAttribute(typeOfCenterAttribute, "manager/new-order.jsp");
         return "page";
     }
+
+
 
     @RequestMapping(value = "/new", method = RequestMethod.POST)
     public String addNewOrder(@Valid OrderDto orderDto) {

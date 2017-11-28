@@ -2,17 +2,17 @@ package com.tsystems.app.logistics.config;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.config.PropertyPlaceholderConfigurer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.MediaType;
-import org.springframework.jms.core.JmsOperations;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.jndi.JndiObjectFactoryBean;
 import org.springframework.web.accept.ContentNegotiationManagerFactoryBean;
 import org.springframework.web.servlet.ViewResolver;
-import org.springframework.web.servlet.config.annotation.ContentNegotiationConfigurer;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
@@ -20,15 +20,9 @@ import org.springframework.web.servlet.view.ContentNegotiatingViewResolver;
 import org.springframework.web.servlet.view.InternalResourceViewResolver;
 import org.springframework.web.servlet.view.json.MappingJackson2JsonView;
 
-import javax.annotation.PostConstruct;
 import javax.jms.ConnectionFactory;
-import javax.jms.JMSException;
-import javax.jms.Queue;
 import javax.naming.NamingException;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
-import java.util.List;
 
 /**
  * Created by ksenia on 03.10.2017.
@@ -80,18 +74,19 @@ public class MvcConfig extends WebMvcConfigurerAdapter {
         return (ConnectionFactory) jndiObjectFactoryBean.getObject();
     }
 
+
     @Bean
-    public Queue requestsQueue() {
-        JndiObjectFactoryBean jndiObjectFactoryBean = new JndiObjectFactoryBean();
-        jndiObjectFactoryBean.setJndiName("java:/jms/queue/logisticsQueue");
-        return (Queue) jndiObjectFactoryBean.getObject();
+    public JmsTemplate jmsOperations(@Value("${jms.queue.fullName}") String queueName) throws NamingException {
+        final JmsTemplate jmsTemplate = new JmsTemplate(jmsConnectionFactory());
+        jmsTemplate.setDefaultDestinationName(queueName);
+        return jmsTemplate;
     }
 
     @Bean
-    public JmsTemplate jmsOperations() throws NamingException {
-        final JmsTemplate jmsTemplate = new JmsTemplate(jmsConnectionFactory());
-        jmsTemplate.setDefaultDestinationName(/*requestsQueue()*/"java:/jms/queue/logisticsQueue");
-        return jmsTemplate;
+    public static PropertyPlaceholderConfigurer propertiesFactoryBean() {
+        PropertyPlaceholderConfigurer configurer = new PropertyPlaceholderConfigurer();
+        configurer.setLocation(new ClassPathResource("app.properties"));
+        return configurer;
     }
 }
 

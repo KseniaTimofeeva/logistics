@@ -9,6 +9,7 @@ import com.tsystems.app.logistics.entity.Order;
 import com.tsystems.app.logistics.entity.TimeTrack;
 import com.tsystems.app.logistics.entity.User;
 import com.tsystems.app.logistics.entity.enums.DriverAction;
+import com.tsystems.app.logistics.service.api.OrderService;
 import com.tsystems.app.logistics.service.api.TimeTrackService;
 import com.tsystems.app.logisticscommon.enums.OrderStatus;
 import org.apache.logging.log4j.LogManager;
@@ -36,19 +37,19 @@ public class TimeTrackServiceImpl implements TimeTrackService {
 
     @Autowired
     private TimeTrackConverter trackConverter;
+    @Autowired
+    private OrderService orderService;
 
     @Autowired
     public void setTrackDao(TimeTrackDao trackDao) {
         this.trackDao = trackDao;
         trackDao.setEntityClass(TimeTrack.class);
     }
-
     @Autowired
     public void setUserDao(UserDao userDao) {
         this.userDao = userDao;
         userDao.setEntityClass(User.class);
     }
-
     @Autowired
     public void setOrderDao(OrderDao orderDao) {
         this.orderDao = orderDao;
@@ -70,6 +71,7 @@ public class TimeTrackServiceImpl implements TimeTrackService {
                 LOG.debug("Order {} is new - set status 'IN_PROCESS'", order.getId());
                 order.setStatus(OrderStatus.IN_PROCESS);
                 order = orderDao.update(order);
+                orderService.updateBoardUpdateOrder(order);
             }
         }
 

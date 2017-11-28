@@ -2,6 +2,7 @@ package com.tsystems.app.logistics.service.api;
 
 import com.tsystems.app.logistics.dto.OrderDto;
 import com.tsystems.app.logistics.dto.OrderInfoDto;
+import com.tsystems.app.logistics.entity.Order;
 import com.tsystems.app.logisticscommon.CityDto;
 import com.tsystems.app.logisticscommon.OrderInfoBoardDto;
 
@@ -26,7 +27,7 @@ public interface OrderService {
 
     void detachDriver(Long orderId, Long driverId);
 
-    OrderInfoDto getCurrentOrderByDriverLogin(String login);
+    <T> T getCurrentOrderByDriverLogin(String login, Class<T> tClass);
 
     List<OrderInfoBoardDto> getOrdersInfo();
 
@@ -35,4 +36,8 @@ public interface OrderService {
     void addCityToRoute(Long orderId, List<Long> cityIdList);
 
     void removeCityFromRoute(Long orderId, Long cityId);
+
+    void updateBoardUpdateOrder(Order order);
+
+    void updateBoardUpdateOrder(String driverLogin);
 }

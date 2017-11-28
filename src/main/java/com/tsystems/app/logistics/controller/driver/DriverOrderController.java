@@ -2,7 +2,6 @@ package com.tsystems.app.logistics.controller.driver;
 
 import com.tsystems.app.logistics.dto.OrderInfoDto;
 import com.tsystems.app.logistics.dto.TimeTrackDto;
-import com.tsystems.app.logistics.entity.enums.DriverAction;
 import com.tsystems.app.logistics.service.api.OrderService;
 import com.tsystems.app.logistics.service.api.PathPointService;
 import com.tsystems.app.logistics.service.api.TimeTrackService;
@@ -16,7 +15,6 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
 
 import javax.validation.Valid;
 
@@ -41,7 +39,7 @@ public class DriverOrderController {
     public String getDriverOrder(@AuthenticationPrincipal User user, Model model) {
         LOG.trace("GET /driver/order");
         model.addAttribute(typeOfCenterAttribute, "driver/driver-order.jsp");
-        OrderInfoDto currentOrder = orderService.getCurrentOrderByDriverLogin(user.getUsername());
+        OrderInfoDto currentOrder = orderService.getCurrentOrderByDriverLogin(user.getUsername(), OrderInfoDto.class);
         if (currentOrder != null) {
             model.addAttribute("currentOrder", currentOrder);
             model.addAttribute("lastAction", trackService.getLastActionForOrder(user.getUsername(), currentOrder.getId()));

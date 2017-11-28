@@ -62,7 +62,7 @@ public class OrderConverter {
         dto.setId(order.getId());
         dto.setNumber(order.getNumber());
         List<CityOfRoute> route = order.getRoute();
-        if (route != null) {
+        if (route != null && !route.isEmpty()) {
             dto.setStart(cityConverter.cityOfRouteToCityDto(route.get(0)));
             dto.setFinish(cityConverter.cityOfRouteToCityDto(route.get(route.size()-1)));
         }

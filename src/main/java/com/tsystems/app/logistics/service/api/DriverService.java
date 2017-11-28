@@ -33,4 +33,6 @@ public interface DriverService {
     List<DriverInfoBoardDto> getDriversInfo();
 
     DriverInfoBoardDto getOneDriverInfo(User driver);
+
+    void updateBoardUpdateDriver(User driver);
 }

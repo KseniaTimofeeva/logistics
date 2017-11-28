@@ -8,28 +8,31 @@ import com.tsystems.app.logistics.dao.impl.CrewDao;
 import com.tsystems.app.logistics.dao.impl.OrderDao;
 import com.tsystems.app.logistics.dao.impl.TruckDao;
 import com.tsystems.app.logistics.dao.impl.UserDao;
+import com.tsystems.app.logistics.dto.ChangeEvent;
 import com.tsystems.app.logistics.dto.OrderDto;
 import com.tsystems.app.logistics.dto.OrderInfoDto;
 import com.tsystems.app.logistics.entity.City;
 import com.tsystems.app.logistics.entity.CityOfRoute;
 import com.tsystems.app.logistics.entity.Crew;
 import com.tsystems.app.logistics.entity.Order;
-import com.tsystems.app.logistics.entity.PathPoint;
 import com.tsystems.app.logistics.entity.Truck;
 import com.tsystems.app.logistics.entity.User;
+import com.tsystems.app.logistics.service.api.DriverService;
 import com.tsystems.app.logistics.service.api.OrderService;
+import com.tsystems.app.logistics.service.api.TruckService;
 import com.tsystems.app.logisticscommon.CityDto;
+import com.tsystems.app.logisticscommon.MessageType;
 import com.tsystems.app.logisticscommon.OrderInfoBoardDto;
 import com.tsystems.app.logisticscommon.enums.OrderStatus;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.ListIterator;
 
@@ -52,42 +55,44 @@ public class OrderServiceImpl implements OrderService {
     private OrderConverter orderConverter;
     @Autowired
     private CityConverter cityConverter;
+    @Autowired
+    private DriverService driverService;
+    @Autowired
+    private TruckService truckService;
+    @Autowired
+    private ApplicationEventPublisher applicationEventPublisher;
 
     @Autowired
     public void setOrderDao(OrderDao orderDao) {
         this.orderDao = orderDao;
         orderDao.setEntityClass(Order.class);
     }
-
     @Autowired
     public void setTruckDao(TruckDao truckDao) {
         this.truckDao = truckDao;
         truckDao.setEntityClass(Truck.class);
     }
-
     @Autowired
     public void setCrewDao(CrewDao crewDao) {
         this.crewDao = crewDao;
         crewDao.setEntityClass(Crew.class);
     }
-
     @Autowired
     public void setUserDao(UserDao userDao) {
         this.userDao = userDao;
         userDao.setEntityClass(User.class);
     }
-
     @Autowired
     public void setCityDao(CityDao cityDao) {
         this.cityDao = cityDao;
         cityDao.setEntityClass(City.class);
     }
-
     @Autowired
     public void setCityOfRouteDao(CityOfRouteDao cityOfRouteDao) {
         this.cityOfRouteDao = cityOfRouteDao;
         cityOfRouteDao.setEntityClass(CityOfRoute.class);
     }
+
 
     @Override
     public List<OrderInfoDto> getAllOrders() {
@@ -102,8 +107,24 @@ public class OrderServiceImpl implements OrderService {
         order.setNumber(orderDto.getNumber());
         order.setStatus(OrderStatus.NEW);
         order = orderDao.create(order);
+        updateBoardAddOrder(order);
         return order.getId();
     }
+
+    private void updateBoardAddOrder(Order order) {
+        applicationEventPublisher.publishEvent(new ChangeEvent(MessageType.ADD_ORDER, null,  orderConverter.toOrderInfoBoardDto(order)));
+    }
+
+    @Override
+    public void updateBoardUpdateOrder(Order order) {
+        applicationEventPublisher.publishEvent(new ChangeEvent(MessageType.UPDATE_ORDER, null, orderConverter.toOrderInfoBoardDto(order)));
+    }
+
+    @Override
+    public void updateBoardUpdateOrder(String driverLogin) {
+        applicationEventPublisher.publishEvent(new ChangeEvent(MessageType.UPDATE_ORDER_BY_DRIVER_LOGIN, null, driverLogin));
+    }
+
 
     /**
      * Validate new order form
@@ -133,29 +154,26 @@ public class OrderServiceImpl implements OrderService {
     }
 
     private Order sortPathPointsByRoute(Order order) {
-        if (order == null || order.getPathPoints() == null || order.getRoute() == null) {
-            return null;
+        if (order == null || CollectionUtils.isEmpty(order.getPathPoints()) || CollectionUtils.isEmpty(order.getRoute())) {
+            return order;
         }
-        Collections.sort(order.getPathPoints(), new Comparator<PathPoint>() {
-            @Override
-            public int compare(PathPoint o1, PathPoint o2) {
-                ListIterator<CityOfRoute> iter = order.getRoute().listIterator();
-                Long index1 = null;
-                Long index2 = null;
-                while (iter.hasNext()) {
-                    CityOfRoute next = iter.next();
-                    if (o1.getCity().getId().equals(next.getCity().getId())) {
-                        index1 = next.getId();
-                    }
-                    if (o2.getCity().getId().equals(next.getCity().getId())) {
-                        index2 = next.getId();
-                    }
-                    if (index1 != null && index2 != null) {
-                        break;
-                    }
+        order.getPathPoints().sort((o1, o2) -> {
+            ListIterator<CityOfRoute> iter = order.getRoute().listIterator();
+            Long index1 = null;
+            Long index2 = null;
+            while (iter.hasNext()) {
+                CityOfRoute next = iter.next();
+                if (o1.getCity().getId().equals(next.getCity().getId())) {
+                    index1 = next.getId();
                 }
-                return (int) (index1 - index2);
+                if (o2.getCity().getId().equals(next.getCity().getId())) {
+                    index2 = next.getId();
+                }
+                if (index1 != null && index2 != null) {
+                    break;
+                }
             }
+            return (int) (index1 - index2);
         });
         return order;
     }
@@ -184,13 +202,16 @@ public class OrderServiceImpl implements OrderService {
             Truck oldTruck = orderCrew.getTruck();
             if (oldTruck != null) {
                 oldTruck.setOnOrder(false);
-                truckDao.update(oldTruck);
+                oldTruck = truckDao.update(oldTruck);
+                truckService.updateBoardUpdateTruck(oldTruck);
             }
             orderCrew.setTruck(newTruck);
             orderCrew = crewDao.update(orderCrew);
         }
+        truckService.updateBoardUpdateTruck(orderCrew.getTruck());
         order.setCrew(orderCrew);
-        orderDao.update(order);
+        order = orderDao.update(order);
+        updateBoardUpdateOrder(order);
     }
 
     @Override
@@ -200,6 +221,7 @@ public class OrderServiceImpl implements OrderService {
         User newDriver = userDao.findOneById(newDriverId);
         newDriver.setOnOrder(true);
         newDriver = userDao.update(newDriver);
+        driverService.updateBoardUpdateDriver(newDriver);
 
         Crew orderCrew = order.getCrew();
         List<User> currentDrivers;
@@ -217,8 +239,10 @@ public class OrderServiceImpl implements OrderService {
             currentDrivers.add(newDriver);
             orderCrew = crewDao.update(orderCrew);
         }
+        truckService.updateBoardUpdateTruck(orderCrew.getTruck());
         order.setCrew(orderCrew);
-        orderDao.update(order);
+        order = orderDao.update(order);
+        updateBoardUpdateOrder(order);
     }
 
     /**
@@ -233,18 +257,21 @@ public class OrderServiceImpl implements OrderService {
         User driver = userDao.findOneById(driverId);
         driver.setOnOrder(false);
         driver = userDao.update(driver);
+        driverService.updateBoardUpdateDriver(driver);
 
         Order order = orderDao.findOneById(orderId);
         Crew crew = order.getCrew();
         List<User> currentDrivers = crew.getUsers();
         currentDrivers.remove(driver);
         crew = crewDao.update(crew);
+        truckService.updateBoardUpdateTruck(crew.getTruck());
         order.setCrew(crew);
-        orderDao.update(order);
+        order = orderDao.update(order);
+        updateBoardUpdateOrder(order);
     }
 
     @Override
-    public OrderInfoDto getCurrentOrderByDriverLogin(String login) {
+    public <T> T getCurrentOrderByDriverLogin(String login, Class<T> tClass) {
         List<Order> orders = orderDao.getCurrentOrderByDriverLogin(login);
         if (orders.isEmpty()) {
             LOG.debug("Driver with login {} has not open orders", login);
@@ -266,7 +293,14 @@ public class OrderServiceImpl implements OrderService {
         if (order.getPathPoints() != null && order.getRoute() != null) {
             order = sortPathPointsByRoute(orders.get(i));
         }
-        return orderConverter.toOrderInfoDto(order);
+
+        if (tClass.equals(OrderInfoDto.class)) {
+            return (T) orderConverter.toOrderInfoDto(order);
+        }
+        if (tClass.equals(OrderInfoBoardDto.class)) {
+            return (T) orderConverter.toOrderInfoBoardDto(order);
+        }
+        return null;
     }
 
     @Override
@@ -295,7 +329,8 @@ public class OrderServiceImpl implements OrderService {
             cityOfRoute = cityOfRouteDao.create(cityOfRoute);
             route.add(cityOfRoute);
         }
-        orderDao.update(order);
+        order = orderDao.update(order);
+        updateBoardUpdateOrder(order);
     }
 
     @Override
@@ -310,7 +345,7 @@ public class OrderServiceImpl implements OrderService {
                 iter.remove();
             }
         }
-//        route.removeIf(next -> next.getCity().getId().equals(cityId));
-        orderDao.update(order);
+        order = orderDao.update(order);
+        updateBoardUpdateOrder(order);
     }
 }

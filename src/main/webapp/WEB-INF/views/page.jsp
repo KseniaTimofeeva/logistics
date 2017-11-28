@@ -25,16 +25,15 @@
 <header class="app-header navbar">
     <button class="navbar-toggler mobile-sidebar-toggler d-lg-none mr-auto" type="button">☰</button>
     <a class="navbar-brand" href="#"></a>
-    <button class="navbar-toggler sidebar-toggler d-md-down-none" type="button">☰</button>
 
     <ul class="nav navbar-nav ml-auto mr-lg-4">
-        <li class="nav-item d-md-down-none">
-            <span class="d-md-down-none">
+        <li class="nav-item">
+            <span>
                 <sec:authorize access="hasRole('ROLE_DRIVER')">&nbsp; Driver</sec:authorize>
                 <sec:authorize access="hasRole('ROLE_MANAGER')">&nbsp; Manager</sec:authorize>
             </span>
         </li>
-        <li class="nav-item d-md-down-none">
+        <li class="nav-item">
             <form id="logout-form" action="<c:url value="/logout"/>" method="post">
                 <input type="hidden" name="_csrf" value="${_csrf.token}"/>
             </form>

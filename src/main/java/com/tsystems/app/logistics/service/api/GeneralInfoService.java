@@ -12,4 +12,6 @@ public interface GeneralInfoService {
     GeneralInfoDto setDriverInfo(GeneralInfoDto dto);
 
     GeneralInfoDto setTruckInfo(GeneralInfoDto dto);
+
+    void updateBoardGeneralInfo(Boolean isDriverGeneralInfo);
 }

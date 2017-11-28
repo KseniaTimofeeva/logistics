@@ -22,7 +22,7 @@
                     <div class="card">
                         <div class="card-body">
                             <div class="row">
-                                <div class="form-group col-sm-3">
+                                <div class="form-group col-lg-4">
                                     <div class="input-group">
                                         <form action="<c:url value="/driver/order/add-action"/>" method="post" class="form-horizontal">
                                             <input type="hidden" name="_csrf" value="${_csrf.token}"/>
@@ -46,7 +46,7 @@
                                         </form>
                                     </div>
                                 </div>
-                                <div class="form-group col-sm-9">
+                                <div class="form-group col-lg-8">
                                     <form action="<c:url value="/driver/order/add-action"/>" method="post" class="form-horizontal">
                                         <input type="hidden" name="_csrf" value="${_csrf.token}"/>
                                         <input type="hidden" name="order.id" value="${currentOrder.id}"/>

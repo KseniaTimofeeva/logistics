@@ -18,6 +18,8 @@ import com.tsystems.app.logistics.entity.Truck;
 import com.tsystems.app.logistics.entity.User;
 import com.tsystems.app.logistics.entity.enums.SecurityRole;
 import com.tsystems.app.logistics.service.api.DriverService;
+import com.tsystems.app.logistics.service.api.GeneralInfoService;
+import com.tsystems.app.logistics.service.api.OrderService;
 import com.tsystems.app.logistics.utils.GeoUtils;
 import com.tsystems.app.logisticscommon.DriverInfoBoardDto;
 import com.tsystems.app.logisticscommon.MessageType;
@@ -54,6 +56,10 @@ public class DriverServiceImpl implements DriverService {
     private GeoUtils geoUtils;
     @Autowired
     private DriverConverter driverConverter;
+    @Autowired
+    private OrderService orderService;
+    @Autowired
+    private GeneralInfoService generalInfoService;
     @Autowired
     private ApplicationEventPublisher applicationEventPublisher;
 
@@ -95,7 +101,7 @@ public class DriverServiceImpl implements DriverService {
         User driver = userDao.create(fromDtoToUser(driverDto));
 
         updateBoardAddDriver(driver);
-        updateBoardGeneralInfoDriver();
+        generalInfoService.updateBoardGeneralInfo(true);
     }
 
     /**
@@ -127,18 +133,18 @@ public class DriverServiceImpl implements DriverService {
         LOG.trace("Update driver {}", driverDto.getPersonalNumber());
         User driver = userDao.update(fromDtoToUser(driverDto));
         updateBoardUpdateDriver(driver);
+        if (driver.getOnOrder()) {
+            orderService.updateBoardUpdateOrder(driver.getLogin());
+        }
     }
 
-    private void updateBoardUpdateDriver(User driver) {
+    @Override
+    public void updateBoardUpdateDriver(User driver) {
         applicationEventPublisher.publishEvent(new ChangeEvent(MessageType.UPDATE_DRIVER, null, getOneDriverInfo(driver)));
     }
 
     private void updateBoardAddDriver(User driver) {
         applicationEventPublisher.publishEvent(new ChangeEvent(MessageType.ADD_DRIVER, null,  getOneDriverInfo(driver)));
-    }
-
-    private void updateBoardGeneralInfoDriver() {
-        applicationEventPublisher.publishEvent(new ChangeEvent(MessageType.GENERAL, true,null));
     }
 
     private void updateBoardDeleteDriver(Long id) {
@@ -324,7 +330,7 @@ public class DriverServiceImpl implements DriverService {
     public void deleteDriver(Long id) {
         userDao.deleteById(id);
         updateBoardDeleteDriver(id);
-        updateBoardGeneralInfoDriver();
+        generalInfoService.updateBoardGeneralInfo(true);
     }
 
     @Override

@@ -2,6 +2,7 @@ package com.tsystems.app.logistics.service.api;
 
 import com.tsystems.app.logistics.dto.SuitableTruckDto;
 import com.tsystems.app.logistics.dto.TruckDto;
+import com.tsystems.app.logistics.entity.Truck;
 import com.tsystems.app.logisticscommon.TruckFullDto;
 
 import java.util.List;
@@ -26,4 +27,6 @@ public interface TruckService {
     SuitableTruckDto getSuitableTruckByOrderId(Long id);
 
     List<TruckFullDto> getTrucksFullInfo();
+
+    void updateBoardUpdateTruck(Truck truck);
 }

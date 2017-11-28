@@ -5,7 +5,6 @@ package com.tsystems.app.logistics.entity.enums;
  */
 public enum CargoStatus {
     NEW("New"),
-    READY("Ready for shipment"),
     SHIPPING("Shipping"),
     DELIVERED("Delivered");
 

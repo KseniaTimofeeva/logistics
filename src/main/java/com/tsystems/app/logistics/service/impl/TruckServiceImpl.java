@@ -11,6 +11,7 @@ import com.tsystems.app.logistics.entity.City;
 import com.tsystems.app.logistics.entity.Order;
 import com.tsystems.app.logistics.entity.PathPoint;
 import com.tsystems.app.logistics.entity.Truck;
+import com.tsystems.app.logistics.service.api.GeneralInfoService;
 import com.tsystems.app.logistics.service.api.TruckService;
 import com.tsystems.app.logisticscommon.MessageType;
 import com.tsystems.app.logisticscommon.TruckFullDto;
@@ -38,6 +39,8 @@ public class TruckServiceImpl implements TruckService {
     @Autowired
     private TruckConverter truckConverter;
     @Autowired
+    private GeneralInfoService generalInfoService;
+    @Autowired
     private ApplicationEventPublisher applicationEventPublisher;
 
     @Autowired
@@ -64,22 +67,19 @@ public class TruckServiceImpl implements TruckService {
         truckDto.setOnOrder(false);
         Truck truck = truckDao.create(fromDtoToTruck(truckDto));
         updateBoardAddTruck(truck);
-        updateBoardGeneralInfoTruck();
+        generalInfoService.updateBoardGeneralInfo(false);
     }
 
     private void updateBoardAddTruck(Truck truck) {
         applicationEventPublisher.publishEvent(new ChangeEvent(MessageType.ADD_TRUCK, null,  truckConverter.toTruckFullDto(truck)));
     }
 
-    private void updateBoardGeneralInfoTruck() {
-        applicationEventPublisher.publishEvent(new ChangeEvent(MessageType.GENERAL, false,null));
-    }
-
     private void updateBoardDeleteTruck(Long id) {
         applicationEventPublisher.publishEvent(new ChangeEvent(MessageType.DELETE_TRUCK, null,  id));
     }
 
-    private void updateBoardUpdateTruck(Truck truck) {
+    @Override
+    public void updateBoardUpdateTruck(Truck truck) {
         applicationEventPublisher.publishEvent(new ChangeEvent(MessageType.UPDATE_TRUCK, null, truckConverter.toTruckFullDto(truck)));
     }
 
@@ -112,7 +112,7 @@ public class TruckServiceImpl implements TruckService {
     public void deleteTruck(Long id) {
         truckDao.deleteById(id);
         updateBoardDeleteTruck(id);
-        updateBoardGeneralInfoTruck();
+        generalInfoService.updateBoardGeneralInfo(false);
     }
 
     @Override

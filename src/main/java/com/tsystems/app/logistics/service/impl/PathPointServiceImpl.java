@@ -15,7 +15,11 @@ import com.tsystems.app.logistics.entity.Order;
 import com.tsystems.app.logistics.entity.PathPoint;
 import com.tsystems.app.logistics.entity.Truck;
 import com.tsystems.app.logistics.entity.User;
+import com.tsystems.app.logistics.entity.enums.CargoStatus;
+import com.tsystems.app.logistics.service.api.DriverService;
+import com.tsystems.app.logistics.service.api.GeneralInfoService;
 import com.tsystems.app.logistics.service.api.PathPointService;
+import com.tsystems.app.logistics.service.api.TruckService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,6 +45,12 @@ public class PathPointServiceImpl implements PathPointService {
 
     @Autowired
     private PathPointConverter pointConverter;
+    @Autowired
+    private DriverService driverService;
+    @Autowired
+    private TruckService truckService;
+    @Autowired
+    private GeneralInfoService generalInfoService;
 
     @Autowired
     public void setPathPointDao(PathPointDao pathPointDao) {
@@ -71,6 +81,7 @@ public class PathPointServiceImpl implements PathPointService {
         this.userDao = userDao;
         userDao.setEntityClass(User.class);
     }
+
     @Autowired
     public void setTruckDao(TruckDao truckDao) {
         this.truckDao = truckDao;
@@ -209,8 +220,20 @@ public class PathPointServiceImpl implements PathPointService {
     @Override
     public void closePathPoint(Long pointId) {
         PathPoint closedPoint = pathPointDao.findOneById(pointId);
+
+        if (closedPoint.getLoading() != null) {
+            Cargo closedPointCargo = closedPoint.getCargo();
+            if (closedPoint.getLoading()) {
+                closedPointCargo.setStatus(CargoStatus.SHIPPING);
+            } else {
+                closedPointCargo.setStatus(CargoStatus.DELIVERED);
+            }
+            closedPointCargo = cargoDao.update(closedPointCargo);
+
+            closedPoint.setCargo(closedPointCargo);
+        }
         closedPoint.setDone(true);
-        pathPointDao.update(closedPoint);
+        closedPoint = pathPointDao.update(closedPoint);
         Order order = orderDao.findOneById(closedPoint.getOrder().getId());
         boolean isFinishedOrder = true;
         for (PathPoint point : order.getPathPoints()) {
@@ -219,17 +242,24 @@ public class PathPointServiceImpl implements PathPointService {
                 break;
             }
         }
+
+        City city = closedPoint.getCity();
+        for (User driver : order.getCrew().getUsers()) {
+            driver.setCurrentCity(city);
+            if (isFinishedOrder) {
+                driver.setOnOrder(false);
+            }
+            driver = userDao.update(driver);
+            driverService.updateBoardUpdateDriver(driver);
+        }
+        Truck truck = order.getCrew().getTruck();
+        truck.setCurrentCity(city);
         if (isFinishedOrder) {
             LOG.debug("All way points of order {} are finished", order.getNumber());
-
-            for (User driver : order.getCrew().getUsers()) {
-                driver.setOnOrder(false);
-                userDao.update(driver);
-            }
-            Truck truck = order.getCrew().getTruck();
             truck.setOnOrder(false);
-            truckDao.update(truck);
         }
+        truck = truckDao.update(truck);
+        truckService.updateBoardUpdateTruck(truck);
+        generalInfoService.updateBoardGeneralInfo(null);
     }
-
 }

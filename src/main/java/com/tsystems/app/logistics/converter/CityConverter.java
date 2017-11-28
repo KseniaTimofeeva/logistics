@@ -15,6 +15,9 @@ import java.util.stream.Collectors;
 public class CityConverter {
 
     public CityDto toCityDto(City city) {
+        if (city == null) {
+            return null;
+        }
         CityDto cityDto = new CityDto();
         cityDto.setId(city.getId());
         cityDto.setName(city.getName());

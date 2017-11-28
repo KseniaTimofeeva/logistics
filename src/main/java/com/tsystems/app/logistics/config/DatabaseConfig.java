@@ -1,8 +1,8 @@
 package com.tsystems.app.logistics.config;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.DependsOn;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
@@ -22,16 +22,14 @@ import java.util.Properties;
 public class DatabaseConfig {
 
     @Bean
-    public DataSource dataSource() {
+    public DataSource dataSource(@Value("${db.name}") String dbName, @Value("${db.url}") String dbUrl,
+                                 @Value("${db.username}") String username, @Value("${db.password}") String password) {
         DriverManagerDataSource dataSource = new DriverManagerDataSource();
 
-        dataSource.setDriverClassName("com.mysql.cj.jdbc.Driver");
-        dataSource.setUrl("jdbc:mysql://localhost:3306/logistics?useUnicode=true" +
-                "&characterEncoding=utf8" +
-                "&serverTimezone=Europe/Moscow" +
-                "&nullNamePatternMatchesAll=true");
-        dataSource.setUsername("root");
-        dataSource.setPassword("123321");
+        dataSource.setDriverClassName(dbName);
+        dataSource.setUrl(dbUrl);
+        dataSource.setUsername(username);
+        dataSource.setPassword(password);
 
         return dataSource;
     }
@@ -46,11 +44,10 @@ public class DatabaseConfig {
     }
 
     @Bean
-//    @DependsOn("liquibase")
-    public LocalContainerEntityManagerFactoryBean entityManagerFactory() {
+    public LocalContainerEntityManagerFactoryBean entityManagerFactory(DataSource dataSource) {
         LocalContainerEntityManagerFactoryBean entityManagerFactoryBean = new LocalContainerEntityManagerFactoryBean();
 
-        entityManagerFactoryBean.setDataSource(dataSource());
+        entityManagerFactoryBean.setDataSource(dataSource);
         entityManagerFactoryBean.setJpaVendorAdapter(new HibernateJpaVendorAdapter());
         entityManagerFactoryBean.setPackagesToScan("com.tsystems.app.logistics.entity");
 

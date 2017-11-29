@@ -11,7 +11,10 @@ import com.tsystems.app.logistics.entity.City;
 import com.tsystems.app.logistics.entity.Order;
 import com.tsystems.app.logistics.entity.PathPoint;
 import com.tsystems.app.logistics.entity.Truck;
+import com.tsystems.app.logistics.entity.User;
 import com.tsystems.app.logistics.service.api.GeneralInfoService;
+import com.tsystems.app.logistics.service.api.OrderService;
+import com.tsystems.app.logistics.service.api.TimeTrackService;
 import com.tsystems.app.logistics.service.api.TruckService;
 import com.tsystems.app.logisticscommon.MessageType;
 import com.tsystems.app.logisticscommon.TruckFullDto;
@@ -40,6 +43,10 @@ public class TruckServiceImpl implements TruckService {
     private TruckConverter truckConverter;
     @Autowired
     private GeneralInfoService generalInfoService;
+    @Autowired
+    private OrderService orderService;
+    @Autowired
+    private TimeTrackService timeTrackService;
     @Autowired
     private ApplicationEventPublisher applicationEventPublisher;
 
@@ -81,6 +88,22 @@ public class TruckServiceImpl implements TruckService {
     @Override
     public void updateBoardUpdateTruck(Truck truck) {
         applicationEventPublisher.publishEvent(new ChangeEvent(MessageType.UPDATE_TRUCK, null, truckConverter.toTruckFullDto(truck)));
+    }
+
+    @Override
+    public void changeTruckIsBroken(Long orderId) {
+        Order order = orderDao.findOneById(orderId);
+        List<User> drivers = order.getCrew().getUsers();
+        for (User driver : drivers) {
+            timeTrackService.addTimeTrackRepair(order, driver);
+        }
+
+        Truck truck = order.getCrew().getTruck();
+        truck.setFunctioning(false);
+        truck = truckDao.update(truck);
+
+        updateBoardUpdateTruck(truck);
+        generalInfoService.updateBoardGeneralInfo(false);
     }
 
 
@@ -169,6 +192,9 @@ public class TruckServiceImpl implements TruckService {
         boolean isCurrentTruckSuitable = false;
 
         Order order = orderDao.findOneById(id);
+
+        order = orderService.sortPathPointsByRoute(order);
+
         LOG.debug("Searching for suitable trucks for order {}", order.getNumber());
         for (PathPoint pp : order.getPathPoints()) {
             if (!pp.getVisible()) {

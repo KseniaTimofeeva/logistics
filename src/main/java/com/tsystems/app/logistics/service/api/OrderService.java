@@ -47,4 +47,6 @@ public interface OrderService {
 
     boolean isAllPointsDoneByOrderId(Long orderId);
 
+    Order sortPathPointsByRoute(Order order);
+
 }

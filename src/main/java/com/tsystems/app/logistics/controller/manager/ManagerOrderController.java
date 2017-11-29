@@ -204,4 +204,10 @@ public class ManagerOrderController {
         return "redirect:/manager/order/" + orderId;
     }
 
+    @RequestMapping(value = "/{orderId}/truck-broken", method = RequestMethod.GET)
+    public String changeTruckIsBroken(@PathVariable(value = "orderId") Long orderId) {
+        LOG.trace("POST /manager/order/{}/truck-broken", orderId);
+        truckService.changeTruckIsBroken(orderId);
+        return "redirect:/manager/order/" + orderId;
+    }
 }

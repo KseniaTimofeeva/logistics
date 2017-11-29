@@ -4,6 +4,7 @@ import com.tsystems.app.logistics.converter.TimeTrackConverter;
 import com.tsystems.app.logistics.dao.impl.OrderDao;
 import com.tsystems.app.logistics.dao.impl.TimeTrackDao;
 import com.tsystems.app.logistics.dao.impl.UserDao;
+import com.tsystems.app.logistics.dto.SuitableTruckDto;
 import com.tsystems.app.logistics.dto.TimeTrackDto;
 import com.tsystems.app.logistics.entity.Order;
 import com.tsystems.app.logistics.entity.TimeTrack;
@@ -12,6 +13,7 @@ import com.tsystems.app.logistics.entity.enums.DriverAction;
 import com.tsystems.app.logistics.service.api.OrderService;
 import com.tsystems.app.logistics.service.api.PathPointService;
 import com.tsystems.app.logistics.service.api.TimeTrackService;
+import com.tsystems.app.logistics.service.api.TruckService;
 import com.tsystems.app.logisticscommon.enums.OrderStatus;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -42,6 +44,8 @@ public class TimeTrackServiceImpl implements TimeTrackService {
     private OrderService orderService;
     @Autowired
     private PathPointService pointService;
+    @Autowired
+    private TruckService truckService;
 
     @Autowired
     public void setTrackDao(TimeTrackDao trackDao) {
@@ -78,6 +82,11 @@ public class TimeTrackServiceImpl implements TimeTrackService {
                 boolean hasCargoToUnload = pointService.hasCargoToUnload(order.getId());
                 if (hasCargoToUnload) {
                     return;
+                }
+
+                SuitableTruckDto suitableTrucks = truckService.getSuitableTruckByOrderId(order.getId());
+                if (!suitableTrucks.getIsCurrentTruckSuitable()) {
+                    throw new RuntimeException("Truck capacity is less than maximum weight of the cargo");
                 }
 
                 LOG.debug("Order {} is new - set status 'IN_PROCESS'", order.getId());
@@ -118,5 +127,15 @@ public class TimeTrackServiceImpl implements TimeTrackService {
             return null;
         }
         return trackConverter.toTimeTrackDto(timeTrackList.get(0));
+    }
+
+    @Override
+    public void addTimeTrackRepair(Order order, User driver) {
+        TimeTrack timeTrack = new TimeTrack();
+        timeTrack.setUser(driver);
+        timeTrack.setDriverAction(DriverAction.START_TRUCK_REPAIRING);
+        timeTrack.setDate(new Timestamp(System.currentTimeMillis()));
+        timeTrack.setOrder(order);
+        trackDao.create(timeTrack);
     }
 }

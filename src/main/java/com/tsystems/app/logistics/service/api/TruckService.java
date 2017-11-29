@@ -29,4 +29,6 @@ public interface TruckService {
     List<TruckFullDto> getTrucksFullInfo();
 
     void updateBoardUpdateTruck(Truck truck);
+
+    void changeTruckIsBroken(Long orderId);
 }

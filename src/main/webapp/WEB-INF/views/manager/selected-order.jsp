@@ -146,6 +146,16 @@
                                 <button type="button" class="btn btn-primary m-1 btn-sm" data-toggle="modal" data-target="#order-route-modal">
                                     <i class="icon-graph icons"></i>&nbsp; Route&nbsp;&nbsp;
                                 </button>
+                                <c:if test="${orderInfo.crew.truck.functioning}">
+                                    <a href="<c:url value="/manager/order/${orderInfo.id}/truck-broken"/>" class="btn btn-primary m-1 btn-sm">
+                                        <i class="fa fa-wrench fa-lg"></i>&nbsp; Truck is broken&nbsp;&nbsp;
+                                    </a>
+                                </c:if>
+                                <c:if test="${!orderInfo.crew.truck.functioning}">
+                                    <a href="<c:url value="/manager/order/${orderInfo.id}/truck-repaired"/>" class="btn btn-primary m-1 btn-sm">
+                                        <i class="fa fa-thumbs-o-up fa-lg"></i>&nbsp; Truck is repaired&nbsp;&nbsp;
+                                    </a>
+                                </c:if>
                             </div>
                             <div class="col-lg-6">
                                 <c:if test="${hasCargoToUnload}">

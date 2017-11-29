@@ -183,7 +183,8 @@ public class OrderServiceImpl implements OrderService {
         return orderConverter.toOrderInfoDto(order);
     }
 
-    private Order sortPathPointsByRoute(Order order) {
+    @Override
+    public Order sortPathPointsByRoute(Order order) {
         if (order == null || CollectionUtils.isEmpty(order.getPathPoints()) || CollectionUtils.isEmpty(order.getRoute())) {
             return order;
         }

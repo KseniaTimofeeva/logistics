@@ -60,7 +60,14 @@ public class DriverOrderController {
     @RequestMapping(value = "/add-action", method = RequestMethod.POST)
     public String addDriverAction(@AuthenticationPrincipal User user, @Valid TimeTrackDto trackDto, Model model) {
         LOG.trace("POST /driver/add-action {}", trackDto.getDriverAction().name());
-        trackService.addNewTimeTrack(user.getUsername(), trackDto);
+
+        try {
+            trackService.addNewTimeTrack(user.getUsername(), trackDto);
+        } catch (Exception e) {
+            LOG.trace("Current truck is not suitable. Cannot start order {}.  {}", trackDto.getOrder().getId(), e.getMessage());
+            return "redirect:/driver/order?error";
+        }
+
         return "redirect:/driver/order";
     }
 }

@@ -21,26 +21,26 @@
                     </div>
                     <div class="card-body">
                         <div class="form-group row">
-                            <div class="col-md-3">
+                            <div class="col-md-3 col-sm-5">
                                 Order number:
                             </div>
-                            <div class="col-md-9">
+                            <div class="col-md-9 col-sm-7">
                                 <c:if test="${driverProfile.crew != null}">${driverProfile.crew.order.number}</c:if>
                             </div>
                         </div>
                         <div class="form-group row">
-                            <div class="col-md-3">
+                            <div class="col-md-3 col-sm-5">
                                 Truck number plate:
                             </div>
-                            <div class="col-md-9">
+                            <div class="col-md-9 col-sm-7">
                                 <c:if test="${driverProfile.crew != null}">${driverProfile.crew.truck.numberPlate}</c:if>
                             </div>
                         </div>
                         <div class="form-group row">
-                            <div class="col-md-3">
+                            <div class="col-md-3 col-sm-5">
                                 Co-drivers info:
                             </div>
-                            <div class="col-md-9">
+                            <div class="col-md-9 col-sm-7">
                                 <c:if test="${driverProfile.crew.users != null and !driverProfile.crew.users.isEmpty()}">
                                     <table class="table table-sm">
                                         <thead>

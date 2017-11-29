@@ -147,12 +147,12 @@
                                     <i class="icon-graph icons"></i>&nbsp; Route&nbsp;&nbsp;
                                 </button>
                                 <c:if test="${orderInfo.crew.truck.functioning}">
-                                    <a href="<c:url value="/manager/order/${orderInfo.id}/truck-broken"/>" class="btn btn-primary m-1 btn-sm">
+                                    <a href="<c:url value="/manager/order/${orderInfo.id}/truck-broken"/>" class="btn btn-danger m-1 btn-sm">
                                         <i class="fa fa-wrench fa-lg"></i>&nbsp; Truck is broken&nbsp;&nbsp;
                                     </a>
                                 </c:if>
                                 <c:if test="${!orderInfo.crew.truck.functioning}">
-                                    <a href="<c:url value="/manager/order/${orderInfo.id}/truck-repaired"/>" class="btn btn-primary m-1 btn-sm">
+                                    <a href="<c:url value="/manager/order/${orderInfo.id}/truck-repaired"/>" class="btn btn-success m-1 btn-sm">
                                         <i class="fa fa-thumbs-o-up fa-lg"></i>&nbsp; Truck is repaired&nbsp;&nbsp;
                                     </a>
                                 </c:if>
@@ -166,6 +166,15 @@
                             </div>
                             <div class="col-lg-3 text-right">
                                 №:&nbsp; <strong>${orderInfo.number}</strong>&nbsp;(${orderInfo.status.viewName})
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <c:if test="${!orderInfo.crew.truck.functioning}">
+                                    <div class="alert alert-danger">
+                                        Truck is under repairing
+                                    </div>
+                                </c:if>
                             </div>
                         </div>
                     </div>

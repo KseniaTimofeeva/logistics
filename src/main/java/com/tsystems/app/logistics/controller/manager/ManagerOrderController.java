@@ -129,7 +129,7 @@ public class ManagerOrderController {
             pathPointService.deletePathPoint(pathPointId);
         } catch (Exception e) {
             LOG.trace("Way points deleting exception. {}", e.getMessage());
-            return "redirect:/manager/order/" + orderId + "?error";
+            return "redirect:/manager/order/" + orderId + "?error=" + e.getMessage();
         }
         return "redirect:/manager/order/" + orderId;
     }
@@ -151,9 +151,9 @@ public class ManagerOrderController {
             LOG.trace("New cargo exception. {}", e.getMessage());
 
             if (pointDto.getId() != null) {
-                return "redirect:/manager/order/" + orderId + "/new-point/" + pointDto.getId() + "?error";
+                return "redirect:/manager/order/" + orderId + "/new-point/" + pointDto.getId() + "?error=" + e.getMessage();
             }
-            return "redirect:/manager/order/" + orderId + "/new-point?error";
+            return "redirect:/manager/order/" + orderId + "/new-point?error=" + e.getMessage();
         }
         return "redirect:/manager/order/" + pointDto.getOrderId();
     }
@@ -175,7 +175,7 @@ public class ManagerOrderController {
             orderId = orderService.addNewOrder(orderDto);
         } catch (Exception e) {
             LOG.trace("New order form exception. {}", e.getMessage());
-            return "redirect:/manager/order/new?error";
+            return "redirect:/manager/order/new?error=" + e.getMessage();
         }
         return "redirect:/manager/order/" + orderId;
     }

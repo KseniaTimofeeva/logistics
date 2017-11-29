@@ -27,6 +27,7 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import java.util.List;
 
@@ -119,7 +120,6 @@ public class PathPointServiceImpl implements PathPointService {
         if (pointDto.getDone()) {
             return;
         }
-        validateNewCargo(pointDto.getCargo());
         PathPoint point = new PathPoint();
 
         boolean isNewPoint = false;
@@ -135,6 +135,7 @@ public class PathPointServiceImpl implements PathPointService {
 
         if (isNewCargo) {
             cargo = new Cargo();
+            validateNewCargo(pointDto.getCargo());
         } else {
             cargo = cargoDao.findOneById(pointDto.getCargo().getId());
             if (pointDto.getId() != null) {
@@ -182,14 +183,14 @@ public class PathPointServiceImpl implements PathPointService {
      * else throw exception
      */
     private boolean validateNewCargo(CargoDto cargoDto) {
-        if (cargoDto.getNumber() == null || cargoDto.getNumber().equals("")) {
-            throw new RuntimeException("Empty fields are not allowed");
+        if (StringUtils.isEmpty(cargoDto.getNumber())) {
+            throw new RuntimeException("error.form.empty");
         }
-        if (cargoDto.getName() == null || cargoDto.getName().equals("")) {
-            throw new RuntimeException("Empty fields are not allowed");
+        if (StringUtils.isEmpty(cargoDto.getName())) {
+            throw new RuntimeException("error.form.empty");
         }
         if (cargoDto.getWeight() == null || cargoDto.getWeight() == 0) {
-            throw new RuntimeException("Empty fields are not allowed");
+            throw new RuntimeException("error.form.empty");
         }
         return true;
     }
@@ -215,7 +216,7 @@ public class PathPointServiceImpl implements PathPointService {
         if (point.getLoading()) {
             List<PathPoint> points = pathPointDao.getPathPointWithSameCargoUnload(point.getCargo().getId());
             if (!points.isEmpty()) {
-                throw new RuntimeException("Remove the point with unloaded cargo firstly");
+                throw new RuntimeException("error.logical.relatedPoints");
             }
         }
 

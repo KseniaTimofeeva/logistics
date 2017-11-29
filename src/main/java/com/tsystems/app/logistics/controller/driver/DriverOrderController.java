@@ -65,7 +65,7 @@ public class DriverOrderController {
             trackService.addNewTimeTrack(user.getUsername(), trackDto);
         } catch (Exception e) {
             LOG.trace("Current truck is not suitable. Cannot start order {}.  {}", trackDto.getOrder().getId(), e.getMessage());
-            return "redirect:/driver/order?error";
+            return "redirect:/driver/order?error=" + e.getMessage();
         }
 
         return "redirect:/driver/order";

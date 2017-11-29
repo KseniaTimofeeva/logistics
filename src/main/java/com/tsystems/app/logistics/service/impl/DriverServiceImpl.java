@@ -29,6 +29,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import java.sql.Timestamp;
 import java.time.Duration;
@@ -37,7 +38,6 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
 
 /**
  * Created by ksenia on 08.10.2017.
@@ -112,25 +112,25 @@ public class DriverServiceImpl implements DriverService {
      * else throw exception
      */
     private boolean validateNewUserForm(DriverDto driverDto, boolean isNewDriver) {
-        if (driverDto.getPersonalNumber() == null || Objects.equals(driverDto.getPersonalNumber(), "")) {
-            throw new RuntimeException("Empty fields are not allowed");
+        if (StringUtils.isEmpty(driverDto.getPersonalNumber())) {
+            throw new RuntimeException("error.form.empty");
         }
-        if (driverDto.getLogin() == null || driverDto.getLogin().equals("")) {
-            throw new RuntimeException("Empty fields are not allowed");
+        if (StringUtils.isEmpty(driverDto.getLogin())) {
+            throw new RuntimeException("error.form.empty");
         }
-        if (driverDto.getFirstName() == null || driverDto.getFirstName().equals("")) {
-            throw new RuntimeException("Empty fields are not allowed");
+        if (StringUtils.isEmpty(driverDto.getFirstName())) {
+            throw new RuntimeException("error.form.empty");
         }
-        if (driverDto.getLastName() == null || driverDto.getLastName().equals("")) {
-            throw new RuntimeException("Empty fields are not allowed");
+        if (StringUtils.isEmpty(driverDto.getLastName())) {
+            throw new RuntimeException("error.form.empty");
         }
-        if (driverDto.getPassword() == null || driverDto.getPassword().equals("")) {
-            throw new RuntimeException("Empty fields are not allowed");
+        if (StringUtils.isEmpty(driverDto.getPassword())) {
+            throw new RuntimeException("error.form.empty");
         }
         if (isNewDriver) {
             List<User> userList = userDao.newUserValidate(driverDto.getLogin(), driverDto.getPersonalNumber());
             if (!userList.isEmpty()) {
-                throw new RuntimeException("User with specified login or personal number is already registered");
+                throw new RuntimeException("error.form.userAlreadyExists");
             }
         }
         return true;

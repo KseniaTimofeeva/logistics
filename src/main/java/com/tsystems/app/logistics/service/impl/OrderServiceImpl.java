@@ -34,6 +34,7 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -164,12 +165,12 @@ public class OrderServiceImpl implements OrderService {
      * else throw exception
      */
     private boolean validateNewOrderForm(OrderDto orderDto) {
-        if (orderDto.getNumber() == null || orderDto.getNumber().equals("")) {
-            throw new RuntimeException("Value for filed 'Order number' is required");
+        if (StringUtils.isEmpty(orderDto.getNumber())) {
+            throw new RuntimeException("error.form.empty");
         }
         List<Order> orders = orderDao.newOrderValidate(orderDto.getNumber());
         if (!orders.isEmpty()) {
-            throw new RuntimeException("Order with specified number plate is already registered");
+            throw new RuntimeException("error.form.orderAlreadyExists");
         }
         return true;
     }

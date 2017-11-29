@@ -60,9 +60,9 @@ public class ManagerDriverController {
         } catch (Exception e) {
             LOG.trace("New driver form exception. {}", e.getMessage());
             if (driverDto.getId() != null) {
-                return "redirect:/manager/driver/new/" + driverDto.getId() + "?error";
+                return "redirect:/manager/driver/new/" + driverDto.getId() + "?error=" + e.getMessage();
             }
-            return "redirect:/manager/driver/new?error";
+            return "redirect:/manager/driver/new?error=" + e.getMessage();
         }
         return "redirect:/manager/driver";
     }

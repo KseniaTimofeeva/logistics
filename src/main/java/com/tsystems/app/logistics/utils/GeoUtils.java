@@ -36,7 +36,7 @@ public class GeoUtils {
         try {
             result = DirectionsApi.newRequest(context).origin(start).destination(finish).waypoints(waypoints).await();
             if (!Objects.equals(result.geocodedWaypoints[0].geocoderStatus, GeocodedWaypointStatus.OK)) {
-                throw new RuntimeException("Incorrect response status on distance request");
+                throw new RuntimeException("error.network.incorrectDistance");
             }
             for (int i = 0; i < result.routes[0].legs.length; i++) {
                 distance += result.routes[0].legs[i].distance.inMeters;

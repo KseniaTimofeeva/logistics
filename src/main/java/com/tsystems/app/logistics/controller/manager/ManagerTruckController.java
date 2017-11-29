@@ -56,9 +56,9 @@ public class ManagerTruckController {
         } catch (Exception e) {
             LOG.trace("New truck form exception. {}", e.getMessage());
             if (truckDto.getId() != null) {
-                return "redirect:/manager/truck/new/" + truckDto.getId() + "?error";
+                return "redirect:/manager/truck/new/" + truckDto.getId() + "?error="+e.getMessage();
             }
-            return "redirect:/manager/truck/new?error";
+            return "redirect:/manager/truck/new?error="+e.getMessage();
         }
         return "redirect:/manager/truck";
     }

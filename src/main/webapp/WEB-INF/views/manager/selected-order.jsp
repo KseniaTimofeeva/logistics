@@ -1,6 +1,7 @@
 <%@ page import="java.util.Collections" %>
 <%@ page import="com.tsystems.app.logisticscommon.enums.OrderStatus" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 <%--
   Created by IntelliJ IDEA.
   User: ksenia
@@ -137,7 +138,7 @@
                 <div class="card">
                     <div class="card-header">
                         <div class="row">
-                            <div class="col-lg-3">
+                            <div class="col-lg-7 col-sm-9 col-md-6">
                                 <c:if test="${orderInfo.status != isFinishedOrder}">
                                     <a href="<c:url value="/manager/order/${orderInfo.id}/new-point"/>" class="btn btn-primary m-1 btn-sm">
                                         <i class="fa fa-plus fa-lg"></i>&nbsp; New Point&nbsp;&nbsp;
@@ -146,33 +147,41 @@
                                 <button type="button" class="btn btn-primary m-1 btn-sm" data-toggle="modal" data-target="#order-route-modal">
                                     <i class="icon-graph icons"></i>&nbsp; Route&nbsp;&nbsp;
                                 </button>
-                                <c:if test="${orderInfo.crew.truck.functioning}">
-                                    <a href="<c:url value="/manager/order/${orderInfo.id}/truck-broken"/>" class="btn btn-danger m-1 btn-sm">
-                                        <i class="fa fa-wrench fa-lg"></i>&nbsp; Truck is broken&nbsp;&nbsp;
+                                <c:if test="${orderInfo.crew != null && orderInfo.crew.truck.functioning}">
+                                    <a href="<c:url value="/manager/order/${orderInfo.id}/truck-broken"/>" class="btn btn-primary m-1 btn-sm">
+                                        <i class="fa fa-wrench fa-lg"></i>&nbsp; Set truck is broken&nbsp;&nbsp;
                                     </a>
                                 </c:if>
-                                <c:if test="${!orderInfo.crew.truck.functioning}">
-                                    <a href="<c:url value="/manager/order/${orderInfo.id}/truck-repaired"/>" class="btn btn-success m-1 btn-sm">
-                                        <i class="fa fa-thumbs-o-up fa-lg"></i>&nbsp; Truck is repaired&nbsp;&nbsp;
+                                <c:if test="${orderInfo.crew != null && !orderInfo.crew.truck.functioning}">
+                                    <a href="<c:url value="/manager/order/${orderInfo.id}/truck-repaired"/>" class="btn btn-danger m-1 btn-sm">
+                                        <i class="fa fa-thumbs-o-up fa-lg"></i>&nbsp; Set truck is repaired&nbsp;&nbsp;
                                     </a>
                                 </c:if>
                             </div>
-                            <div class="col-lg-6">
-                                <c:if test="${hasCargoToUnload}">
-                                    <div class="alert alert-danger">
-                                        There is unloaded cargo. Please create way point to unloading.
-                                    </div>
-                                </c:if>
-                            </div>
-                            <div class="col-lg-3 text-right">
+                            <div class="col-lg-5 col-sm-3 col-md-6 text-right">
                                 №:&nbsp; <strong>${orderInfo.number}</strong>&nbsp;(${orderInfo.status.viewName})
                             </div>
                         </div>
                         <div class="row">
-                            <div class="col-lg-12">
-                                <c:if test="${!orderInfo.crew.truck.functioning}">
+                            <div class="col-lg-12 mt-2">
+                                <c:if test='<%=request.getParameter("error") != null%>'>
+                                    <c:set var="code" value="<%=request.getParameter(\"error\")%>"/>
+                                    <div class="alert alert-danger">
+                                        <span style="color: red"><spring:message code="${code}"/> </span>
+                                    </div>
+                                </c:if>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-lg-12 mt-2">
+                                <c:if test="${orderInfo.crew != null && !orderInfo.crew.truck.functioning}">
                                     <div class="alert alert-danger">
                                         Truck is under repairing
+                                    </div>
+                                </c:if>
+                                <c:if test="${hasCargoToUnload}">
+                                    <div class="alert alert-danger">
+                                        There is unloaded cargo. Please create way point to unloading.
                                     </div>
                                 </c:if>
                             </div>

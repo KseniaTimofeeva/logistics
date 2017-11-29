@@ -86,7 +86,7 @@ public class TimeTrackServiceImpl implements TimeTrackService {
 
                 SuitableTruckDto suitableTrucks = truckService.getSuitableTruckByOrderId(order.getId());
                 if (!suitableTrucks.getIsCurrentTruckSuitable()) {
-                    throw new RuntimeException("Truck capacity is less than maximum weight of the cargo");
+                    throw new RuntimeException("error.logical.notSuitableTruck");
                 }
 
                 LOG.debug("Order {} is new - set status 'IN_PROCESS'", order.getId());

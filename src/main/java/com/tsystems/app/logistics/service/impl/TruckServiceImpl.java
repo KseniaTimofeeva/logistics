@@ -24,6 +24,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import java.util.List;
 
@@ -93,6 +94,9 @@ public class TruckServiceImpl implements TruckService {
     @Override
     public void changeTruckIsBrokenOrRepaired(Long orderId, boolean setFunctioning) {
         Order order = orderDao.findOneById(orderId);
+        if (order.getCrew() == null || order.getCrew().getTruck() == null) {
+            return;
+        }
         List<User> drivers = order.getCrew().getUsers();
 
         if (!setFunctioning) {
@@ -118,19 +122,19 @@ public class TruckServiceImpl implements TruckService {
      * else throw exception
      */
     private boolean validateNewTruckForm(TruckDto truckDto, boolean isNewTruck) {
-        if (truckDto.getNumberPlate() == null || truckDto.getNumberPlate().equals("")) {
-            throw new RuntimeException("Empty fields are not allowed");
+        if (StringUtils.isEmpty(truckDto.getNumberPlate())) {
+            throw new RuntimeException("error.form.empty");
         }
         if (truckDto.getCapacity() == null || truckDto.getCapacity() == 0) {
-            throw new RuntimeException("Empty fields are not allowed");
+            throw new RuntimeException("error.form.empty");
         }
         if (truckDto.getWorkingShift() == null || truckDto.getWorkingShift() == 0) {
-            throw new RuntimeException("Empty fields are not allowed");
+            throw new RuntimeException("error.form.empty");
         }
         if (isNewTruck) {
             List<Truck> trucks = truckDao.newTruckValidate(truckDto.getNumberPlate());
             if (!trucks.isEmpty()) {
-                throw new RuntimeException("Truck with specified number plate is already registered");
+                throw new RuntimeException("error.form.truckAlreadyExists");
             }
         }
         return true;

@@ -1,4 +1,5 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 <%--
   Created by IntelliJ IDEA.
   User: ksenia
@@ -15,9 +16,10 @@
     <div class="animated fadeIn">
         <div class="row">
             <div class="col-sm-7">
-                <c:if test='<%= request.getParameter("error") != null%>'>
+                <c:if test='<%=request.getParameter("error") != null%>'>
+                    <c:set var="code" value="<%=request.getParameter(\"error\")%>"/>
                     <div class="alert alert-danger">
-                        <span style="color: red">Form error</span>
+                        <span style="color: red"><spring:message code="${code}"/> </span>
                     </div>
                 </c:if>
                 <div class="card">

@@ -149,6 +149,7 @@ public class TruckServiceImpl implements TruckService {
     public void updateTruck(TruckDto truckDto) {
         Truck truck = truckDao.update(fromDtoToTruck(truckDto));
         updateBoardUpdateTruck(truck);
+        generalInfoService.updateBoardGeneralInfo(false);
     }
 
     @Override

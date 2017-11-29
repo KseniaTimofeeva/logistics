@@ -16,13 +16,13 @@
 
 <div class="container-fluid">
     <div class="animated fadeIn">
-        <c:if test="${currentOrder != null}">
+        <c:if test="${currentOrder != null and currentOrder.crew.truck.functioning}">
             <div class="row ">
-                <div class="col-sm-8">
+                <div class="col-sm-12 col-lg-9">
                     <div class="card">
                         <div class="card-body">
                             <div class="row">
-                                <div class="form-group col-lg-4">
+                                <div class="form-group col-lg-4 col-sm-4">
                                     <div class="input-group">
                                         <form action="<c:url value="/driver/order/add-action"/>" method="post" class="form-horizontal">
                                             <input type="hidden" name="_csrf" value="${_csrf.token}"/>
@@ -46,7 +46,7 @@
                                         </form>
                                     </div>
                                 </div>
-                                <div class="form-group col-lg-8">
+                                <div class="form-group col-lg-8 col-sm-8">
                                     <form action="<c:url value="/driver/order/add-action"/>" method="post" class="form-horizontal">
                                         <input type="hidden" name="_csrf" value="${_csrf.token}"/>
                                         <input type="hidden" name="order.id" value="${currentOrder.id}"/>
@@ -74,6 +74,15 @@
                                 </div>
                             </div>
                         </div>
+                    </div>
+                </div>
+            </div>
+        </c:if>
+        <c:if test="${currentOrder != null and !currentOrder.crew.truck.functioning}">
+            <div class="row ">
+                <div class="col-sm-12 col-lg-12">
+                    <div class="alert alert-danger">
+                        Truck is under repair.
                     </div>
                 </div>
             </div>
@@ -124,12 +133,14 @@
                                         </c:choose>
                                     </td>
                                     <td>
-                                        <c:if test="${lastAction.driverAction != null and lastAction.driverAction != endWorkingShift}">
-                                            <c:if test="${pathPoint != null and !pathPoint.done}">
-                                                <a href="<c:url value="/driver/order/close-point/${pathPoint.id}"/>" <c:if
-                                                        test="${firstDisabledPoint == i.count}"> class="cs-a-disabled" onclick="return false;" </c:if>><i
-                                                        class="fa fa-check-circle-o fa-lg"></i></a>
-                                                <c:set var="firstDisabledPoint" value="${i.count+1}"/>
+                                        <c:if test="${currentOrder.crew.truck.functioning}">
+                                            <c:if test="${lastAction.driverAction != null and lastAction.driverAction != endWorkingShift}">
+                                                <c:if test="${pathPoint != null and !pathPoint.done}">
+                                                    <a href="<c:url value="/driver/order/close-point/${pathPoint.id}"/>" <c:if
+                                                            test="${firstDisabledPoint == i.count}"> class="cs-a-disabled" onclick="return false;" </c:if>><i
+                                                            class="fa fa-check-circle-o fa-lg"></i></a>
+                                                    <c:set var="firstDisabledPoint" value="${i.count+1}"/>
+                                                </c:if>
                                             </c:if>
                                         </c:if>
                                     </td>

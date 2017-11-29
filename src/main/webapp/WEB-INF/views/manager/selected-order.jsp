@@ -1,4 +1,5 @@
 <%@ page import="java.util.Collections" %>
+<%@ page import="com.tsystems.app.logisticscommon.enums.OrderStatus" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%--
   Created by IntelliJ IDEA.
@@ -13,6 +14,8 @@
 <ol class="breadcrumb">
     <strong>Orders</strong>
 </ol>
+
+<c:set var="isFinishedOrder" value="<%=OrderStatus.FINISHED%>"/>
 
 <div class="container-fluid">
     <div class="animated fadeIn">
@@ -32,33 +35,35 @@
                             </div>
                         </div>
                     </div>
-                    <div class="card-body">
-                        <div class="form-group row">
-                            <div class="col-lg-12">
-                                <c:if test="${orderInfo.crew.truck != null and suitableTrucks.isCurrentTruckSuitable == false}">
-                                    <div class="alert alert-danger">
-                                        Chosen truck capacity is less than the maximum weight of the cargo. Please choose another truck.
-                                    </div>
-                                </c:if>
-                                <form action="<c:url value="/manager/order/${orderInfo.id}/choose-truck"/>" method="post">
-                                    <input type="hidden" name="_csrf" value="${_csrf.token}"/>
-                                    <div class="input-group">
-                                        <select name="truckId" class="form-control form-control-sm">
-                                            <option disabled="disabled" selected="selected">Choose truck...</option>
-                                            <c:forEach items="${suitableTrucks.trucks}" var="suitableTruck">
-                                                <option value="${suitableTruck.id}">
-                                                        ${suitableTruck.numberPlate} - ${suitableTruck.workingShift}hrs - ${suitableTruck.capacity}tns
-                                                </option>
-                                            </c:forEach>
-                                        </select>
-                                        <span class="input-group-btn">
+                    <c:if test="${orderInfo.status != isFinishedOrder}">
+                        <div class="card-body">
+                            <div class="form-group row">
+                                <div class="col-lg-12">
+                                    <c:if test="${orderInfo.crew.truck != null and suitableTrucks.isCurrentTruckSuitable == false}">
+                                        <div class="alert alert-danger">
+                                            Chosen truck capacity is less than the maximum weight of the cargo. Please choose another truck.
+                                        </div>
+                                    </c:if>
+                                    <form action="<c:url value="/manager/order/${orderInfo.id}/choose-truck"/>" method="post">
+                                        <input type="hidden" name="_csrf" value="${_csrf.token}"/>
+                                        <div class="input-group">
+                                            <select name="truckId" class="form-control form-control-sm">
+                                                <option disabled="disabled" selected="selected">Choose truck...</option>
+                                                <c:forEach items="${suitableTrucks.trucks}" var="suitableTruck">
+                                                    <option value="${suitableTruck.id}">
+                                                            ${suitableTruck.numberPlate} - ${suitableTruck.workingShift}hrs - ${suitableTruck.capacity}tns
+                                                    </option>
+                                                </c:forEach>
+                                            </select>
+                                            <span class="input-group-btn">
                                             <button class="btn btn-secondary btn-sm" type="submit" role="button">Choose</button>
                                         </span>
-                                    </div>
-                                </form>
+                                        </div>
+                                    </form>
+                                </div>
                             </div>
                         </div>
-                    </div>
+                    </c:if>
                 </div>
             </div>
             <!--/.col-->
@@ -82,8 +87,10 @@
                                             <tr>
                                                 <td><span <c:if test="${marked}">style="color: red"</c:if>>${driver.personalNumber}:&nbsp;</span></td>
                                                 <td>${driver.firstName} ${driver.lastName}&nbsp;</td>
-                                                <td><a href="<c:url value="/manager/order/${orderInfo.id}/detach-driver/${driver.id}"/>">
-                                                    <i class="fa fa-times"></i></a></td>
+                                                <c:if test="${orderInfo.status != isFinishedOrder}">
+                                                    <td><a href="<c:url value="/manager/order/${orderInfo.id}/detach-driver/${driver.id}"/>">
+                                                        <i class="fa fa-times"></i></a></td>
+                                                </c:if>
                                             </tr>
                                         </c:forEach>
                                         </tbody>
@@ -92,33 +99,35 @@
                             </div>
                         </div>
                     </div>
-                    <div class="card-body">
-                        <div class="form-group row">
-                            <div class="col-lg-12">
-                                <c:if test="${orderInfo.crew.users != null and !suitableDrivers.notSuitableDrivers.isEmpty()}">
-                                    <div class="alert alert-danger">
-                                        Drivers are not suitable. Please choose another drivers.
-                                    </div>
-                                </c:if>
-                                <form action="<c:url value="/manager/order/${orderInfo.id}/choose-driver"/>" method="post">
-                                    <input type="hidden" name="_csrf" value="${_csrf.token}"/>
-                                    <div class="input-group">
-                                        <select name="driverId" class="form-control form-control-sm js-driver-before-truck">
-                                            <option disabled="disabled" selected="selected">Choose driver...</option>
-                                            <c:forEach items="${suitableDrivers.drivers}" var="suitableDriver">
-                                                <option value="${suitableDriver.id}">
-                                                        ${suitableDriver.personalNumber}: ${suitableDriver.firstName} ${suitableDriver.lastName}
-                                                </option>
-                                            </c:forEach>
-                                        </select>
-                                        <span class="input-group-btn">
+                    <c:if test="${orderInfo.status != isFinishedOrder}">
+                        <div class="card-body">
+                            <div class="form-group row">
+                                <div class="col-lg-12">
+                                    <c:if test="${orderInfo.crew.users != null and !suitableDrivers.notSuitableDrivers.isEmpty()}">
+                                        <div class="alert alert-danger">
+                                            Drivers are not suitable. Please choose another drivers.
+                                        </div>
+                                    </c:if>
+                                    <form action="<c:url value="/manager/order/${orderInfo.id}/choose-driver"/>" method="post">
+                                        <input type="hidden" name="_csrf" value="${_csrf.token}"/>
+                                        <div class="input-group">
+                                            <select name="driverId" class="form-control form-control-sm js-driver-before-truck">
+                                                <option disabled="disabled" selected="selected">Choose driver...</option>
+                                                <c:forEach items="${suitableDrivers.drivers}" var="suitableDriver">
+                                                    <option value="${suitableDriver.id}">
+                                                            ${suitableDriver.personalNumber}: ${suitableDriver.firstName} ${suitableDriver.lastName}
+                                                    </option>
+                                                </c:forEach>
+                                            </select>
+                                            <span class="input-group-btn">
                                             <button class="btn btn-secondary btn-sm js-driver-before-truck" type="submit" role="button">Add</button>
                                         </span>
-                                    </div>
-                                </form>
+                                        </div>
+                                    </form>
+                                </div>
                             </div>
                         </div>
-                    </div>
+                    </c:if>
                 </div>
             </div>
             <!--/.col-->
@@ -129,9 +138,11 @@
                     <div class="card-header">
                         <div class="row">
                             <div class="col-lg-3">
-                                <a href="<c:url value="/manager/order/${orderInfo.id}/new-point"/>" class="btn btn-primary m-1 btn-sm">
-                                    <i class="fa fa-plus fa-lg"></i>&nbsp; New Point&nbsp;&nbsp;
-                                </a>
+                                <c:if test="${orderInfo.status != isFinishedOrder}">
+                                    <a href="<c:url value="/manager/order/${orderInfo.id}/new-point"/>" class="btn btn-primary m-1 btn-sm">
+                                        <i class="fa fa-plus fa-lg"></i>&nbsp; New Point&nbsp;&nbsp;
+                                    </a>
+                                </c:if>
                                 <button type="button" class="btn btn-primary m-1 btn-sm" data-toggle="modal" data-target="#order-route-modal">
                                     <i class="icon-graph icons"></i>&nbsp; Route&nbsp;&nbsp;
                                 </button>
@@ -186,24 +197,29 @@
                                         </c:choose>
                                     </td>
                                     <td>
-                                        <a href="<c:url value="/manager/order/${orderInfo.id}/new-point/${pathPoint.id}"/>"><i
-                                                class="fa fa-pencil fa-lg"></i></a>&nbsp;&nbsp;
-                                        <a href="<c:url value="/manager/order/${orderInfo.id}/delete/${pathPoint.id}"/>"><i class="fa fa-trash-o fa-lg"></i></a>
+                                        <c:if test="${orderInfo.status != isFinishedOrder}">
+                                            <a href="<c:url value="/manager/order/${orderInfo.id}/new-point/${pathPoint.id}"/>"><i
+                                                    class="fa fa-pencil fa-lg"></i></a>&nbsp;&nbsp;
+                                            <a href="<c:url value="/manager/order/${orderInfo.id}/delete/${pathPoint.id}"/>"><i class="fa fa-trash-o fa-lg"></i></a>
+                                        </c:if>
                                     </td>
                                 </tr>
                             </c:forEach>
                             </tbody>
                         </table>
                     </div>
-                    <div class="card-footer">
-                        <div class="row">
-                            <div class="col-lg-12 text-right">
-                                <a href="<c:url value="/manager/order/${orderInfo.id}/close"/>" class="btn btn-success m-1 btn-sm">
-                                    <i class="fa fa-check-circle-o fa-lg"></i>&nbsp; Close order
-                                </a>
+                    <c:if test="${orderInfo.status != isFinishedOrder}">
+                        <div class="card-footer">
+                            <div class="row">
+
+                                <div class="col-lg-12 text-right">
+                                    <a href="<c:url value="/manager/order/${orderInfo.id}/close"/>" class="btn btn-success m-1 btn-sm">
+                                        <i class="fa fa-check-circle-o fa-lg"></i>&nbsp; Close order
+                                    </a>
+                                </div>
                             </div>
                         </div>
-                    </div>
+                    </c:if>
                 </div>
             </div>
             <!--/.col-->
@@ -229,21 +245,23 @@
                             </c:forEach>
                         </div>
                     </div>
-                    <div class="row">
-                        <div class="col-lg-9">
-                            <div class="input-group">
-                                <select id="js-city-of-route" name="city" class="form-control form-control-sm">
-                                    <option id="js-default-selected-option" value="0" disabled="disabled" selected="selected">Choose city...</option>
-                                    <c:forEach items="${cities}" var="city">
-                                        <option id="js-city-option-${city.id}" value="${city.id}">${city.name}</option>
-                                    </c:forEach>
-                                </select>
-                                <span class="input-group-btn">
+                    <c:if test="${orderInfo.status != isFinishedOrder}">
+                        <div class="row">
+                            <div class="col-lg-9">
+                                <div class="input-group">
+                                    <select id="js-city-of-route" name="city" class="form-control form-control-sm">
+                                        <option id="js-default-selected-option" value="0" disabled="disabled" selected="selected">Choose city...</option>
+                                        <c:forEach items="${cities}" var="city">
+                                            <option id="js-city-option-${city.id}" value="${city.id}">${city.name}</option>
+                                        </c:forEach>
+                                    </select>
+                                    <span class="input-group-btn">
                                             <button id="js-city-of-route-btn" class="btn btn-secondary btn-sm" type="button">Add</button>
                                         </span>
+                                </div>
                             </div>
                         </div>
-                    </div>
+                    </c:if>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary city-of-route-close" data-dismiss="modal">Close</button>

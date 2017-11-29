@@ -63,6 +63,9 @@ public class TimeTrackServiceImpl implements TimeTrackService {
         User driver = userDao.getUserByLogin(login).get(0);
         Order order = orderDao.findOneById(trackDto.getOrder().getId());
 
+        if (!order.getCrew().getTruck().getFunctioning()) {
+            return;
+        }
         //check if the order is new
         //if yes, change status to IN_PROCESS
         if (trackDto.getDriverAction().equals(DriverAction.START_WORKING_SHIFT)) {

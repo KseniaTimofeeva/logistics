@@ -21,6 +21,7 @@ import com.tsystems.app.logistics.service.api.GeneralInfoService;
 import com.tsystems.app.logistics.service.api.OrderService;
 import com.tsystems.app.logistics.service.api.PathPointService;
 import com.tsystems.app.logistics.service.api.TruckService;
+import com.tsystems.app.logisticscommon.enums.OrderStatus;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -108,6 +109,11 @@ public class PathPointServiceImpl implements PathPointService {
     public void processPathPoint(PathPointDto pointDto) {
         LOG.debug("Processing path point {} (cargo {}) of order {}", pointDto.getId(), pointDto.getCargo().getNumber(), pointDto.getOrderId());
 
+        Order order = orderDao.findOneById(pointDto.getOrderId());
+        if (order.getStatus().equals(OrderStatus.FINISHED)) {
+            return;
+        }
+
         PathPoint point = new PathPoint();
 
         boolean isNewPoint = false;
@@ -146,7 +152,6 @@ public class PathPointServiceImpl implements PathPointService {
         }
 
         City city = cityDao.findOneById(pointDto.getCity().getId());
-        Order order = orderDao.findOneById(pointDto.getOrderId());
         point.setCargo(cargo);
         point.setCity(city);
         point.setLoading(pointDto.getLoading());
@@ -186,6 +191,10 @@ public class PathPointServiceImpl implements PathPointService {
 
     @Override
     public void deletePathPoint(Long id) {
+        PathPoint point = pathPointDao.findOneById(id);
+        if (point.getOrder().getStatus().equals(OrderStatus.FINISHED)) {
+            return;
+        }
         pathPointDao.deleteById(id);
     }
 
@@ -223,6 +232,11 @@ public class PathPointServiceImpl implements PathPointService {
     @Override
     public void closePathPoint(Long pointId) {
         PathPoint closedPoint = pathPointDao.findOneById(pointId);
+        Order order = orderDao.findOneById(closedPoint.getOrder().getId());
+
+        if (!order.getCrew().getTruck().getFunctioning()) {
+            return;
+        }
 
         if (closedPoint.getLoading() != null) {
             Cargo closedPointCargo = closedPoint.getCargo();
@@ -237,7 +251,6 @@ public class PathPointServiceImpl implements PathPointService {
         }
         closedPoint.setDone(true);
         closedPoint = pathPointDao.update(closedPoint);
-        Order order = orderDao.findOneById(closedPoint.getOrder().getId());
         boolean isFinishedOrder = orderService.isAllPointsDoneByOrderId(order);
 
         City city = closedPoint.getCity();

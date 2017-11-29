@@ -212,10 +212,15 @@ public class OrderServiceImpl implements OrderService {
     public void setTruckForOrder(Long orderId, Long newTruckId) {
 
         Truck newTruck = truckDao.findOneById(newTruckId);
+        Order order = orderDao.findOneById(orderId);
+
+        if (order.getStatus().equals(OrderStatus.FINISHED)) {
+            return;
+        }
+
         newTruck.setOnOrder(true);
         newTruck = truckDao.update(newTruck);
 
-        Order order = orderDao.findOneById(orderId);
         Crew orderCrew = order.getCrew();
         if (orderCrew == null) {
             orderCrew = new Crew();
@@ -241,6 +246,10 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public void setDriverForOrder(Long orderId, Long newDriverId) {
         Order order = orderDao.findOneById(orderId);
+
+        if (order.getStatus().equals(OrderStatus.FINISHED)) {
+            return;
+        }
 
         User newDriver = userDao.findOneById(newDriverId);
         newDriver.setOnOrder(true);
@@ -278,12 +287,17 @@ public class OrderServiceImpl implements OrderService {
      */
     @Override
     public void detachDriver(Long orderId, Long driverId) {
+        Order order = orderDao.findOneById(orderId);
+
+        if (order.getStatus().equals(OrderStatus.FINISHED)) {
+            return;
+        }
+
         User driver = userDao.findOneById(driverId);
         driver.setOnOrder(false);
         driver = userDao.update(driver);
         driverService.updateBoardUpdateDriver(driver);
 
-        Order order = orderDao.findOneById(orderId);
         Crew crew = order.getCrew();
         List<User> currentDrivers = crew.getUsers();
         currentDrivers.remove(driver);
@@ -342,6 +356,10 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public void addCityToRoute(Long orderId, List<Long> cityIdList) {
         Order order = orderDao.findOneById(orderId);
+        if (order.getStatus().equals(OrderStatus.FINISHED)) {
+            return;
+        }
+
         List<CityOfRoute> route = order.getRoute();
         if (route == null) {
             route = new ArrayList<>();
@@ -360,6 +378,11 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public void removeCityFromRoute(Long orderId, Long cityId) {
         Order order = orderDao.findOneById(orderId);
+
+        if (order.getStatus().equals(OrderStatus.FINISHED)) {
+            return;
+        }
+
         List<CityOfRoute> route = order.getRoute();
         ListIterator<CityOfRoute> iter = route.listIterator();
         while (iter.hasNext()) {

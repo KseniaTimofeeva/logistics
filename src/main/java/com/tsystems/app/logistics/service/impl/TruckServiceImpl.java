@@ -63,7 +63,7 @@ public class TruckServiceImpl implements TruckService {
 
     @Override
     public void addNewTruck(TruckDto truckDto) {
-        validateNewTruckForm(truckDto);
+        validateNewTruckForm(truckDto, true);
         truckDto.setOnOrder(false);
         Truck truck = truckDao.create(fromDtoToTruck(truckDto));
         updateBoardAddTruck(truck);
@@ -91,13 +91,21 @@ public class TruckServiceImpl implements TruckService {
      * @return true if number plate is unique,
      * else throw exception
      */
-    private boolean validateNewTruckForm(TruckDto truckDto) {
+    private boolean validateNewTruckForm(TruckDto truckDto, boolean isNewTruck) {
         if (truckDto.getNumberPlate() == null || truckDto.getNumberPlate().equals("")) {
-            throw new RuntimeException("Value for filed 'Number plate' is required");
+            throw new RuntimeException("Empty fields are not allowed");
         }
-        List<Truck> trucks = truckDao.newTruckValidate(truckDto.getNumberPlate());
-        if (!trucks.isEmpty()) {
-            throw new RuntimeException("Truck with specified number plate is already registered");
+        if (truckDto.getCapacity() == null || truckDto.getCapacity() == 0) {
+            throw new RuntimeException("Empty fields are not allowed");
+        }
+        if (truckDto.getWorkingShift() == null || truckDto.getWorkingShift() == 0) {
+            throw new RuntimeException("Empty fields are not allowed");
+        }
+        if (isNewTruck) {
+            List<Truck> trucks = truckDao.newTruckValidate(truckDto.getNumberPlate());
+            if (!trucks.isEmpty()) {
+                throw new RuntimeException("Truck with specified number plate is already registered");
+            }
         }
         return true;
     }
@@ -147,6 +155,7 @@ public class TruckServiceImpl implements TruckService {
 
     @Override
     public void updateTruck(TruckDto truckDto) {
+        validateNewTruckForm(truckDto, false);
         Truck truck = truckDao.update(fromDtoToTruck(truckDto));
         updateBoardUpdateTruck(truck);
         generalInfoService.updateBoardGeneralInfo(false);

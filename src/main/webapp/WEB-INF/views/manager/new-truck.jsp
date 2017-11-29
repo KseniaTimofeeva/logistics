@@ -43,7 +43,7 @@
                                 <label class="col-md-3 form-control-label" for="number-plate">Number plate</label>
                                 <div class="col-md-9">
                                     <input type="text" id="number-plate" name="numberPlate" class="form-control" value="${updatedTruck.numberPlate}"
-                                           placeholder="XX99999">
+                                           placeholder="XX00000">
                                 </div>
                             </div>
 
@@ -51,12 +51,12 @@
                                 <label class="col-md-3 form-control-label" for="working-shift">Working shift (hours)</label>
                                 <div class="col-md-3">
                                     <input type="text" id="working-shift" name="workingShift" class="form-control" value="${updatedTruck.workingShift}"
-                                           placeholder="10.0">
+                                           placeholder="00.0">
                                 </div>
                                 <label class="col-md-3 form-control-label" for="capacity">Capacity (tonnes)</label>
                                 <div class="col-md-3">
                                     <input type="text" id="capacity" name="capacity" class="form-control" value="${updatedTruck.capacity}"
-                                           placeholder="3.0">
+                                           placeholder="00.0">
                                 </div>
                             </div>
                             <div class="form-group row">

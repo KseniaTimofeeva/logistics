@@ -22,4 +22,16 @@ public class PathPointDao extends GenericDaoImpl<PathPoint> {
                 .setParameter("orderId", orderId)
                 .getResultList();
     }
+
+    public List<PathPoint> getPathPointWithSameCargoUnload(Long cargoId) {
+        return em.createNamedQuery(PathPoint.GET_POINT_WITH_SAME_CARGO_UNLOAD, PathPoint.class)
+                .setParameter("cargoId", cargoId)
+                .getResultList();
+    }
+
+    public List<PathPoint> getPathPointWithSameCargoLoad(Long cargoId) {
+        return em.createNamedQuery(PathPoint.GET_POINT_WITH_SAME_CARGO_LOAD, PathPoint.class)
+                .setParameter("cargoId", cargoId)
+                .getResultList();
+    }
 }

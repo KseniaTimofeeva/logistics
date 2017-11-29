@@ -96,8 +96,8 @@ public class DriverServiceImpl implements DriverService {
 
     @Override
     public void addNewDriver(DriverDto driverDto) {
+        validateNewUserForm(driverDto, true);
         LOG.trace("Add new driver {}", driverDto.getPersonalNumber());
-        validateNewUserForm(driverDto);
         User driver = userDao.create(fromDtoToUser(driverDto));
 
         updateBoardAddDriver(driver);
@@ -111,25 +111,34 @@ public class DriverServiceImpl implements DriverService {
      * @return true if login and personal number are unique,
      * else throw exception
      */
-    private boolean validateNewUserForm(DriverDto driverDto) {
+    private boolean validateNewUserForm(DriverDto driverDto, boolean isNewDriver) {
         if (driverDto.getPersonalNumber() == null || Objects.equals(driverDto.getPersonalNumber(), "")) {
-            throw new RuntimeException("Value for filed 'Personal number' is required");
+            throw new RuntimeException("Empty fields are not allowed");
         }
         if (driverDto.getLogin() == null || driverDto.getLogin().equals("")) {
-            throw new RuntimeException("Value for filed 'Login' is required");
+            throw new RuntimeException("Empty fields are not allowed");
+        }
+        if (driverDto.getFirstName() == null || driverDto.getFirstName().equals("")) {
+            throw new RuntimeException("Empty fields are not allowed");
+        }
+        if (driverDto.getLastName() == null || driverDto.getLastName().equals("")) {
+            throw new RuntimeException("Empty fields are not allowed");
         }
         if (driverDto.getPassword() == null || driverDto.getPassword().equals("")) {
-            throw new RuntimeException("Value for filed 'Password' is required");
+            throw new RuntimeException("Empty fields are not allowed");
         }
-        List<User> userList = userDao.newUserValidate(driverDto.getLogin(), driverDto.getPersonalNumber());
-        if (!userList.isEmpty()) {
-            throw new RuntimeException("User with specified login or personal number is already registered");
+        if (isNewDriver) {
+            List<User> userList = userDao.newUserValidate(driverDto.getLogin(), driverDto.getPersonalNumber());
+            if (!userList.isEmpty()) {
+                throw new RuntimeException("User with specified login or personal number is already registered");
+            }
         }
         return true;
     }
 
     @Override
     public void updateDriver(DriverDto driverDto) {
+        validateNewUserForm(driverDto, false);
         LOG.trace("Update driver {}", driverDto.getPersonalNumber());
         User driver = userDao.update(fromDtoToUser(driverDto));
         updateBoardUpdateDriver(driver);

@@ -87,4 +87,23 @@ public class CityServiceImpl implements CityService {
         return result;
     }
 
+    @Override
+    public List<CityDto> getCitiesToUnload(Long orderId, Long pathPointId) {
+        List<CityDto> result = new ArrayList<>();
+        List<CityDto> route = getRouteByOrderId(orderId);
+        PathPoint point = pathPointDao.findOneById(pathPointId);
+        List<PathPoint> pathPointWithSameCargoLoad = pathPointDao.getPathPointWithSameCargoLoad(point.getCargo().getId());
+        boolean cityToAdd = false;
+        for (CityDto cityDto : route) {
+            if (cityDto.getId().equals(pathPointWithSameCargoLoad.get(0).getCity().getId())) {
+                cityToAdd = true;
+                continue;
+            }
+            if (cityToAdd) {
+                result.add(cityDto);
+            }
+        }
+        return result;
+    }
+
 }

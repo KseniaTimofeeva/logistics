@@ -197,10 +197,20 @@
                                         </c:choose>
                                     </td>
                                     <td>
-                                        <c:if test="${orderInfo.status != isFinishedOrder}">
-                                            <a href="<c:url value="/manager/order/${orderInfo.id}/new-point/${pathPoint.id}"/>"><i
-                                                    class="fa fa-pencil fa-lg"></i></a>&nbsp;&nbsp;
-                                            <a href="<c:url value="/manager/order/${orderInfo.id}/delete/${pathPoint.id}"/>"><i class="fa fa-trash-o fa-lg"></i></a>
+                                        <c:if test="${!pathPoint.done}">
+                                            <c:if test="${orderInfo.status != isFinishedOrder}">
+                                                <c:if test="${pathPoint.loading}">
+                                                    <a href="<c:url value="/manager/order/${orderInfo.id}/new-point/${pathPoint.id}"/>"><i
+                                                            class="fa fa-pencil fa-lg"></i></a>
+                                                </c:if>
+                                                <c:if test="${!pathPoint.loading}">
+                                                    <a href="<c:url value="/manager/order/${orderInfo.id}/update-unload-point/${pathPoint.id}"/>"><i
+                                                            class="fa fa-pencil fa-lg"></i></a>
+                                                </c:if>
+                                                &nbsp;&nbsp;
+                                                <a href="<c:url value="/manager/order/${orderInfo.id}/delete/${pathPoint.id}"/>"><i
+                                                        class="fa fa-trash-o fa-lg"></i></a>
+                                            </c:if>
                                         </c:if>
                                     </td>
                                 </tr>

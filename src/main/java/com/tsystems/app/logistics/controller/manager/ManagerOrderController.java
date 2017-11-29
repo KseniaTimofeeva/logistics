@@ -96,7 +96,8 @@ public class ManagerOrderController {
         try {
             json = new ObjectMapper().writeValueAsString(cityService.getCitiesToHideToUnloading(orderId));
             citiesAsString = new ObjectMapper().writeValueAsString(cities);
-        } catch (JsonProcessingException ignored) {}
+        } catch (JsonProcessingException ignored) {
+        }
         model.addAttribute("citiesAsString", citiesAsString);
         model.addAttribute("hideCityToUnloadingAsString", json);
 
@@ -107,11 +108,29 @@ public class ManagerOrderController {
         return "page";
     }
 
+    @RequestMapping(value = {"/{orderId}/update-unload-point/{pathPointId}"}, method = RequestMethod.GET)
+    public String updateUnloadPoint(@PathVariable(value = "orderId") Long orderId,
+                                    @PathVariable(value = "pathPointId", required = false) Long pathPointId, Model model) {
+        LOG.trace("GET /manager/order/{}/update-unload-point/{}", orderId, pathPointId);
+        model.addAttribute(typeOfCenterAttribute, "manager/update-unload-pathpoint.jsp");
+        model.addAttribute("cities", cityService.getCitiesToUnload(orderId, pathPointId));
+        OrderDto orderById = orderService.getOrderById(orderId);
+        model.addAttribute("orderInfo", orderById);
+        model.addAttribute("updatedPoint", pathPointService.getPathPointById(pathPointId));
+        return "page";
+    }
+
     @RequestMapping(value = "/{orderId}/delete/{pathPointId}", method = RequestMethod.GET)
     public String deleteDriver(@PathVariable(value = "orderId") Long orderId,
                                @PathVariable(value = "pathPointId") Long pathPointId, Model model) {
         LOG.trace("GET /manager/order/{}/delete/{}", orderId, pathPointId);
-        pathPointService.deletePathPoint(pathPointId);
+
+        try {
+            pathPointService.deletePathPoint(pathPointId);
+        } catch (Exception e) {
+            LOG.trace("Way points deleting exception. {}", e.getMessage());
+            return "redirect:/manager/order/" + orderId + "?error";
+        }
         return "redirect:/manager/order/" + orderId;
     }
 
@@ -130,6 +149,10 @@ public class ManagerOrderController {
             pathPointService.processPathPoint(pointDto);
         } catch (Exception e) {
             LOG.trace("New cargo exception. {}", e.getMessage());
+
+            if (pointDto.getId() != null) {
+                return "redirect:/manager/order/" + orderId + "/new-point/" + pointDto.getId() + "?error";
+            }
             return "redirect:/manager/order/" + orderId + "/new-point?error";
         }
         return "redirect:/manager/order/" + pointDto.getOrderId();
@@ -142,7 +165,6 @@ public class ManagerOrderController {
         model.addAttribute(typeOfCenterAttribute, "manager/new-order.jsp");
         return "page";
     }
-
 
 
     @RequestMapping(value = "/new", method = RequestMethod.POST)

@@ -43,22 +43,19 @@
                             <div class="form-group row">
                                 <label class="col-md-3 form-control-label" for="first-name">First name</label>
                                 <div class="col-md-9">
-                                    <input type="text" id="first-name" name="firstName" class="form-control form-control-sm" value="${updatedDriver.firstName}"
-                                           placeholder="Enter driver first name">
+                                    <input type="text" id="first-name" name="firstName" class="form-control form-control-sm" value="${updatedDriver.firstName}">
                                 </div>
                             </div>
                             <div class="form-group row">
                                 <label class="col-md-3 form-control-label" for="last-name">Last name</label>
                                 <div class="col-md-9">
-                                    <input type="text" id="last-name" name="lastName" class="form-control form-control-sm" value="${updatedDriver.lastName}"
-                                           placeholder="Enter driver last name">
+                                    <input type="text" id="last-name" name="lastName" class="form-control form-control-sm" value="${updatedDriver.lastName}">
                                 </div>
                             </div>
                             <div class="form-group row">
                                 <label class="col-md-3 form-control-label" for="personal-number">Personal number</label>
                                 <div class="col-md-9">
-                                    <input type="text" id="personal-number" name="personalNumber" class="form-control form-control-sm" value="${updatedDriver.personalNumber}"
-                                           placeholder="XXX123XXX123XX">
+                                    <input type="text" id="personal-number" name="personalNumber" class="form-control form-control-sm" value="${updatedDriver.personalNumber}">
                                 </div>
                             </div>
                             <div class="form-group row">
@@ -75,8 +72,7 @@
                             <div class="form-group row">
                                 <label class="col-md-3 form-control-label" for="login">Login</label>
                                 <div class="col-md-9">
-                                    <input type="text" id="login" name="login" class="form-control form-control-sm" value="${updatedDriver.login}"
-                                           placeholder="Enter driver login">
+                                    <input type="text" id="login" name="login" class="form-control form-control-sm" value="${updatedDriver.login}">
                                 </div>
                             </div>
                             <c:choose>
@@ -84,8 +80,7 @@
                                     <div class="form-group row">
                                         <label class="col-md-3 form-control-label" for="new-password">Password</label>
                                         <div class="col-md-9">
-                                            <input type="password" id="new-password" name="password" class="form-control form-control-sm"
-                                                   placeholder="Enter password for the first entry">
+                                            <input type="password" id="new-password" value="" name="password" class="form-control form-control-sm">
                                         </div>
                                     </div>
                                 </c:when>

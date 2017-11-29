@@ -20,13 +20,19 @@ import javax.persistence.Table;
                 query = "select pp from PathPoint pp where pp.order.id = :orderId and pp.visible = true"),
         @NamedQuery(name = PathPoint.GET_POINTS_WITH_CARGO_TO_UNLOAD,
                 query = "select p1 from PathPoint p1 where p1.loading = true and p1.order.id = :orderId and not exists " +
-                        "(select p2 from PathPoint p2 where p1.cargo.id = p2.cargo.id and p2.loading = false and p2.order.id = :orderId)")
+                        "(select p2 from PathPoint p2 where p1.cargo.id = p2.cargo.id and p2.loading = false and p2.order.id = :orderId)"),
+        @NamedQuery(name = PathPoint.GET_POINT_WITH_SAME_CARGO_UNLOAD,
+                query = "select pp from PathPoint pp where pp.cargo.id = :cargoId and pp.loading = false"),
+        @NamedQuery(name = PathPoint.GET_POINT_WITH_SAME_CARGO_LOAD,
+                query = "select pp from PathPoint pp where pp.cargo.id = :cargoId and pp.loading = true")
 })
 @Where(clause = "visible=true")
 public class PathPoint extends BaseEntity {
 
     public static final String GET_ALL_POINTS_BY_ORDER_ID = "PathPoint.getAllPointsByOrderId";
     public static final String GET_POINTS_WITH_CARGO_TO_UNLOAD = "PathPoint.getPointsWithCargoToUnload";
+    public static final String GET_POINT_WITH_SAME_CARGO_UNLOAD = "PathPoint.getPointWithSameCargoUnload";
+    public static final String GET_POINT_WITH_SAME_CARGO_LOAD = "PathPoint.getPointWithSameCargoLoad";
 
     @ManyToOne
     private Order order;

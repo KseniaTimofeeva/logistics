@@ -28,7 +28,7 @@
                         <div class="card-body">
                             <div class="form-group">
                                 <label for="number">Enter order number</label>
-                                <input type="text" class="form-control" id="number" name="number" placeholder="Order number">
+                                <input type="text" class="form-control" id="number" name="number">
                             </div>
                         </div>
                         <div class="card-footer">

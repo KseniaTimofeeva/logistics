@@ -44,42 +44,48 @@
 
                     <form action="<c:url value="/manager/order/${orderInfo.id}/new-point"/>" method="post">
                         <input type="hidden" name="orderId" value="${orderInfo.id}">
-                        <input type="hidden" name="id" value="${updatedPoint.id}">
+                        <input type="hidden" name="id" value="${updatedPoint.id}" id="js-updated-point-id">
                         <input type="hidden" name="cargo.id" value="${updatedPoint.cargo.id}" <c:if test="${updatedPoint.id==null}">disabled="disabled"</c:if>>
+                        <input type="hidden" name="cargo.status" value="${updatedPoint.cargo.status}">
+                        <input type="hidden" name="done" value="${updatedPoint.done}">
+
                         <div class="card-body">
-                            <div class="form-group row">
-                                <label class="col-md-3 form-control-label">Type</label>
-                                <div class="col-md-9">
-                                    <label class="radio-inline">
-                                        <input type="radio" name="loading" value="true" id="js-radio-to-click-loading"
-                                        <c:if test="${updatedPoint.loading or updatedPoint == null}"> checked="checked"</c:if>>
-                                        Loading&nbsp;&nbsp;&nbsp;
-                                    </label>
-                                    <label class="radio-inline">
-                                        <input type="radio" name="loading" value="false" id="js-radio-to-click-unloading"
-                                               <c:if test="${!updatedPoint.loading and updatedPoint != null}">checked="checked"</c:if>>Unloading
-                                    </label>
+                            <c:if test="${updatedPoint == null}">
+                                <div class="form-group row">
+                                    <label class="col-md-3 form-control-label">Type</label>
+                                    <div class="col-md-9">
+                                        <label class="radio-inline">
+                                            <input type="radio" name="loading" value="true" id="js-radio-to-click-loading"
+                                            <c:if test="${updatedPoint == null}"> checked="checked"</c:if>>
+                                            Loading&nbsp;&nbsp;&nbsp;
+                                        </label>
+                                        <label class="radio-inline">
+                                            <input type="radio" name="loading" value="false" id="js-radio-to-click-unloading">Unloading
+                                        </label>
+                                    </div>
                                 </div>
-                            </div>
+                            </c:if>
+                            <c:if test="${updatedPoint.id != null}">
+                                <input type="hidden" name="loading" value="${updatedPoint.loading}">
+                            </c:if>
                             <div class="form-group row js-load-cargo-div">
                                 <label class="col-md-3 form-control-label">Cargo number</label>
                                 <div class="col-md-9">
-                                    <input type="text" name="cargo.number" class="form-control js-load-cargo-input form-control-sm" value="${updatedPoint.cargo.number}"
-                                           placeholder="Enter cargo number">
+                                    <input type="text" name="cargo.number" class="form-control js-load-cargo-input form-control-sm"
+                                           value="${updatedPoint.cargo.number}">
                                 </div>
                             </div>
                             <div class="form-group row js-load-cargo-div">
                                 <label class="col-md-3 form-control-label">Description</label>
                                 <div class="col-md-9">
-                                    <input type="text" name="cargo.name" class="form-control js-load-cargo-input" value="${updatedPoint.cargo.name}"
-                                           placeholder="Cargo name">
+                                    <input type="text" name="cargo.name" class="form-control js-load-cargo-input" value="${updatedPoint.cargo.name}">
                                 </div>
                             </div>
                             <div class="form-group row js-load-cargo-div">
                                 <label class="col-md-3 form-control-label">Weight (kgs)</label>
                                 <div class="col-md-9">
                                     <input type="text" name="cargo.weight" class="form-control js-load-cargo-input" value="${updatedPoint.cargo.weight}"
-                                           placeholder="1000.00">
+                                           placeholder="0000.00">
                                 </div>
                             </div>
 
@@ -102,42 +108,11 @@
                                     <select name="city.id" class="form-control form-control-sm" id="js-city-to-unload-select">
                                         <option id="js-default-city-to-unload" value="0" disabled="disabled" selected="selected">Choose city...</option>
                                         <c:forEach items="${cities}" var="city">
-                                            <option id="js-city-to-unload-${city.id}" value="${city.id}" <c:if test="${updatedPoint.city.id == city.id}"> selected="selected"</c:if>>
+                                            <option id="js-city-to-unload-${city.id}" value="${city.id}" <c:if
+                                                    test="${updatedPoint.city.id == city.id}"> selected="selected"</c:if>>
                                                     ${city.name}</option>
                                         </c:forEach>
                                     </select>
-                                </div>
-                            </div>
-                            <div class="form-group row js-load-cargo-div">
-                                <label class="col-md-3 form-control-label">Cargo status</label>
-                                <div class="col-md-9">
-                                    <select name="cargo.status" class="form-control js-load-cargo-input form-control-sm">
-                                        <c:forEach items="<%=CargoStatus.values()%>" var="status" varStatus="i">
-                                            <option value="${status}" <c:if test="${updatedPoint.cargo.status == status}"> selected="selected"</c:if>>
-                                                    ${status.viewName}
-                                            </option>
-                                        </c:forEach>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="form-group row">
-                                <label class="col-md-3 form-control-label">Finished</label>
-                                <div class="col-md-9">
-                                    <label class="radio-inline">
-                                        <input type="radio" disabled="disabled"
-                                                <c:if test="${updatedPoint.done == true}"> checked="checked"</c:if>/>
-                                        Yes&nbsp;&nbsp;&nbsp;
-                                    </label>
-                                    <label class="radio-inline">
-                                        <input type="radio" disabled="disabled"
-                                               <c:if test="${updatedPoint.done == false or updatedPoint == null}">checked="checked"</c:if>/>No
-                                    </label>
-                                    <input type="hidden" name="done"
-                                            <c:choose>
-                                                <c:when test="${updatedPoint == null}">value="false"</c:when>
-                                                <c:otherwise>value="${updatedPoint.done}"</c:otherwise>
-                                            </c:choose>
-                                    />
                                 </div>
                             </div>
                         </div>
@@ -172,10 +147,10 @@
 <script>
     $(document).ready(function () {
         loadingCargo('${citiesAsString}');
-        $("#js-radio-to-click-unloading").on('click', function(){
+        $("#js-radio-to-click-unloading").on('click', function () {
             unLoadingCargo('${hideCityToUnloadingAsString}');
         });
-        $("#js-radio-to-click-loading").on('click', function(){
+        $("#js-radio-to-click-loading").on('click', function () {
             loadingCargo('${citiesAsString}');
         });
         $('.js-cargo-to-unload').on('click', function () {

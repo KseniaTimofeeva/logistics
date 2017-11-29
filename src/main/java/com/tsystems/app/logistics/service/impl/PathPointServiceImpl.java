@@ -113,7 +113,13 @@ public class PathPointServiceImpl implements PathPointService {
         if (order.getStatus().equals(OrderStatus.FINISHED)) {
             return;
         }
-
+        if (pointDto.getDone() == null) {
+            pointDto.setDone(false);
+        }
+        if (pointDto.getDone()) {
+            return;
+        }
+        validateNewCargo(pointDto.getCargo());
         PathPoint point = new PathPoint();
 
         boolean isNewPoint = false;
@@ -140,14 +146,17 @@ public class PathPointServiceImpl implements PathPointService {
             cargo.setName(pointDto.getCargo().getName());
             cargo.setNumber(pointDto.getCargo().getNumber());
             cargo.setWeight(pointDto.getCargo().getWeight());
-            cargo.setStatus(pointDto.getCargo().getStatus());
+            if (pointDto.getCargo().getStatus() == null) {
+                cargo.setStatus(CargoStatus.NEW);
+            } else {
+                cargo.setStatus(pointDto.getCargo().getStatus());
+            }
         }
 
         if (!isNewPoint) {
             cargo = cargoDao.update(cargo);
         } else if (isNewCargo) {
             LOG.trace("Add new cargo {}", pointDto.getCargo().getNumber());
-//            validateNewCargo(pointDto.getCargo());
             cargo = cargoDao.create(cargo);
         }
 
@@ -174,17 +183,22 @@ public class PathPointServiceImpl implements PathPointService {
      */
     private boolean validateNewCargo(CargoDto cargoDto) {
         if (cargoDto.getNumber() == null || cargoDto.getNumber().equals("")) {
-            throw new RuntimeException("Value for filed 'Number' is required");
+            throw new RuntimeException("Empty fields are not allowed");
         }
-        List<Cargo> cargoList = cargoDao.newCargoValidate(cargoDto.getNumber());
-        if (!cargoList.isEmpty()) {
-            throw new RuntimeException("Cargo with specified number is already registered");
+        if (cargoDto.getName() == null || cargoDto.getName().equals("")) {
+            throw new RuntimeException("Empty fields are not allowed");
+        }
+        if (cargoDto.getWeight() == null || cargoDto.getWeight() == 0) {
+            throw new RuntimeException("Empty fields are not allowed");
         }
         return true;
     }
 
     @Override
     public void updatePathPoint(PathPoint pathPoint) {
+        if (pathPoint.getDone()) {
+            return;
+        }
         LOG.trace("Update path point {} (cargo {}) of order {}", pathPoint.getId(), pathPoint.getCargo().getNumber(), pathPoint.getOrder().getNumber());
         pathPointDao.update(pathPoint);
     }
@@ -192,9 +206,19 @@ public class PathPointServiceImpl implements PathPointService {
     @Override
     public void deletePathPoint(Long id) {
         PathPoint point = pathPointDao.findOneById(id);
+        if (point.getDone()) {
+            return;
+        }
         if (point.getOrder().getStatus().equals(OrderStatus.FINISHED)) {
             return;
         }
+        if (point.getLoading()) {
+            List<PathPoint> points = pathPointDao.getPathPointWithSameCargoUnload(point.getCargo().getId());
+            if (!points.isEmpty()) {
+                throw new RuntimeException("Remove the point with unloaded cargo firstly");
+            }
+        }
+
         pathPointDao.deleteById(id);
     }
 

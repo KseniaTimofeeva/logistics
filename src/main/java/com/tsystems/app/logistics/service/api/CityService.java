@@ -14,4 +14,6 @@ public interface CityService {
     List<CityDto> getRouteByOrderId(Long orderId);
 
     Map<Long, List<CityDto>> getCitiesToHideToUnloading(Long orderId);
+
+    List<CityDto> getCitiesToUnload(Long orderId, Long pathPointId);
 }

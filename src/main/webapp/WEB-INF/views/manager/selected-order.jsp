@@ -211,7 +211,6 @@
                     <c:if test="${orderInfo.status != isFinishedOrder}">
                         <div class="card-footer">
                             <div class="row">
-
                                 <div class="col-lg-12 text-right">
                                     <a href="<c:url value="/manager/order/${orderInfo.id}/close"/>" class="btn btn-success m-1 btn-sm">
                                         <i class="fa fa-check-circle-o fa-lg"></i>&nbsp; Close order

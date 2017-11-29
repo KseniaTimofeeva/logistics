@@ -43,5 +43,8 @@ public interface OrderService {
 
     void closeOrder(Long orderId);
 
-    boolean isAllPointsDoneByOrderId(Order order);
+    boolean isAllPointsDoneByOrder(Order order);
+
+    boolean isAllPointsDoneByOrderId(Long orderId);
+
 }

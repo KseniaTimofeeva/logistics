@@ -41,6 +41,8 @@ public class DriverOrderController {
         model.addAttribute(typeOfCenterAttribute, "driver/driver-order.jsp");
         OrderInfoDto currentOrder = orderService.getCurrentOrderByDriverLogin(user.getUsername(), OrderInfoDto.class);
         if (currentOrder != null) {
+            model.addAttribute("scheduleIsNotCompleted", pointService.hasCargoToUnload(currentOrder.getId()));
+            model.addAttribute("allPointsDone", orderService.isAllPointsDoneByOrderId(currentOrder.getId()));
             model.addAttribute("currentOrder", currentOrder);
             model.addAttribute("lastAction", trackService.getLastActionForOrder(user.getUsername(), currentOrder.getId()));
         }

@@ -10,6 +10,7 @@ import com.tsystems.app.logistics.entity.TimeTrack;
 import com.tsystems.app.logistics.entity.User;
 import com.tsystems.app.logistics.entity.enums.DriverAction;
 import com.tsystems.app.logistics.service.api.OrderService;
+import com.tsystems.app.logistics.service.api.PathPointService;
 import com.tsystems.app.logistics.service.api.TimeTrackService;
 import com.tsystems.app.logisticscommon.enums.OrderStatus;
 import org.apache.logging.log4j.LogManager;
@@ -39,6 +40,8 @@ public class TimeTrackServiceImpl implements TimeTrackService {
     private TimeTrackConverter trackConverter;
     @Autowired
     private OrderService orderService;
+    @Autowired
+    private PathPointService pointService;
 
     @Autowired
     public void setTrackDao(TimeTrackDao trackDao) {
@@ -71,10 +74,23 @@ public class TimeTrackServiceImpl implements TimeTrackService {
         if (trackDto.getDriverAction().equals(DriverAction.START_WORKING_SHIFT)) {
             List<TimeTrack> orderTrackList = trackDao.getTracksForOrder(trackDto.getOrder().getId());
             if (orderTrackList.isEmpty()) {
+
+                boolean hasCargoToUnload = pointService.hasCargoToUnload(order.getId());
+                if (hasCargoToUnload) {
+                    return;
+                }
+
                 LOG.debug("Order {} is new - set status 'IN_PROCESS'", order.getId());
                 order.setStatus(OrderStatus.IN_PROCESS);
                 order = orderDao.update(order);
                 orderService.updateBoardUpdateOrder(order);
+            }
+        }
+
+        if (trackDto.getDriverAction().equals(DriverAction.END_WORKING_SHIFT)) {
+            boolean isFinishedOrder = orderService.isAllPointsDoneByOrder(order);
+            if (!isFinishedOrder) {
+                return;
             }
         }
 

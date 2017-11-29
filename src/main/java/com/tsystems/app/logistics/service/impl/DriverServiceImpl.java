@@ -341,11 +341,12 @@ public class DriverServiceImpl implements DriverService {
 
     @Override
     public DriverProfileDto getDriverProfileByLogin(String login) {
-        List<User> drivers = userDao.getProfile(login);
-        if (drivers.isEmpty()) {
-            drivers = userDao.getUserByLogin(login);
+        List<User> drivers = userDao.getUserByLogin(login);
+        DriverProfileDto dto = orderService.getCurrentOrderByDriverLogin(login, DriverProfileDto.class);
+        if (dto == null) {
+            dto = new DriverProfileDto();
         }
-        return driverConverter.toDriverProfileDto(drivers.get(0));
+        return driverConverter.driverToDriverProfileDto(dto, drivers.get(0));
     }
 
     @Override

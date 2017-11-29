@@ -4,13 +4,13 @@ import com.tsystems.app.logistics.dto.CrewDriverProfileDto;
 import com.tsystems.app.logistics.dto.DriverDto;
 import com.tsystems.app.logistics.dto.DriverProfileDto;
 import com.tsystems.app.logistics.entity.Crew;
+import com.tsystems.app.logistics.entity.Order;
 import com.tsystems.app.logistics.entity.User;
 import com.tsystems.app.logisticscommon.DriverInfoBoardDto;
 import com.tsystems.app.logisticscommon.DriverShortDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -51,6 +51,7 @@ public class DriverConverter {
     public DriverShortDto toDriverShortDto(User user) {
         DriverShortDto driverShortDto = new DriverShortDto();
         driverShortDto.setId(user.getId());
+        driverShortDto.setLogin(user.getLogin());
         driverShortDto.setFirstName(user.getFirstName());
         driverShortDto.setLastName(user.getLastName());
         driverShortDto.setPersonalNumber(user.getPersonalNumber());
@@ -65,37 +66,28 @@ public class DriverConverter {
                 .collect(Collectors.toList());
     }
 
-    public DriverProfileDto toDriverProfileDto(User driver) {
-        DriverProfileDto driverProfileDto = new DriverProfileDto();
-        driverProfileDto.setId(driver.getId());
-        driverProfileDto.setFirstName(driver.getFirstName());
-        driverProfileDto.setLastName(driver.getLastName());
-        driverProfileDto.setPersonalNumber(driver.getPersonalNumber());
-
-        List<Crew> crews = driver.getCrews();
-        if (crews != null && !crews.isEmpty()) {
-            int i = 0;
-            if (crews.size() > 1) {
-                for (Crew crew : crews) {
-                    if (crew.getOrder().getStatus().name().equals("IN_PROCESS")) {
-                        break;
-                    }
-                    i++;
-                }
-            }
-            Crew currentCrew = crews.get(i);
-            List<DriverShortDto> coDrivers = new ArrayList<>();
-            for (User coDriver : currentCrew.getUsers()) {
-                if (!(coDriver.getId()).equals(driver.getId())) {
-                    coDrivers.add(toDriverShortDto(coDriver));
-                }
-            }
-            CrewDriverProfileDto crewDriverProfileDto = crewConverter.toCrewDriverProfileDto(currentCrew);
-            crewDriverProfileDto.setUsers(coDrivers);
-            driverProfileDto.setCrew(crewDriverProfileDto);
+    public DriverProfileDto orderToDriverProfileDto(String login, Order order) {
+        DriverProfileDto dto = new DriverProfileDto();
+        if (order.getCrew() != null) {
+            Crew crew = order.getCrew();
+            CrewDriverProfileDto crewDriverProfileDto = crewConverter.toCrewDriverProfileDto(crew);
+            crewDriverProfileDto.getUsers().removeIf(driver -> driver.getLogin().equals(login));
+            dto.setCrew(crewDriverProfileDto);
         }
-        return driverProfileDto;
+        return dto;
     }
+
+    public DriverProfileDto driverToDriverProfileDto(DriverProfileDto dto, User driver) {
+        if (driver == null || dto == null) {
+            return null;
+        }
+        dto.setId(driver.getId());
+        dto.setPersonalNumber(driver.getPersonalNumber());
+        dto.setFirstName(driver.getFirstName());
+        dto.setLastName(driver.getLastName());
+        return dto;
+    }
+
 
     public DriverInfoBoardDto toDriverInfoBoardDto(User driver) {
         DriverInfoBoardDto dto = new DriverInfoBoardDto();

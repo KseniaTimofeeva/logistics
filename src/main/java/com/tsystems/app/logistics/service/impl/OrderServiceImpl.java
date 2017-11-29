@@ -1,6 +1,7 @@
 package com.tsystems.app.logistics.service.impl;
 
 import com.tsystems.app.logistics.converter.CityConverter;
+import com.tsystems.app.logistics.converter.DriverConverter;
 import com.tsystems.app.logistics.converter.OrderConverter;
 import com.tsystems.app.logistics.dao.impl.CityDao;
 import com.tsystems.app.logistics.dao.impl.CityOfRouteDao;
@@ -9,6 +10,7 @@ import com.tsystems.app.logistics.dao.impl.OrderDao;
 import com.tsystems.app.logistics.dao.impl.TruckDao;
 import com.tsystems.app.logistics.dao.impl.UserDao;
 import com.tsystems.app.logistics.dto.ChangeEvent;
+import com.tsystems.app.logistics.dto.DriverProfileDto;
 import com.tsystems.app.logistics.dto.OrderDto;
 import com.tsystems.app.logistics.dto.OrderInfoDto;
 import com.tsystems.app.logistics.entity.City;
@@ -54,6 +56,8 @@ public class OrderServiceImpl implements OrderService {
 
     @Autowired
     private OrderConverter orderConverter;
+    @Autowired
+    private DriverConverter driverConverter;
     @Autowired
     private CityConverter cityConverter;
     @Autowired
@@ -129,17 +133,19 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public void closeOrder(Long orderId) {
         Order order = orderDao.findOneById(orderId);
-        boolean isFinishedOrder = isAllPointsDoneByOrderId(order);
-        if (!isFinishedOrder) {
-            return;
-        }
         order.setStatus(OrderStatus.FINISHED);
         order = orderDao.update(order);
         updateBoardUpdateOrder(order);
     }
 
     @Override
-    public boolean isAllPointsDoneByOrderId(Order order) {
+    public boolean isAllPointsDoneByOrderId(Long orderId) {
+        Order order = orderDao.findOneById(orderId);
+        return isAllPointsDoneByOrder(order);
+    }
+
+    @Override
+    public boolean isAllPointsDoneByOrder(Order order) {
         boolean isFinishedOrder = true;
         for (PathPoint point : order.getPathPoints()) {
             if (!point.getDone()) {
@@ -337,6 +343,9 @@ public class OrderServiceImpl implements OrderService {
         }
         if (tClass.equals(OrderInfoBoardDto.class)) {
             return (T) orderConverter.toOrderInfoBoardDto(order);
+        }
+        if (tClass.equals(DriverProfileDto.class)) {
+            return (T) driverConverter.orderToDriverProfileDto(login, order);
         }
         return null;
     }

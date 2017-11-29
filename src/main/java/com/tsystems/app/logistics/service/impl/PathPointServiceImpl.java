@@ -251,7 +251,7 @@ public class PathPointServiceImpl implements PathPointService {
         }
         closedPoint.setDone(true);
         closedPoint = pathPointDao.update(closedPoint);
-        boolean isFinishedOrder = orderService.isAllPointsDoneByOrderId(order);
+        boolean isFinishedOrder = orderService.isAllPointsDoneByOrder(order);
 
         City city = closedPoint.getCity();
         for (User driver : order.getCrew().getUsers()) {

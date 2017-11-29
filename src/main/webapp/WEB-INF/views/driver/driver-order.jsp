@@ -16,7 +16,7 @@
 
 <div class="container-fluid">
     <div class="animated fadeIn">
-        <c:if test="${currentOrder != null and currentOrder.crew.truck.functioning}">
+        <c:if test="${currentOrder != null and currentOrder.crew.truck.functioning and !scheduleIsNotCompleted}">
             <div class="row ">
                 <div class="col-sm-12 col-lg-9">
                     <div class="card">
@@ -30,20 +30,21 @@
                                             <input type="hidden" name="order.id" value="${currentOrder.id}"/>
                                             <button type="submit" class="btn btn-success btn-sm"
                                                     <c:set var="endWorkingShift" value="<%=DriverAction.END_WORKING_SHIFT%>"/>
-                                                    <c:if test="${lastAction.driverAction != null and lastAction.driverAction != endWorkingShift}"> disabled="disabled"</c:if>>
+                                                    <c:if test="${lastAction.driverAction != null}"> disabled="disabled"</c:if>>
                                                 <i class="fa fa-play-circle-o fa-lg"></i>&nbsp; <strong>Start</strong>
                                             </button>
                                         </form>
-                                        <form action="<c:url value="/driver/order/add-action"/>" method="post" class="form-horizontal">
-                                            <input type="hidden" name="_csrf" value="${_csrf.token}"/>
-                                            <input type="hidden" name="lastAction" value="${lastAction.driverAction}"/>
-                                            <input type="hidden" name="driverAction" value="END_WORKING_SHIFT"/>
-                                            <input type="hidden" name="order.id" value="${currentOrder.id}"/>
-                                            <button type="submit" class="btn btn-danger btn-sm"
-                                                    <c:if test="${lastAction.driverAction == null or lastAction.driverAction == endWorkingShift}"> disabled="disabled"</c:if>>
-                                                <i class="fa fa-stop-circle-o fa-lg"></i>&nbsp; <strong>Finish</strong>
-                                            </button>
-                                        </form>
+                                        <c:if test="${allPointsDone}">
+                                            <form action="<c:url value="/driver/order/add-action"/>" method="post" class="form-horizontal">
+                                                <input type="hidden" name="_csrf" value="${_csrf.token}"/>
+                                                <input type="hidden" name="lastAction" value="${lastAction.driverAction}"/>
+                                                <input type="hidden" name="driverAction" value="END_WORKING_SHIFT"/>
+                                                <input type="hidden" name="order.id" value="${currentOrder.id}"/>
+                                                <button type="submit" class="btn btn-danger btn-sm">
+                                                    <i class="fa fa-stop-circle-o fa-lg"></i>&nbsp; <strong>Finish</strong>
+                                                </button>
+                                            </form>
+                                        </c:if>
                                     </div>
                                 </div>
                                 <div class="form-group col-lg-8 col-sm-8">
@@ -83,6 +84,15 @@
                 <div class="col-sm-12 col-lg-12">
                     <div class="alert alert-danger">
                         Truck is under repair.
+                    </div>
+                </div>
+            </div>
+        </c:if>
+        <c:if test="${scheduleIsNotCompleted}">
+            <div class="row ">
+                <div class="col-sm-12 col-lg-12">
+                    <div class="alert alert-danger">
+                        Schedule of order isn't completed.
                     </div>
                 </div>
             </div>

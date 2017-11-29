@@ -30,5 +30,5 @@ public interface TruckService {
 
     void updateBoardUpdateTruck(Truck truck);
 
-    void changeTruckIsBroken(Long orderId);
+    void changeTruckIsBrokenOrRepaired(Long orderId, boolean setFunctioning);
 }

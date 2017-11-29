@@ -91,15 +91,18 @@ public class TruckServiceImpl implements TruckService {
     }
 
     @Override
-    public void changeTruckIsBroken(Long orderId) {
+    public void changeTruckIsBrokenOrRepaired(Long orderId, boolean setFunctioning) {
         Order order = orderDao.findOneById(orderId);
         List<User> drivers = order.getCrew().getUsers();
-        for (User driver : drivers) {
-            timeTrackService.addTimeTrackRepair(order, driver);
+
+        if (!setFunctioning) {
+            for (User driver : drivers) {
+                timeTrackService.addTimeTrackRepair(order, driver);
+            }
         }
 
         Truck truck = order.getCrew().getTruck();
-        truck.setFunctioning(false);
+        truck.setFunctioning(setFunctioning);
         truck = truckDao.update(truck);
 
         updateBoardUpdateTruck(truck);

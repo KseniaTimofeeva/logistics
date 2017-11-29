@@ -207,7 +207,14 @@ public class ManagerOrderController {
     @RequestMapping(value = "/{orderId}/truck-broken", method = RequestMethod.GET)
     public String changeTruckIsBroken(@PathVariable(value = "orderId") Long orderId) {
         LOG.trace("POST /manager/order/{}/truck-broken", orderId);
-        truckService.changeTruckIsBroken(orderId);
+        truckService.changeTruckIsBrokenOrRepaired(orderId, false);
+        return "redirect:/manager/order/" + orderId;
+    }
+
+    @RequestMapping(value = "/{orderId}/truck-repaired", method = RequestMethod.GET)
+    public String changeTruckIsRepaired(@PathVariable(value = "orderId") Long orderId) {
+        LOG.trace("POST /manager/order/{}/truck-repaired", orderId);
+        truckService.changeTruckIsBrokenOrRepaired(orderId, true);
         return "redirect:/manager/order/" + orderId;
     }
 }

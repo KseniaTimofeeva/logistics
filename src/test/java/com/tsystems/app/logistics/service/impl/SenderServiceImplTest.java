@@ -1,11 +1,10 @@
-package com.tsystems.app.logistics.service;
+package com.tsystems.app.logistics.service.impl;
 
 import com.tsystems.app.logistics.TestConfig;
 import com.tsystems.app.logistics.dto.ChangeEvent;
 import com.tsystems.app.logistics.dto.DriverDto;
-import com.tsystems.app.logistics.service.impl.DriverServiceImpl;
-import com.tsystems.app.logistics.service.impl.SenderServiceImpl;
 import com.tsystems.app.logisticscommon.CityDto;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
@@ -14,30 +13,27 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 
-import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.times;
 
-/**
- * Created by ksenia on 28.11.2017.
- */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = {TestConfig.class})
 @WebAppConfiguration
-public class SenderServiceTest {
-
+public class SenderServiceImplTest {
+    private static boolean setup;
     @Autowired
     private DriverServiceImpl driverService;
     @Autowired
     private SenderServiceImpl senderService;
-
+    private static int calls;
 
     @Test
     public void typedSendCommitTest() {
-        initAndAddNewDriver();
-
-        Mockito.verify(senderService, atLeastOnce()).typedSend(Mockito.any(ChangeEvent.class));
+        Mockito.verify(senderService, times(calls)).typedSend(Mockito.any(ChangeEvent.class));
     }
 
-    private void initAndAddNewDriver() {
+    @Before
+    public void init() {
+        if (setup) return;
         DriverDto driverDto = new DriverDto();
         driverDto.setFirstName("Petr");
         driverDto.setLastName("Ivanov");
@@ -50,14 +46,19 @@ public class SenderServiceTest {
         driverDto.setPassword("password");
 
         driverService.addNewDriver(driverDto);
+
+        calls = Mockito.mockingDetails(senderService).getInvocations().size();
+
+        setup = true;
     }
 
-   /* @Test
+    @Test
     public void typedSendRollbackTest() {
         DriverDto driverDto = new DriverDto();
         driverDto.setFirstName("Petr");
         driverDto.setLastName("Ivanov");
         driverDto.setPersonalNumber("101");
+        driverDto.setId(1L);
         CityDto cityDto = new CityDto();
         cityDto.setId(1L);
         driverDto.setCurrentCity(cityDto);
@@ -65,8 +66,11 @@ public class SenderServiceTest {
         driverDto.setLogin("login");
         driverDto.setPassword("password");
 
-        driverService.addNewDriver(driverDto);
+        try {
+            driverService.addNewDriver(driverDto);
+        } catch (Exception ignored) {
+        }
 
-        Mockito.verify(senderService, atLeastOnce()).typedSend(Mockito.any(ChangeEvent.class));
-    }*/
+        Mockito.verify(senderService, Mockito.times(calls)).typedSend(Mockito.any(ChangeEvent.class));
+    }
 }

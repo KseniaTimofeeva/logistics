@@ -137,6 +137,9 @@ public class PathPointServiceImpl implements PathPointService {
             cargo = new Cargo();
             validateNewCargo(pointDto.getCargo());
         } else {
+            if (pointDto.getLoading()) {
+                validateNewCargo(pointDto.getCargo());
+            }
             cargo = cargoDao.findOneById(pointDto.getCargo().getId());
             if (pointDto.getId() != null) {
                 point.setId(pointDto.getId());

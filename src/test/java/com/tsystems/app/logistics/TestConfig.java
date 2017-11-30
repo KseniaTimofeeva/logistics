@@ -13,9 +13,6 @@ import org.springframework.jms.core.JmsTemplate;
 import javax.jms.ConnectionFactory;
 import javax.naming.NamingException;
 
-/**
- * Created by ksenia on 28.11.2017.
- */
 @Configuration
 @Import(MvcConfig.class)
 public class TestConfig {
@@ -37,5 +34,4 @@ public class TestConfig {
     SenderService senderService() {
         return Mockito.mock(SenderServiceImpl.class);
     }
-
 }

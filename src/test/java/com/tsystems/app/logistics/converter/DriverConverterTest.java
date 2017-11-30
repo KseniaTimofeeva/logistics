@@ -5,9 +5,6 @@ import com.tsystems.app.logisticscommon.DriverShortDto;
 import org.junit.Assert;
 import org.junit.Test;
 
-/**
- * Created by ksenia on 22.10.2017.
- */
 public class DriverConverterTest {
     @Test
     public void toDriverShortDto() throws Exception {

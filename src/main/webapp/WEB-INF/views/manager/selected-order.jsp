@@ -147,10 +147,12 @@
                                 <button type="button" class="btn btn-primary m-1 btn-sm" data-toggle="modal" data-target="#order-route-modal">
                                     <i class="icon-graph icons"></i>&nbsp; Route&nbsp;&nbsp;
                                 </button>
-                                <c:if test="${orderInfo.crew != null && orderInfo.crew.truck.functioning}">
-                                    <a href="<c:url value="/manager/order/${orderInfo.id}/truck-broken"/>" class="btn btn-primary m-1 btn-sm">
-                                        <i class="fa fa-wrench fa-lg"></i>&nbsp; Set truck is broken&nbsp;&nbsp;
-                                    </a>
+                                <c:if test="${orderInfo.status != isFinishedOrder}">
+                                    <c:if test="${orderInfo.crew != null && orderInfo.crew.truck.functioning}">
+                                        <a href="<c:url value="/manager/order/${orderInfo.id}/truck-broken"/>" class="btn btn-primary m-1 btn-sm">
+                                            <i class="fa fa-wrench fa-lg"></i>&nbsp; Set truck is broken&nbsp;&nbsp;
+                                        </a>
+                                    </c:if>
                                 </c:if>
                                 <c:if test="${orderInfo.crew != null && !orderInfo.crew.truck.functioning}">
                                     <a href="<c:url value="/manager/order/${orderInfo.id}/truck-repaired"/>" class="btn btn-danger m-1 btn-sm">

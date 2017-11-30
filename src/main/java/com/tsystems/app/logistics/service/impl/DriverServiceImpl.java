@@ -197,6 +197,7 @@ public class DriverServiceImpl implements DriverService {
             LOG.trace("Check which of the drivers from current crew isn't suitable");
             notSuitableDriversFromCurrentCrew = checkDrivers(dis, truck, crewSize, order.getCrew().getUsers(), true);
             LOG.trace("Number of notSuitable drivers from current crew: {} pcs", notSuitableDriversFromCurrentCrew.size());
+
         } else {
             LOG.debug("Order {} contains less than two way points", order.getNumber());
         }
@@ -226,6 +227,12 @@ public class DriverServiceImpl implements DriverService {
 
             boolean isSuitable = checkDriverTimeLimitPerMonth(totalDaysForOneDriver, alreadyWorkedHrs, truck.getWorkingShift());
             LOG.trace("Driver {} is suitable {}", driver.getPersonalNumber(), isSuitable);
+
+            if (checkCurrentCrew) {
+                if (!driver.getCurrentCity().equals(truck.getCurrentCity())) {
+                    isSuitable = false;
+                }
+            }
 
             //add to array for suitable drivers
             if (!checkCurrentCrew && isSuitable) {

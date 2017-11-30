@@ -6,7 +6,7 @@ package com.tsystems.app.logistics.entity.enums;
 public enum DriverAction {
     START_WORKING_SHIFT(false, "Start order"),
     END_WORKING_SHIFT(false, "Finish order"),
-    START_TRUCK_REPAIRING(true, "Truck is under repair"),
+    START_TRUCK_REPAIRING(false, "Truck is under repair"),
     START_DRIVING(true, "Driving"),
     START_SECOND(true, "Second driver"),
     START_LOAD_UNLOAD(true, "Loading - unloading"),

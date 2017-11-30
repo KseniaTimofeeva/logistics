@@ -55,9 +55,9 @@
                     <li class="nav-item">
                         <a class="nav-link" href="<c:url value="/driver/profile"/>"><i class="icon-user"></i> Profile</a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="<c:url value="/driver/track-offline"/>"><i class="fa fa-clock-o fa-lg"></i> Time track offline</a>
-                    </li>
+                    <%--<li class="nav-item">--%>
+                        <%--<a class="nav-link" href="<c:url value="/driver/track-offline"/>"><i class="fa fa-clock-o fa-lg"></i> Time track offline</a>--%>
+                    <%--</li>--%>
                 </ul>
             </sec:authorize>
             <sec:authorize access="hasRole('ROLE_MANAGER')">
